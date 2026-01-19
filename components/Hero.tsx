@@ -1,43 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
-
-interface CountUpProps {
-  end: number;
-  duration?: number;
-  suffix?: string;
-  decimals?: number;
-  useComma?: boolean;
-}
-
-const CountUp: React.FC<CountUpProps> = ({ end, duration = 2000, suffix = "", decimals = 0, useComma = false }) => {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    let startTime: number | null = null;
-    let animationFrame: number;
-
-    const step = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const easeOut = 1 - Math.pow(1 - progress, 4);
-      const currentCount = easeOut * end;
-      setCount(currentCount);
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(step);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [end, duration]);
-
-  const formattedNumber = count.toFixed(decimals);
-  const displayValue = useComma 
-    ? Number(formattedNumber).toLocaleString('en-US', { minimumFractionDigits: decimals }) 
-    : formattedNumber;
-
-  return <span>{displayValue}{suffix}</span>;
-};
+import React from 'react';
 
 interface HeroProps {
   onStartBusiness: () => void;
@@ -46,76 +7,108 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency }) => {
   return (
-    <section className="relative pt-24 pb-12 md:pt-32 md:pb-32 overflow-hidden bg-[#F8FBFF]">
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="text-center max-w-4xl mx-auto mb-8 md:mb-12">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight tracking-tight mb-6 md:mb-8">
-            The #1 AI SEO Tool for Small <br className="hidden md:block" /> Businesses & Agencies
+    <section className="relative pt-32 pb-24 md:pt-56 md:pb-52 overflow-hidden hero-gradient">
+      {/* Background Ambience */}
+      <div className="absolute top-[-10%] right-[-5%] w-[800px] h-[800px] bg-green-500/5 blur-[160px] rounded-full pointer-events-none animate-pulse duration-[15s]"></div>
+      <div className="absolute bottom-[-5%] left-[-5%] w-[600px] h-[600px] bg-blue-500/5 blur-[140px] rounded-full pointer-events-none"></div>
+
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="max-w-6xl mx-auto text-center space-y-12 md:space-y-16">
+          
+          <div className="inline-flex items-center gap-3 px-6 py-2.5 bg-white/60 glass-panel rounded-full shadow-2xl shadow-green-500/5 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-600"></span>
+            </span>
+            <span className="text-[10px] md:text-[12px] font-[900] text-slate-800 uppercase tracking-[0.2em] italic">
+              AI-Powered Reputation Growth • 2,000+ Brands
+            </span>
+          </div>
+
+          <h1 className="text-5xl md:text-[115px] font-[900] text-slate-950 leading-[0.85] tracking-[-0.05em] uppercase italic animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+            Rank #1 on <br className="hidden md:block" />
+            <span className="gradient-text">Google Maps</span> <br className="hidden md:block" />
+            On Autopilot.
           </h1>
           
-          <div className="flex flex-col items-center justify-center gap-6">
-            <div className="flex flex-col items-center gap-4">
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-5 h-5 md:w-6 md:h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                ))}
-                <span className="text-xl md:text-2xl font-black text-slate-900 ml-2">4.9/5</span>
-              </div>
-              <p className="text-slate-500 font-medium text-xs md:text-base">Based on 900+ <span className="text-slate-900 font-bold border-b-2 border-slate-900">Google</span> and <span className="text-slate-900 font-bold border-b-2 border-slate-900">Trustpilot</span> reviews</p>
-            </div>
-            
+          <p className="text-slate-500 text-lg md:text-2xl font-semibold max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-400">
+            Don't just collect reviews. Dominate local search. Our AI engine automates requests, replies in your voice, and boosts rankings while you sleep.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
             <button 
               onClick={onStartBusiness}
-              className="w-full md:w-auto px-10 py-5 bg-[#16A34A] text-white rounded-xl font-black uppercase tracking-tight shadow-2xl shadow-green-500/30 hover:scale-105 active:scale-95 transition-all text-xs md:text-sm"
+              className="w-full sm:w-auto px-16 py-7 bg-green-600 text-white rounded-[28px] font-black text-xl shadow-2xl shadow-green-600/30 hover:bg-slate-950 hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest"
             >
-              START FOR FREE
+              Start Free Trial
+            </button>
+            <button 
+              onClick={onStartAgency}
+              className="w-full sm:w-auto px-16 py-7 bg-white text-slate-900 border-2 border-slate-100 rounded-[28px] font-black text-xl shadow-xl hover:bg-slate-50 hover:border-green-600/20 transition-all uppercase tracking-widest"
+            >
+              Agency Program
             </button>
           </div>
-        </div>
 
-        <div className="relative max-w-6xl mx-auto flex justify-center items-center py-6 md:py-10">
-          {/* Floating Cards - Hidden on mobile to keep layout clean */}
-          <div className="absolute left-[-2%] top-[5%] w-60 p-4 soft-card floating-card hidden xl:block shadow-xl rotate-[-3deg]">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-red-500 font-bold text-lg">G</span>
-              <div className="flex text-yellow-400 scale-75 origin-left">
-                {[...Array(5)].map((_, i) => <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>)}
-              </div>
+          {/* Device Mockup Section */}
+          <div className="pt-24 md:pt-36 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700">
+            <div className="relative mx-auto max-w-5xl bg-slate-950 rounded-[56px] p-3 md:p-5 shadow-[0_100px_180px_-40px_rgba(15,23,42,0.4)] border border-white/10">
+               <div className="bg-white rounded-[44px] overflow-hidden border border-slate-200 aspect-[16/9] flex items-center justify-center relative">
+                  <div className="absolute inset-0 bg-slate-50 flex flex-col">
+                    {/* Fake Browser Top Bar */}
+                    <div className="h-16 border-b border-slate-200 bg-white flex items-center px-10 gap-4 shrink-0">
+                      <div className="flex gap-2.5">
+                        <div className="w-3.5 h-3.5 rounded-full bg-rose-400"></div>
+                        <div className="w-3.5 h-3.5 rounded-full bg-amber-400"></div>
+                        <div className="w-3.5 h-3.5 rounded-full bg-emerald-400"></div>
+                      </div>
+                      <div className="flex-1 h-3.5 bg-slate-100 rounded-full max-w-[280px] ml-8"></div>
+                    </div>
+                    
+                    {/* Dashboard Visual Placeholder */}
+                    <div className="flex-1 p-12 grid grid-cols-12 gap-10 text-left">
+                       <div className="col-span-8 space-y-10">
+                          <div className="flex items-center gap-5">
+                            <div className="h-12 w-56 bg-slate-200/60 rounded-2xl"></div>
+                            <div className="h-12 w-32 bg-green-600/10 rounded-2xl"></div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-8">
+                             {[1,2,3].map(i => (
+                               <div key={i} className="h-36 bg-white rounded-[32px] border border-slate-100 shadow-sm p-8 space-y-4">
+                                  <div className="h-2.5 w-1/2 bg-slate-100 rounded-full"></div>
+                                  <div className="h-7 w-3/4 bg-slate-900 rounded-xl"></div>
+                               </div>
+                             ))}
+                          </div>
+                          <div className="bg-white rounded-[40px] p-10 border border-slate-100 shadow-sm space-y-6">
+                             <div className="h-5 w-1/4 bg-slate-200 rounded-full"></div>
+                             <div className="h-4 w-full bg-slate-50 rounded-full"></div>
+                             <div className="h-4 w-5/6 bg-slate-50 rounded-full"></div>
+                          </div>
+                       </div>
+                       <div className="col-span-4 space-y-8">
+                          <div className="bg-slate-900 rounded-[40px] p-10 space-y-8 shadow-2xl">
+                             <div className="h-4 w-2/3 bg-white/20 rounded-full"></div>
+                             <div className="w-full aspect-square bg-white/5 rounded-[32px] flex items-center justify-center text-6xl">📍</div>
+                             <div className="h-14 w-full bg-green-600 rounded-[20px]"></div>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+                  
+                  {/* Floating Action/Notification Card */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/5 backdrop-blur-[2px]">
+                     <div className="bg-white p-12 rounded-[48px] shadow-[0_60px_120px_-30px_rgba(0,0,0,0.18)] border border-slate-50 flex items-center gap-10 max-w-xl transform hover:scale-105 transition-transform duration-500 animate-bounce duration-[3000ms]">
+                        <div className="w-24 h-24 bg-green-600 rounded-[32px] flex items-center justify-center text-white text-5xl shadow-2xl shadow-green-500/20">⭐</div>
+                        <div>
+                           <p className="text-[10px] font-[900] text-green-600 uppercase tracking-[0.25em] mb-2 leading-none">Growth Intelligence</p>
+                           <p className="text-3xl font-[900] text-slate-950 leading-tight tracking-tight uppercase italic">Ranked #1 for <br />"Best Bakery" <br />In Downtown!</p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </div>
-            <p className="text-[11px] font-bold text-slate-800 leading-relaxed mb-2">"Super easy tool to use. Very intuitive. The AI is the bomb!"</p>
           </div>
-
-          {/* Central Featured Content */}
-          <div className="relative group w-full max-w-xl mx-auto px-4 z-20">
-            <div className="absolute -inset-4 bg-green-500/10 rounded-[48px] blur-3xl"></div>
-            <div className="relative aspect-[4/5] md:aspect-[3/4] lg:aspect-[4/5] bg-slate-800 rounded-[32px] overflow-hidden border-4 border-white shadow-2xl z-10">
-              <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200" alt="Testimonial" className="w-full h-full object-cover grayscale-[20%]" />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/5 hover:bg-black/15 transition-all cursor-pointer">
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-white/25 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl text-white border border-white/40">
-                  <svg className="w-6 h-6 md:w-8 md:h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Stats Row - Vertical on mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 max-w-6xl mx-auto mt-12 md:mt-16 relative z-30 px-4">
-          {[
-            { label: 'GBPS optimized', value: 20000, suffix: '+', useComma: true },
-            { label: '5-star reviews', value: 500, suffix: '+' },
-            { label: 'Hours saved', value: 6.5, suffix: 'M+', decimals: 1 },
-            { label: 'Trial conversions', value: 80, suffix: '%+' },
-          ].map((stat, i) => (
-            <div key={i} className="bg-white px-8 py-6 md:px-10 md:py-8 rounded-[24px] md:rounded-[32px] shadow-lg border border-slate-100 flex flex-col items-center justify-center text-center">
-              <p className="text-2xl md:text-3xl lg:text-4xl font-black text-[#16A34A] mb-1">
-                <CountUp end={stat.value} suffix={stat.suffix} decimals={stat.decimals} useComma={stat.useComma} />
-              </p>
-              <p className="text-[9px] md:text-[10px] lg:text-xs font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-            </div>
-          ))}
         </div>
       </div>
     </section>
