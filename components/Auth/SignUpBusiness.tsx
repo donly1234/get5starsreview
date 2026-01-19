@@ -37,11 +37,12 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
     setError(null);
     
     try {
+      const redirectUrl = window.location.origin;
       const { data, error: signupError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          emailRedirectTo: window.location.origin, // Fixed: Force redirect to current origin
+          emailRedirectTo: redirectUrl,
           data: {
             full_name: formData.fullName,
             business_name: formData.businessName,
@@ -78,10 +79,11 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
     setLoading(true);
     setError(null);
     try {
+      const redirectUrl = window.location.origin;
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin, // Fixed: Dynamic origin detection
+          redirectTo: redirectUrl,
         }
       });
       if (googleError) throw googleError;
