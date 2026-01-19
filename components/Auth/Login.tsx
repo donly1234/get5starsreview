@@ -34,6 +34,7 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
 
   const handleGoogleLogin = async () => {
     setLoading(true);
+    // Fixed: Explicitly using window.location.origin to ensure redirects go to the live site, not localhost
     const { error: googleError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -51,7 +52,7 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
       <div className="max-w-xl mx-auto w-full px-6 py-12 md:py-24">
         <div className="flex justify-between items-center mb-12">
           <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 font-bold transition-all">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"/></svg>
             Back to Home
           </button>
           <div className="flex items-center space-x-2">
