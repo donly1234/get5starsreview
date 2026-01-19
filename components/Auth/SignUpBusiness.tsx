@@ -37,7 +37,11 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
     setError(null);
     
     try {
-      const redirectUrl = window.location.origin;
+      // Explicitly use production URL for verification link redirects
+      const redirectUrl = window.location.hostname === 'localhost' 
+        ? window.location.origin 
+        : 'https://get5starsreview.com';
+
       const { data, error: signupError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -79,7 +83,10 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
     setLoading(true);
     setError(null);
     try {
-      const redirectUrl = window.location.origin;
+      const redirectUrl = window.location.hostname === 'localhost' 
+        ? window.location.origin 
+        : 'https://get5starsreview.com';
+
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
