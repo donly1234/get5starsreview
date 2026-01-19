@@ -18,6 +18,7 @@ import SignUpAgency from './components/Auth/SignUpAgency';
 import Login from './components/Auth/Login';
 import AppSelector from './components/Auth/AppSelector';
 import GBPAuditTool from './components/GBPAuditTool';
+import InteractiveDemo from './components/InteractiveDemo';
 
 export type UserType = 'business' | 'agency';
 export type AppView = 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor';
@@ -27,153 +28,89 @@ const App: React.FC = () => {
   const [userType, setUserType] = useState<UserType | null>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [pendingAction, setPendingAction] = useState<string | null>(null);
 
   useEffect(() => {
     // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setUser(session.user);
-        // Handle metadata from both manual and OAuth providers
-        const type = session.user.user_metadata?.user_type || 'business';
-        setUserType(type as UserType);
+        setUserType(session.user.user_metadata?.user_type || 'business');
         setView('dashboard');
       }
       setLoading(false);
-    });
+    };
 
-    // Listen for auth state changes
+    checkSession();
+
+    // Listen for auth state changes (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         setUser(session.user);
-        const type = session.user.user_metadata?.user_type || 'business';
-        setUserType(type as UserType);
-        
-        if (pendingAction === 'gbp-auditor') {
-          setView('auditor');
-          setPendingAction(null);
-        } else if (view !== 'auditor') {
-          setView('dashboard');
-        }
+        setUserType(session.user.user_metadata?.user_type || 'business');
+        setView('dashboard');
       } else {
         setUser(null);
         setUserType(null);
-        if (view === 'dashboard' || view === 'auditor') {
-          setView('landing');
-        }
+        if (view === 'dashboard') setView('landing');
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [pendingAction, view]);
-
-  const handleStartBusinessSignup = (action?: string) => {
-    if (action) setPendingAction(action);
-    setView('signup-business');
-  };
-
-  const handleStartAgencySignup = () => {
-    setView('signup-agency');
-  };
-
-  const handleLogout = async () => {
-    setLoading(true);
-    await supabase.auth.signOut();
-    setUser(null);
-    setUserType(null);
-    setView('landing');
-    setLoading(false);
-  };
+  }, [view]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="w-12 h-12 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-slate-100 border-t-[#16A34A] rounded-full animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2 h-2 bg-[#16A34A] rounded-full animate-pulse"></div>
+          </div>
+        </div>
+        <p className="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">
+          Securing Session...
+        </p>
       </div>
     );
   }
 
   if (view === 'dashboard') {
-    return <Dashboard onLogout={handleLogout} userType={userType || 'business'} user={user} />;
-  }
-
-  if (view === 'auditor') {
-    return (
-      <div className="min-h-screen bg-slate-50">
-        <nav className="bg-white border-b border-slate-100 px-8 py-4 flex items-center justify-between sticky top-0 z-50 print:hidden">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setView(userType ? 'dashboard' : 'landing')} className="text-slate-400 hover:text-slate-900 transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
-            </button>
-            <h1 className="text-lg font-black text-slate-900 uppercase tracking-tighter italic">GBP SEO Auditor</h1>
-          </div>
-          <button onClick={() => setView(userType ? 'dashboard' : 'landing')} className="bg-black text-white px-6 py-2 rounded-xl font-bold text-sm shadow-lg hover:bg-green-600 transition-all">
-            {userType ? 'Return to Dashboard' : 'Back to Home'}
-          </button>
-        </nav>
-        <GBPAuditTool onSignup={() => handleStartBusinessSignup()} />
-      </div>
-    );
-  }
-
-  if (view === 'app-selector') {
-    return (
-      <AppSelector 
-        onSelect={(appId) => {
-          if (appId === 'gbp-auditor') {
-             handleStartBusinessSignup('gbp-auditor');
-          } else {
-             setView('login');
-          }
-        }} 
-        onBack={() => setView('landing')} 
-      />
-    );
+    return <Dashboard onLogout={() => setView('landing')} userType={userType || 'business'} user={user} />;
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative bg-white">
-      {view === 'login' && (
-        <Login 
-          onCancel={() => setView('landing')} 
-          onBusinessSignup={() => handleStartBusinessSignup()} 
-          onAgencySignup={handleStartAgencySignup} 
-          onLoginSuccess={() => setView('dashboard')}
-        />
-      )}
-      {view === 'signup-business' && (
-        <SignUpBusiness 
-          onComplete={() => setView('dashboard')}
-          onCancel={() => setView('landing')} 
-          onSwitchToAgency={handleStartAgencySignup} 
-          skipSuccessScreen={pendingAction === 'gbp-auditor'}
-        />
-      )}
-      {view === 'signup-agency' && (
-        <SignUpAgency 
-          onComplete={() => setView('dashboard')}
-          onCancel={() => setView('landing')} 
-          onSwitchToBusiness={() => handleStartBusinessSignup()} 
-        />
-      )}
+    <div className="min-h-screen flex flex-col bg-white">
+      {view === 'login' && <Login onCancel={() => setView('landing')} onBusinessSignup={() => setView('signup-business')} onAgencySignup={() => setView('signup-agency')} onLoginSuccess={() => setView('dashboard')} />}
+      {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToAgency={() => setView('signup-agency')} />}
+      {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToBusiness={() => setView('signup-business')} />}
+      {view === 'app-selector' && <AppSelector onSelect={(id) => id === 'gbp-auditor' ? setView('auditor') : setView('login')} onBack={() => setView('landing')} />}
 
       <Header 
         onLogin={() => setView('app-selector')} 
         onToolsClick={() => setView('app-selector')}
-        onBusinessSignup={() => handleStartBusinessSignup()} 
-        onAgencySignup={handleStartAgencySignup} 
+        onBusinessSignup={() => setView('signup-business')} 
+        onAgencySignup={() => setView('signup-agency')} 
       />
       
       <main className="flex-grow">
-        <Hero onStartBusiness={() => handleStartBusinessSignup()} onStartAgency={handleStartAgencySignup} />
-        <Integrations />
-        <MapComparison />
-        <Pricing onStartBusiness={() => handleStartBusinessSignup()} onStartAgency={handleStartAgencySignup} />
-        <Features />
-        <VideoTestimonials />
-        <FAQ />
-        <Blog />
-        <ContactUs />
+        {view === 'auditor' ? (
+          <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>
+        ) : (
+          <>
+            <Hero onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
+            <Integrations />
+            <InteractiveDemo />
+            <MapComparison />
+            <Services />
+            <Features />
+            <VideoTestimonials />
+            <Pricing onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
+            <FAQ />
+            <Blog />
+            <ContactUs />
+          </>
+        )}
       </main>
       
       <Footer />
