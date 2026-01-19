@@ -28,7 +28,7 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
 
   const handleSignupComplete = async () => {
     if (!formData.email || !formData.password || !formData.fullName || !formData.businessName) {
-      setStep(1); // Go back to step 1 to fix missing core fields
+      setStep(1);
       setError("Please ensure Name, Business, Email, and Password are filled out.");
       return;
     }
@@ -41,6 +41,7 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
         email: formData.email,
         password: formData.password,
         options: {
+          emailRedirectTo: window.location.origin, // Fixed: Force redirect to current origin
           data: {
             full_name: formData.fullName,
             business_name: formData.businessName,
@@ -55,7 +56,6 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
         setError(signupError.message);
         setLoading(false);
       } else {
-        // Check if session exists. If not, it usually means email confirmation is enabled in Supabase
         if (!data.session) {
           setVerificationRequired(true);
           setLoading(false);
@@ -81,7 +81,7 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: window.location.origin, // Fixed: Dynamic origin detection
         }
       });
       if (googleError) throw googleError;
