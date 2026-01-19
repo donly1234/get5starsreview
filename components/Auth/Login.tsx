@@ -34,8 +34,10 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    // window.location.origin will be https://get5starsreview.com on your live site
-    const redirectUrl = window.location.origin;
+    // Explicitly target the production domain for redirects
+    const redirectUrl = window.location.hostname === 'localhost' 
+      ? window.location.origin 
+      : 'https://get5starsreview.com';
     
     const { error: googleError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
