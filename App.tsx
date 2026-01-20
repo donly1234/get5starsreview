@@ -43,7 +43,8 @@ const App: React.FC = () => {
         if (session) {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
-          setView('dashboard');
+          // Don't auto-redirect to dashboard if specifically on tools selection
+          if (view === 'landing') setView('dashboard');
         }
       } catch (err) {
         console.error("Auth Background Check Error:", err);
@@ -73,6 +74,22 @@ const App: React.FC = () => {
     setView('landing');
   };
 
+  const handleAppSelect = (id: string) => {
+    if (id === 'gbp-auditor') {
+      setView('auditor');
+    } else if (id === 'heatmap') {
+      // For demo purposes, we can redirect to dashboard or show heatmap logic
+      if (user) setView('dashboard');
+      else setView('login');
+    } else if (id === 'gbp-mgmt') {
+      if (user) setView('dashboard');
+      else setView('login');
+    } else {
+      if (user) setView('dashboard');
+      else setView('login');
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -81,7 +98,7 @@ const App: React.FC = () => {
     );
   }
 
-  if (view === 'dashboard') {
+  if (view === 'dashboard' && user) {
     return (
       <Dashboard 
         onLogout={handleLogout} 
@@ -116,7 +133,7 @@ const App: React.FC = () => {
       <main className="flex-grow">
         {view === 'app-selector' && (
           <AppSelector 
-            onSelect={(id) => id === 'gbp-auditor' ? setView('auditor') : setView('dashboard')} 
+            onSelect={handleAppSelect} 
             onBack={() => setView('landing')} 
           />
         )}
@@ -132,7 +149,7 @@ const App: React.FC = () => {
             <InteractiveDemo />
             <MapComparison />
             <HowItWorks onStart={() => setView('signup-business')} />
-            <Services onAuditClick={() => setView('auditor')} />
+            <Services onAuditClick={() => setView('app-selector')} />
             <Features />
             <VideoTestimonials />
             <ComparisonTable onBusinessClick={() => setView('signup-business')} onAgencyClick={() => setView('signup-agency')} />
