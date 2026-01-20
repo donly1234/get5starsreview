@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient.ts';
 import Sidebar from './Sidebar.tsx';
@@ -38,7 +39,6 @@ const Dashboard: React.FC<DashboardProps> = ({
   onLogout, 
   userType,
   user,
-  isTrial = true, 
   justUpgraded = false,
   onUpgradeFlow,
   onDismissUpgradeMessage 
@@ -47,10 +47,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [impersonatedClient, setImpersonatedClient] = useState<string | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  
-  const [trialDay, setTrialDay] = useState(12);
-  const [requestsUsed, setRequestsUsed] = useState(14);
-  const [isTrialExpired, setIsTrialExpired] = useState(false); 
+  const [trialDaysElapsed, setTrialDaysElapsed] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -63,34 +60,43 @@ const Dashboard: React.FC<DashboardProps> = ({
         .eq('id', user.id)
         .single();
       
-      if (data) setProfile(data);
+      if (data) {
+        setProfile(data);
+        
+        // Calculate trial duration from creation date
+        const created = new Date(data.created_at || user.created_at);
+        const now = new Date();
+        const diffTime = Math.abs(now.getTime() - created.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        setTrialDaysElapsed(diffDays);
+      }
       setLoading(false);
     };
 
     fetchProfile();
   }, [user]);
 
-  const trialDaysLeft = 14 - trialDay;
+  const isTrialAccount = profile?.status !== 'active';
+  const isExpired = isTrialAccount && trialDaysElapsed > 14;
+  const trialDaysLeft = Math.max(0, 14 - trialDaysElapsed);
 
   const handleFeatureClick = (tab: string) => {
-    if (userType === 'business' && isTrial) {
+    if (userType === 'business' && isTrialAccount) {
       const proFeatures = ['AI Assistant', 'Analytics', 'GBP Media'];
       if (proFeatures.includes(tab)) {
         setShowUpgradeModal(tab);
         return;
       }
     }
-
-    if (isTrialExpired && isTrial) {
+    if (isExpired) {
       setShowUpgradeModal('Expired');
       return;
     }
-
     setActiveTab(tab);
   };
 
   const renderContent = () => {
-    if (isTrialExpired && isTrial) {
+    if (isExpired) {
       return <ExpiredOverlay onUpgrade={onUpgradeFlow || (() => {})} />;
     }
 
@@ -103,95 +109,64 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-2xl border border-slate-100">🏢</div>
                 <div>
                   <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
-                    {impersonatedClient ? `${impersonatedClient} Portal` : profile?.business_name || profile?.agency_name || 'GBP & Reputation Hub'}
+                    {impersonatedClient ? `${impersonatedClient} Portal` : profile?.business_name || profile?.agency_name || 'My Business Hub'}
                   </h1>
                   <p className="text-slate-500 text-sm font-bold flex items-center gap-2">
                     <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    Google Business Profile: Connected & Optimized
+                    Account Status: {isTrialAccount ? `Trial (${trialDaysLeft} days left)` : 'Professional'}
                   </p>
                 </div>
               </div>
               <div className="flex gap-3">
-                {impersonatedClient && (
-                  <button 
-                    onClick={() => setImpersonatedClient(null)}
-                    className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-bold hover:bg-slate-300 transition-all text-sm"
-                  >
-                    Exit Client View
-                  </button>
-                )}
                 <button 
                   onClick={() => handleFeatureClick('SEO Auditor')}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-[#16A34A] text-white rounded-xl font-bold hover:bg-black transition-colors shadow-lg shadow-green-500/10 active:scale-95"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-[#16A34A] text-white rounded-xl font-bold hover:bg-black transition-colors shadow-lg shadow-green-500/10"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                   SEO Audit
                 </button>
                 <button 
                   onClick={() => handleFeatureClick('Requests')}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-black text-white rounded-xl font-bold hover:bg-[#16A34A] transition-colors shadow-lg shadow-black/10 active:scale-95"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-black text-white rounded-xl font-bold hover:bg-[#16A34A] transition-colors shadow-lg"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                   Request Reviews
                 </button>
               </div>
             </div>
 
-            {isTrial && trialDay >= 11 && !justUpgraded && (
-              <div className="bg-black p-6 rounded-[32px] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl border-b-4 border-[#16A34A]">
+            {isTrialAccount && trialDaysLeft <= 3 && !justUpgraded && (
+              <div className="bg-black p-6 rounded-[32px] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl border-b-4 border-[#16A34A] animate-in slide-in-from-top-4 duration-700">
                 <div className="flex items-center gap-6">
                   <div className="w-16 h-16 bg-green-600/20 rounded-[20px] flex items-center justify-center text-3xl shrink-0 animate-pulse">🎁</div>
                   <div>
-                    <h4 className="text-xl font-black uppercase tracking-tight">Special Upgrade Offer: 20% OFF!</h4>
-                    <p className="text-slate-400 text-sm font-medium">Upgrade before your trial expires in {trialDaysLeft} days and get 20% off your first month.</p>
+                    <h4 className="text-xl font-black uppercase tracking-tight">Last Chance: 20% OFF Professional!</h4>
+                    <p className="text-slate-400 text-sm font-medium">Your trial ends in {trialDaysLeft} days. Upgrade now to keep your ranking momentum.</p>
                   </div>
                 </div>
-                <button 
-                  onClick={onUpgradeFlow}
-                  className="bg-[#16A34A] text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-green-700 transition-all shadow-xl whitespace-nowrap"
-                >
-                  Claim Discount Now
-                </button>
+                <button onClick={onUpgradeFlow} className="bg-[#16A34A] text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-green-700 transition-all shadow-xl">Claim Discount</button>
               </div>
             )}
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
               <div className="xl:col-span-2 space-y-8">
-                {isTrial && <TrialChecklist />}
-                <MetricsBar isTrial={isTrial} profileId={user?.id} />
-                <PerformanceGraph isTrial={isTrial} />
-                <ReviewFeed isTrial={isTrial} profileId={user?.id} />
+                {isTrialAccount && <TrialChecklist />}
+                <MetricsBar isTrial={isTrialAccount} profileId={user?.id} />
+                <PerformanceGraph isTrial={isTrialAccount} />
+                <ReviewFeed isTrial={isTrialAccount} profileId={user?.id} />
               </div>
               <div className="space-y-8">
-                <RequestStatus requestsUsed={requestsUsed} isTrial={isTrial} onUpgrade={onUpgradeFlow} />
-                <PlatformBreakdown isTrial={isTrial} onUpgrade={onUpgradeFlow} />
-                
-                <div className="bg-slate-900 rounded-[32px] p-8 text-white space-y-4 shadow-xl shadow-black/10">
-                  <div className="flex items-center gap-3 text-emerald-500 font-black uppercase tracking-widest text-[10px]">
-                    <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-ping"></span>
-                    GBP Live Status
-                  </div>
-                  <h4 className="text-lg font-black uppercase tracking-tight">Profile Health: Excellent</h4>
-                  <p className="text-slate-400 text-sm leading-relaxed font-medium">Your profile activity is in the <span className="text-[#16A34A] font-black">Top 10%</span> for {profile?.industry?.toLowerCase() || 'businesses'} in your city.</p>
-                  <div className="pt-2">
-                    <div className="flex justify-between text-[10px] text-slate-500 font-black mb-2 uppercase">
-                      <span>Authority Score</span>
-                      <span>92/100</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#16A34A] w-[92%]"></div>
-                    </div>
-                  </div>
-                </div>
+                <RequestStatus requestsUsed={12} isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />
+                <PlatformBreakdown isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />
               </div>
             </div>
           </>
         );
       case 'Requests':
-        return <RequestsManager requestsUsed={requestsUsed} isTrial={isTrial} onUpgrade={onUpgradeFlow} />;
+        return <RequestsManager requestsUsed={12} isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />;
       case 'Monitoring':
       case 'All Reviews':
-        return <MonitoringManager isTrial={isTrial} />;
+        return <MonitoringManager isTrial={isTrialAccount} />;
       case 'SEO Auditor':
         return <GBPAuditTool onSignup={onUpgradeFlow || (() => {})} />;
       case 'GBP Media':
@@ -203,12 +178,9 @@ const Dashboard: React.FC<DashboardProps> = ({
       case 'AI Assistant':
         return <AIAssistantManager />;
       case 'Agency Panel':
-        return <AgencyManager onSwitchClient={(name) => {
-          setImpersonatedClient(name);
-          setActiveTab('Dashboard');
-        }} />;
+        return <AgencyManager onSwitchClient={(name) => { setImpersonatedClient(name); setActiveTab('Dashboard'); }} />;
       case 'Settings':
-        return <SettingsManager isTrial={isTrial} />;
+        return <SettingsManager isTrial={isTrialAccount} />;
       default:
         return null;
     }
@@ -216,8 +188,8 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex h-screen items-center justify-center bg-white">
+        <div className="w-12 h-12 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -229,23 +201,18 @@ const Dashboard: React.FC<DashboardProps> = ({
         setActiveTab={handleFeatureClick} 
         onLogout={onLogout} 
         userType={userType} 
-        isTrial={isTrial}
+        isTrial={isTrialAccount}
         onUpgrade={onUpgradeFlow}
       />
       
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {justUpgraded && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-500">
-             <div className="bg-white rounded-[40px] p-10 max-w-lg w-full text-center shadow-2xl border-4 border-green-500 animate-in zoom-in-95 duration-300">
+             <div className="bg-white rounded-[40px] p-10 max-w-lg w-full text-center shadow-2xl border-4 border-green-500 animate-in zoom-in-95">
                 <div className="text-6xl mb-6">🚀</div>
                 <h2 className="text-3xl font-black text-slate-900 mb-4">Welcome to Professional!</h2>
                 <p className="text-slate-500 mb-8 leading-relaxed">Your trial limitations have been removed. AI Response, Unlimited SMS, and Advanced Analytics are now fully unlocked.</p>
-                <button 
-                  onClick={onDismissUpgradeMessage}
-                  className="w-full bg-black text-white py-5 rounded-[24px] font-black text-lg shadow-xl hover:bg-green-600 transition-all active:scale-95"
-                >
-                  Awesome, Let's Go!
-                </button>
+                <button onClick={onDismissUpgradeMessage} className="w-full bg-black text-white py-5 rounded-[24px] font-black text-lg shadow-xl hover:bg-green-600 transition-all">Let's Go!</button>
              </div>
           </div>
         )}
@@ -259,30 +226,21 @@ const Dashboard: React.FC<DashboardProps> = ({
         
         <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 space-y-8 scroll-smooth">
           {impersonatedClient && (
-            <div className="bg-black text-white px-6 py-2 text-center text-xs font-black uppercase tracking-[0.2em] animate-in slide-in-from-top duration-300 rounded-xl border border-green-600/30">
+            <div className="bg-black text-white px-6 py-2 text-center text-xs font-black uppercase tracking-[0.2em] rounded-xl border border-green-600/30">
               Viewing as client: <span className="text-green-500">{impersonatedClient}</span>
             </div>
           )}
-          
           {renderContent()}
         </main>
-
         <BottomNav activeTab={activeTab} setActiveTab={handleFeatureClick} />
       </div>
 
       {showUpgradeModal && (
-        <UpgradeModal 
-          feature={showUpgradeModal} 
-          onClose={() => setShowUpgradeModal(null)} 
-          onUpgrade={onUpgradeFlow || (() => {})} 
-        />
+        <UpgradeModal feature={showUpgradeModal} onClose={() => setShowUpgradeModal(null)} onUpgrade={onUpgradeFlow || (() => {})} />
       )}
 
       {showNotifications && (
-        <NotificationCenter 
-          onClose={() => setShowNotifications(false)} 
-          trialDay={trialDay}
-        />
+        <NotificationCenter onClose={() => setShowNotifications(false)} trialDay={trialDaysElapsed} />
       )}
     </div>
   );
