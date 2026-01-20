@@ -11,6 +11,8 @@ import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 import Blog from './components/Blog';
+import BlogPage from './components/BlogPage';
+import BlogPostView from './components/BlogPostView';
 import Integrations from './components/Integrations';
 import VideoTestimonials from './components/VideoTestimonials';
 import Dashboard from './components/Dashboard/Dashboard';
@@ -20,67 +22,58 @@ import Login from './components/Auth/Login';
 import AppSelector from './components/Auth/AppSelector';
 import GBPAuditTool from './components/GBPAuditTool';
 import InteractiveDemo from './components/InteractiveDemo';
+import AboutUs from './components/AboutUs';
+import HowItWorks from './components/HowItWorks';
+import ComparisonTable from './components/ComparisonTable';
 
 export type UserType = 'business' | 'agency';
-export type AppView = 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor';
+export type AppView = 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'blog' | 'blog-post';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>('landing');
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setUserType(null);
-    setView('landing');
-  };
-
   useEffect(() => {
-    // Initial session check
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUser(session.user);
-        setUserType(session.user.user_metadata?.user_type || 'business');
-        // If they are already logged in when app loads, go to selector
-        setView('app-selector');
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (session) {
+          setUser(session.user);
+          setUserType(session.user.user_metadata?.user_type || 'business');
+        }
+      } catch (err) {
+        console.error("Auth init failed:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-
     checkSession();
 
-    // Listen for auth state changes (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
-        // Redirect to tools selector after login/signup
-        setView('app-selector');
       } else {
         setUser(null);
         setUserType(null);
-        if (view === 'dashboard' || view === 'app-selector') setView('landing');
       }
     });
-
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setView('landing');
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-slate-100 border-t-[#16A34A] rounded-full animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-2 h-2 bg-[#16A34A] rounded-full animate-pulse"></div>
-          </div>
-        </div>
-        <p className="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">
-          Securing Session...
-        </p>
+        <div className="w-16 h-16 border-4 border-slate-100 border-t-[#16A34A] rounded-full animate-spin"></div>
+        <p className="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Get5StarsReview...</p>
       </div>
     );
   }
@@ -102,29 +95,35 @@ const App: React.FC = () => {
         onBusinessSignup={() => setView('signup-business')} 
         onAgencySignup={() => setView('signup-agency')}
         onHomeClick={() => setView('landing')}
+        onBlogClick={() => setView('blog')}
       />
       
       <main className="flex-grow">
-        {view === 'auditor' ? (
-          <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>
-        ) : (
+        {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} />}
+        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => setView('blog')} />}
+        {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>}
+        
+        {view === 'landing' && (
           <>
-            <Hero onStartBusiness={() => setView('app-selector')} onStartAgency={() => setView('signup-agency')} />
+            <Hero onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
             <Integrations />
+            <AboutUs />
             <InteractiveDemo />
             <MapComparison />
-            <Services />
+            <HowItWorks onStart={() => setView('signup-business')} />
+            <Services onAuditClick={() => setView('auditor')} />
             <Features />
             <VideoTestimonials />
+            <ComparisonTable onBusinessClick={() => setView('signup-business')} onAgencyClick={() => setView('signup-agency')} />
             <Pricing onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
             <FAQ />
-            <Blog />
+            <Blog onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} onViewAll={() => setView('blog')} />
             <ContactUs />
           </>
         )}
       </main>
       
-      <Footer />
+      <Footer onBlogClick={() => setView('blog')} onHomeClick={() => setView('landing')} />
     </div>
   );
 };
