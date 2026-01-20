@@ -37,7 +37,7 @@ const AboutUs: React.FC = () => {
               Global Presence. <br /> <span className="text-green-600 italic">Local Expertise.</span>
             </h3>
             <p className="text-slate-600 text-lg leading-relaxed font-medium">
-              Get5StarsReview is a premium Google Business Profile agency operating across two continents. With headquarters in Richmond, Kentucky and a regional operational hub in Harare, Zimbabwe, we provide round-the-clock support and global perspective to local reputation management.
+              Get5Starsreview is a premium Google Business Profile agency operating across two continents. With headquarters in Richmond, Kentucky and a regional operational hub in Harare, Zimbabwe, we provide round-the-clock support and global perspective to local reputation management.
             </p>
             <div className="space-y-4">
               <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
