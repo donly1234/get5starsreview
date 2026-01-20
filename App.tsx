@@ -38,19 +38,23 @@ const App: React.FC = () => {
 
   // Initial session check
   useEffect(() => {
-    const initAuth = async () => {
+    let mounted = true;
+    const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUser(session.user);
-        setUserType(session.user.user_metadata?.user_type || 'business');
-        // Only set dashboard if we aren't already on a tool page
-        if (view === 'landing' || view === 'login') {
-          setView('dashboard');
+      if (mounted) {
+        if (session) {
+          setUser(session.user);
+          setUserType(session.user.user_metadata?.user_type || 'business');
+          // If we're on landing or login, push to dashboard
+          if (view === 'landing' || view === 'login') {
+            setView('dashboard');
+          }
         }
+        setAuthLoading(false);
       }
-      setAuthLoading(false);
     };
-    initAuth();
+    checkSession();
+    return () => { mounted = false; };
   }, []);
 
   // Listen for auth changes
@@ -60,7 +64,7 @@ const App: React.FC = () => {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
         if (event === 'SIGNED_IN') {
-          // Stay on tool page if selected, otherwise go to dashboard
+          // Stay on tool page if already there, otherwise go to dashboard
           setView(prev => (prev === 'app-selector' || prev === 'auditor') ? prev : 'dashboard');
         }
       } else {
@@ -84,7 +88,7 @@ const App: React.FC = () => {
     if (id === 'gbp-auditor') {
       setView('auditor');
     } else {
-      // For other tools (Heatmap, Management), if logged in go to dashboard, else show login
+      // For Heatmap or Partner Hub, go to Dashboard if logged in, else login
       if (user) {
         setView('dashboard');
       } else {
@@ -101,77 +105,73 @@ const App: React.FC = () => {
     );
   }
 
-  // Use a layout wrapper for non-dashboard views to keep Header/Footer
-  const renderView = () => {
-    if (view === 'dashboard' && user) {
-      return (
-        <Dashboard 
-          onLogout={handleLogout} 
-          userType={userType || 'business'} 
-          user={user} 
-          onUpgradeFlow={() => setView('signup-business')} 
-        />
-      );
-    }
-
+  // Dashboard is the primary view for logged-in users
+  if (view === 'dashboard' && user) {
     return (
-      <div className="min-h-screen flex flex-col bg-white">
-        {view === 'login' && <Login onCancel={() => setView('landing')} onBusinessSignup={() => setView('signup-business')} onAgencySignup={() => setView('signup-agency')} onLoginSuccess={() => setView('dashboard')} />}
-        {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToAgency={() => setView('signup-agency')} />}
-        {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToBusiness={() => setView('signup-business')} />}
-
-        <Header 
-          onLogin={() => {
-            if (user) setView('dashboard');
-            else setView('login');
-          }} 
-          onToolsClick={() => {
-            setView('app-selector');
-            window.scrollTo(0, 0);
-          }}
-          onBusinessSignup={() => setView('signup-business')} 
-          onAgencySignup={() => setView('signup-agency')}
-          onHomeClick={() => setView('landing')}
-          onBlogClick={() => setView('blog')}
-        />
-        
-        <main className="flex-grow">
-          {view === 'app-selector' && (
-            <AppSelector 
-              onSelect={handleAppSelect} 
-              onBack={() => setView('landing')} 
-            />
-          )}
-          {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} />}
-          {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => setView('blog')} onSignup={() => setView('signup-business')} />}
-          {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>}
-          
-          {view === 'landing' && (
-            <>
-              <Hero onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
-              <Integrations />
-              <AboutUs />
-              <InteractiveDemo />
-              <MapComparison />
-              <HowItWorks onStart={() => setView('signup-business')} />
-              <Services onAuditClick={() => setView('app-selector')} />
-              <Features />
-              <VideoTestimonials />
-              <ComparisonTable onBusinessClick={() => setView('signup-business')} onAgencyClick={() => setView('signup-agency')} />
-              <Pricing onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
-              <FAQ />
-              <Blog onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} onViewAll={() => setView('blog')} />
-              <ContactUs />
-            </>
-          )}
-        </main>
-        
-        <Footer onBlogClick={() => setView('blog')} onHomeClick={() => setView('landing')} />
-      </div>
+      <Dashboard 
+        onLogout={handleLogout} 
+        userType={userType || 'business'} 
+        user={user} 
+        onUpgradeFlow={() => setView('signup-business')} 
+      />
     );
-  };
+  }
 
-  return renderView();
+  return (
+    <div className="min-h-screen flex flex-col bg-white">
+      {view === 'login' && <Login onCancel={() => setView('landing')} onBusinessSignup={() => setView('signup-business')} onAgencySignup={() => setView('signup-agency')} onLoginSuccess={() => setView('dashboard')} />}
+      {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToAgency={() => setView('signup-agency')} />}
+      {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToBusiness={() => setView('signup-business')} />}
+
+      <Header 
+        onLogin={() => {
+          if (user) setView('dashboard');
+          else setView('login');
+        }} 
+        onToolsClick={() => {
+          setView('app-selector');
+          window.scrollTo(0, 0);
+        }}
+        onBusinessSignup={() => setView('signup-business')} 
+        onAgencySignup={() => setView('signup-agency')}
+        onHomeClick={() => setView('landing')}
+        onBlogClick={() => setView('blog')}
+      />
+      
+      <main className="flex-grow">
+        {view === 'app-selector' && (
+          <AppSelector 
+            onSelect={handleAppSelect} 
+            onBack={() => setView('landing')} 
+          />
+        )}
+        {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} />}
+        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => setView('blog')} onSignup={() => setView('signup-business')} />}
+        {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>}
+        
+        {view === 'landing' && (
+          <>
+            <Hero onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
+            <Integrations />
+            <AboutUs />
+            <InteractiveDemo />
+            <MapComparison />
+            <HowItWorks onStart={() => setView('signup-business')} />
+            <Services onAuditClick={() => setView('app-selector')} />
+            <Features />
+            <VideoTestimonials />
+            <ComparisonTable onBusinessClick={() => setView('signup-business')} onAgencyClick={() => setView('signup-agency')} />
+            <Pricing onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
+            <FAQ />
+            <Blog onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} onViewAll={() => setView('blog')} />
+            <ContactUs />
+          </>
+        )}
+      </main>
+      
+      <Footer onBlogClick={() => setView('blog')} onHomeClick={() => setView('landing')} />
+    </div>
+  );
 };
 
 export default App;
