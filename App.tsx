@@ -36,58 +36,51 @@ const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Initial session check and Stripe redirect detection
+  // Unified Auth Listener
   useEffect(() => {
     let mounted = true;
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      // Check for Stripe success parameter in URL
-      const params = new URLSearchParams(window.location.search);
-      const isPaymentSuccess = params.get('session') === 'success';
 
+    const checkInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (mounted) {
         if (session) {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
-          
-          // CRITICAL: Force Dashboard if they just paid OR if they are already logged in on a fresh visit
-          if (isPaymentSuccess || view === 'landing' || view === 'login') {
+          // If they have a session, they belong in the dashboard unless viewing specific tools/blog
+          if (['landing', 'login', 'signup-business', 'signup-agency'].includes(view)) {
             setView('dashboard');
-            // Clean up the URL
-            window.history.replaceState({}, '', window.location.pathname);
           }
-        } else if (isPaymentSuccess) {
-          // If paid but not logged in, prompt login
-          setView('login');
         }
         setAuthLoading(false);
       }
     };
-    checkSession();
-    return () => { mounted = false; };
-  }, []);
 
-  // Listen for auth changes
-  useEffect(() => {
+    checkInitialSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        setUser(session.user);
-        setUserType(session.user.user_metadata?.user_type || 'business');
-        if (event === 'SIGNED_IN') {
-          setView('dashboard');
-        }
-      } else {
-        setUser(null);
-        setUserType(null);
-        if (event === 'SIGNED_OUT') {
-          setView('landing');
+      if (mounted) {
+        if (session) {
+          setUser(session.user);
+          setUserType(session.user.user_metadata?.user_type || 'business');
+          // Force dashboard on any successful auth event if we're on a "gate" page
+          if (['landing', 'login', 'signup-business', 'signup-agency'].includes(view)) {
+            setView('dashboard');
+          }
+        } else {
+          setUser(null);
+          setUserType(null);
+          if (event === 'SIGNED_OUT') {
+            setView('landing');
+          }
         }
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [view]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -114,7 +107,8 @@ const App: React.FC = () => {
     );
   }
 
-  if (view === 'dashboard' && user) {
+  // If user is authenticated, we return the Dashboard structure
+  if (user && view === 'dashboard') {
     return (
       <Dashboard 
         onLogout={handleLogout} 
@@ -183,7 +177,6 @@ const App: React.FC = () => {
   );
 };
 
-// Internal component for clean organization
 const FeatureBanner = () => (
   <div className="container mx-auto px-6 py-12">
      <div className="bg-black rounded-[48px] p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 border-b-4 border-green-600">
