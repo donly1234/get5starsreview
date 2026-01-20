@@ -46,19 +46,19 @@ const Header: React.FC<HeaderProps> = ({ onLogin, onToolsClick, onBusinessSignup
     <>
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${isScrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
         <div className="container mx-auto px-4 md:px-6">
-          <div className={`glass-panel rounded-[24px] md:rounded-[32px] px-4 md:px-8 py-3 flex items-center justify-between transition-all duration-500 ${isScrolled ? 'shadow-2xl border-slate-200 bg-white/90' : 'border-transparent bg-transparent shadow-none'}`}>
+          <div className={`glass-panel rounded-[24px] md:rounded-[32px] px-4 md:px-6 py-3 flex items-center justify-between transition-all duration-500 ${isScrolled ? 'shadow-2xl border-slate-200 bg-white/90' : 'border-transparent bg-transparent shadow-none'}`}>
             
-            <div className="flex items-center gap-12">
+            <div className="flex items-center gap-4 lg:gap-8">
               <div className="cursor-pointer hover:scale-105 transition-transform" onClick={onHomeClick}>
-                 <Logo variant="full" className="scale-[0.6] md:scale-[0.75] origin-left" />
+                 <Logo variant="full" className="scale-[0.55] md:scale-[0.7] origin-left" />
               </div>
               
-              <nav className="hidden xl:flex items-center gap-8">
+              <nav className="hidden lg:flex items-center gap-4 xl:gap-8">
                 {navItems.map(item => (
                   <button 
                     key={item.name}
                     onClick={() => handleNav(item)}
-                    className="text-[11px] font-black text-slate-500 hover:text-green-600 transition-colors uppercase tracking-[0.2em]"
+                    className="text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-green-600 transition-colors uppercase tracking-[0.15em] xl:tracking-[0.2em]"
                   >
                     {item.name}
                   </button>
@@ -66,20 +66,20 @@ const Header: React.FC<HeaderProps> = ({ onLogin, onToolsClick, onBusinessSignup
               </nav>
             </div>
 
-            <div className="flex items-center gap-3 md:gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <button 
                 onClick={onLogin}
-                className="hidden lg:block text-[11px] font-black text-slate-500 hover:text-green-600 transition-colors uppercase tracking-[0.2em] px-4"
+                className="hidden md:block text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-green-600 transition-colors uppercase tracking-[0.15em] xl:tracking-[0.2em] px-2 xl:px-4"
               >
                 Login
               </button>
               <button 
                 onClick={onBusinessSignup}
-                className="px-4 md:px-8 py-3 md:py-4 bg-slate-950 text-white rounded-xl md:rounded-[18px] text-[10px] md:text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-green-600 transition-all active:scale-95 whitespace-nowrap"
+                className="px-4 md:px-6 xl:px-8 py-3 md:py-4 bg-slate-950 text-white rounded-xl md:rounded-[18px] text-[9px] md:text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-green-600 transition-all active:scale-95 whitespace-nowrap"
               >
                 Start Ranking
               </button>
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="xl:hidden p-2 text-slate-900">
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-900">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
               </button>
             </div>
