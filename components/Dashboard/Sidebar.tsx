@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, us
     <aside className="w-64 bg-slate-950 text-slate-400 flex flex-col hidden md:flex shrink-0 border-r border-slate-900">
       <div className="p-6 flex items-center gap-3">
         <Logo variant="icon" className="scale-75 -ml-1" />
-        <span className="text-xl font-black text-white tracking-tighter uppercase">{userType === 'agency' ? 'AgencyHub' : 'Get5Stars'}</span>
+        <span className="text-xl font-black text-white tracking-tighter uppercase whitespace-nowrap">{userType === 'agency' ? 'AgencyHub' : 'Get5Starsreview'}</span>
       </div>
 
       <nav className="flex-1 px-4 space-y-1 mt-4">
