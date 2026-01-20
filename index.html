@@ -16,7 +16,12 @@
 
     <!-- Global process polyfill -->
     <script>
-        window.process = window.process || { env: { NODE_ENV: 'production' } };
+        window.process = { 
+            env: { 
+                NODE_ENV: 'production',
+                API_KEY: '' // Initialized via Vite define if needed
+            } 
+        };
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -84,6 +89,6 @@
 </head>
 <body>
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
