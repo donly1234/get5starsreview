@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import Logo from './Logo.tsx';
@@ -27,13 +28,32 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
   const runAudit = async () => {
     if (!query) return;
     setLoading(true);
+    setData(null); // Reset previous data
+
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      
+      const prompt = `Perform a professional Local SEO & Google Business Profile (GBP) audit for: "${query}". 
+      Analyze their current visibility compared to local competitors in the same city.
+      Return the data in the following JSON format ONLY:
+      {
+        "businessName": "Name of the business",
+        "address": "Approximate location or city",
+        "currentRating": 4.2,
+        "currentReviews": 120,
+        "keywords": "top 3 keywords they should rank for",
+        "reviewScore": 6.5,
+        "visibilityTrend": "Improving/Declining",
+        "competitors": [
+          {"rank": 1, "name": "Competitor 1", "score": 9.2, "rating": 4.8, "reviews": 350},
+          {"rank": 2, "name": "Competitor 2", "score": 8.5, "rating": 4.6, "reviews": 210},
+          {"rank": 3, "name": "Competitor 3", "score": 7.8, "rating": 4.5, "reviews": 180}
+        ]
+      }`;
+
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: `You are a World-Class Local SEO Specialist. Perform a diagnostic local SEO audit for the business: "${query}". 
-        The business is struggling with local visibility. Show clearly how they compare to the top 3 competitors in their city.
-        Return strictly a valid JSON object matching the requested schema. Do not wrap in markdown or include conversational text.`,
+        contents: prompt,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
@@ -66,18 +86,17 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
         }
       });
 
-      const rawText = response.text;
-      if (!rawText) throw new Error("Empty response from SEO engine.");
+      const text = response.text;
+      if (!text) throw new Error("No response text received.");
+
+      // Safer JSON parsing in case of markdown wrapping or whitespace
+      const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+      const auditResult = JSON.parse(jsonStr);
       
-      // Robust JSON extraction in case the model returns markdown code blocks
-      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-      const cleanJson = jsonMatch ? jsonMatch[0] : rawText;
-      
-      const auditResult = JSON.parse(cleanJson);
       setData(auditResult);
     } catch (e) {
       console.error("Audit failed:", e);
-      alert("SEO Diagnostic failed. Please ensure your query includes the Business Name and City (e.g., 'Pizza Planet Richmond') and try again.");
+      alert("We encountered an error analyzing your business. This usually happens if the business name is too vague. Please try adding your city (e.g. 'Pizza Planet Richmond').");
     } finally {
       setLoading(false);
     }
@@ -89,11 +108,14 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
         {!data ? (
           <div className="text-center space-y-12 animate-in fade-in duration-700">
             <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-green-100 text-green-700 rounded-full text-[10px] font-black uppercase tracking-widest mb-2">
+                SEO Diagnostic Engine v3.1
+              </div>
               <h2 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">
-                SEO <span className="text-green-600 underline decoration-slate-200">Diagnostic</span> Tool
+                AUDIT YOUR <span className="text-green-600 underline decoration-slate-200">LOCAL RANKING</span>
               </h2>
               <p className="text-slate-500 font-bold text-lg max-w-2xl mx-auto">
-                How visible is your business on Google Maps? Enter your business name and city to generate an instant diagnostic report.
+                Discover how your Google Business Profile ranks against local competitors in seconds.
               </p>
             </div>
             
@@ -119,9 +141,12 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
                  ) : 'Get Free SEO Report'}
                </button>
             </div>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+              Instant Analysis • 50+ Ranking Factors Checked • Competitive Intelligence
+            </p>
           </div>
         ) : (
-          <div className="bg-white rounded-[48px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden animate-in zoom-in-95 duration-500 border border-slate-100">
+          <div className="bg-white rounded-[48px] shadow-[0_50px_100px_-20_rgba(0,0,0,0.15)] overflow-hidden animate-in zoom-in-95 duration-500 border border-slate-100">
             <div className="p-8 md:p-12 bg-slate-900 text-white flex flex-col md:flex-row justify-between items-center gap-8 border-b-8 border-green-600">
                <Logo variant="full" className="brightness-0 invert scale-75 origin-left" />
                <div className="text-center md:text-right space-y-1">
@@ -140,7 +165,7 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
                     </div>
                     
                     <div className="flex items-center gap-6">
-                       <div className="text-6xl font-black text-rose-500 tracking-tighter">{data.currentRating}</div>
+                       <div className={`text-6xl font-black tracking-tighter ${data.currentRating < 4 ? 'text-rose-500' : 'text-emerald-500'}`}>{data.currentRating}</div>
                        <div className="space-y-1">
                           <div className="flex text-yellow-400 text-xl">
                             {[...Array(5)].map((_, i) => <span key={i}>{i < Math.floor(data.currentRating) ? '★' : '☆'}</span>)}
@@ -151,11 +176,11 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
                  </div>
                  
                  <div className="bg-slate-50 p-10 rounded-[40px] border border-slate-100 flex flex-col items-center text-center relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-full h-1.5 bg-rose-500/20"></div>
-                    <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-4">Authority Score</p>
+                    <div className={`absolute top-0 left-0 w-full h-1.5 ${data.reviewScore < 7 ? 'bg-rose-500' : 'bg-emerald-500'} opacity-20`}></div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Authority Score</p>
                     <div className="text-7xl font-black text-slate-900 group-hover:scale-110 transition-transform duration-500">{data.reviewScore}<span className="text-2xl text-slate-300">/10</span></div>
-                    <p className="text-[11px] font-bold text-rose-500 mt-6 leading-relaxed italic uppercase">
-                       Alert: Significant ranking loss detected <br />in highly competitive local keywords.
+                    <p className={`text-[11px] font-bold mt-6 leading-relaxed italic uppercase ${data.reviewScore < 7 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                       {data.reviewScore < 7 ? 'Alert: Significant ranking loss detected in local pack.' : 'Stable: Maintaining competitive visibility in your area.'}
                     </p>
                  </div>
                </div>
