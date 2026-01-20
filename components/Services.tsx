@@ -33,6 +33,11 @@ const services = [
 ];
 
 const Services: React.FC = () => {
+  const scrollToAudit = () => {
+    const el = document.getElementById('audit-tool');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section id="services" className="py-24 bg-slate-50 scroll-mt-32">
       <div className="container mx-auto px-4 md:px-6">
@@ -47,7 +52,7 @@ const Services: React.FC = () => {
              <p className="text-slate-500 font-bold max-w-sm mb-2">
               More than just a tool, we are your partner in digital credibility. We handle the tech so you can handle the customers.
             </p>
-            <a href="#audit-tool" className="text-blue-600 text-xs font-black uppercase tracking-widest hover:underline">Launch Diagnostic Audit →</a>
+            <button onClick={scrollToAudit} className="text-blue-600 text-xs font-black uppercase tracking-widest hover:underline">Launch Diagnostic Audit →</button>
           </div>
         </div>
 
@@ -75,9 +80,9 @@ const Services: React.FC = () => {
               </h4>
               <p className="text-blue-100 font-medium max-w-md">Discover exactly where your competitors are outperforming you in local search results.</p>
            </div>
-           <a href="#audit-tool" className="bg-white text-blue-600 px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-black hover:text-white transition-all shadow-xl active:scale-95 shrink-0 relative z-10">
+           <button onClick={scrollToAudit} className="bg-white text-blue-600 px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-black hover:text-white transition-all shadow-xl active:scale-95 shrink-0 relative z-10">
              Audit My Business
-           </a>
+           </button>
         </div>
       </div>
     </section>
