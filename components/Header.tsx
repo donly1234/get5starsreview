@@ -21,16 +21,18 @@ const Header: React.FC<HeaderProps> = ({ onLogin, onToolsClick, onBusinessSignup
   }, []);
 
   const navItems = [
-    { name: 'Services', section: 'services', type: 'scroll' },
+    { name: 'Services', type: 'tools' },
     { name: 'Process', section: 'how-it-works', type: 'scroll' },
     { name: 'Pricing', section: 'pricing', type: 'scroll' },
     { name: 'Testimonials', section: 'testimonials', type: 'scroll' },
     { name: 'Blog', section: 'blog', type: 'view' },
   ];
 
-  const handleNav = (item: typeof navItems[0]) => {
+  const handleNav = (item: any) => {
     setIsMobileMenuOpen(false);
-    if (item.type === 'view') {
+    if (item.type === 'tools') {
+      onToolsClick();
+    } else if (item.type === 'view') {
       onBlogClick();
     } else {
       onHomeClick();
