@@ -39,7 +39,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
@@ -52,7 +52,7 @@ const App: React.FC = () => {
     };
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
@@ -79,7 +79,7 @@ const App: React.FC = () => {
   }
 
   if (view === 'dashboard') {
-    return <Dashboard onLogout={handleLogout} userType={userType || 'business'} user={user} />;
+    return <Dashboard onLogout={handleLogout} userType={userType || 'business'} user={user} onUpgradeFlow={() => setView('signup-business')} />;
   }
 
   return (
@@ -100,7 +100,7 @@ const App: React.FC = () => {
       
       <main className="flex-grow">
         {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} />}
-        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => setView('blog')} />}
+        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => setView('blog')} onSignup={() => setView('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>}
         
         {view === 'landing' && (
