@@ -31,9 +31,9 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: `You are a Local SEO Specialist. Perform a diagnostic local SEO audit for the business: "${query}". 
+        contents: `You are a World-Class Local SEO Specialist. Perform a diagnostic local SEO audit for the business: "${query}". 
         The business is struggling with local visibility. Show clearly how they compare to the top 3 competitors in their city.
-        Return strictly a valid JSON object matching the requested schema. No markdown wrapping.`,
+        Return strictly a valid JSON object matching the requested schema. Do not wrap in markdown or include conversational text.`,
         config: {
           responseMimeType: "application/json",
           responseSchema: {
@@ -66,10 +66,14 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
         }
       });
 
-      const text = response.text;
-      if (!text) throw new Error("Empty response from SEO engine.");
+      const rawText = response.text;
+      if (!rawText) throw new Error("Empty response from SEO engine.");
       
-      const auditResult = JSON.parse(text);
+      // Robust JSON extraction in case the model returns markdown code blocks
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      const cleanJson = jsonMatch ? jsonMatch[0] : rawText;
+      
+      const auditResult = JSON.parse(cleanJson);
       setData(auditResult);
     } catch (e) {
       console.error("Audit failed:", e);
