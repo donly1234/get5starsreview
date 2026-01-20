@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface HeroProps {
@@ -21,18 +22,18 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency }) => {
               <span className="relative inline-flex rounded-full h-3 w-3 bg-green-600"></span>
             </span>
             <span className="text-[10px] md:text-[12px] font-[900] text-slate-800 uppercase tracking-[0.2em] italic">
-              AI-Powered Reputation Growth • 2,000+ Brands
+              AI-Powered Reputation Growth • 2,000+ Brands Scaled
             </span>
           </div>
 
           <h1 className="text-5xl md:text-[115px] font-[900] text-slate-950 leading-[0.85] tracking-[-0.05em] uppercase italic animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
             Rank #1 on <br className="hidden md:block" />
             <span className="gradient-text">Google Maps</span> <br className="hidden md:block" />
-            On Autopilot.
+            In Record Time.
           </h1>
           
           <p className="text-slate-500 text-lg md:text-2xl font-semibold max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-400">
-            Don't just collect reviews. Dominate local search. Our AI engine automates requests, replies in your voice, and boosts rankings while you sleep.
+            Don't just collect reviews. Dominate local search. Get5StarsReview helps businesses automate social proof, boost map rankings, and turn every customer into a 5-star advocate.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
