@@ -41,10 +41,15 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
     setLoading(true);
     setError(null);
     
+    const redirectUrl = window.location.hostname === 'localhost' 
+      ? window.location.origin 
+      : 'https://get5starsreview.com';
+
     const { data, error: signupError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           full_name: formData.fullName,
           agency_name: formData.agencyName,
@@ -68,10 +73,14 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
     setLoading(true);
     setError(null);
     try {
+      const redirectUrl = window.location.hostname === 'localhost' 
+        ? window.location.origin 
+        : 'https://get5starsreview.com';
+
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: redirectUrl,
         }
       });
       if (googleError) throw googleError;
