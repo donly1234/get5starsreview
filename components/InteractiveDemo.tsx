@@ -9,28 +9,28 @@ const InteractiveDemo: React.FC = () => {
   const [tone, setTone] = useState("Professional");
 
   const generateAIResponse = async () => {
-    if (isLoading) return;
+    if (isLoading || !review) return;
     setIsLoading(true);
-    setResponse(""); // Clear old response
+    setResponse("");
 
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Act as a helpful customer success manager. Write a short, ${tone.toLowerCase()}, and empathetic response to this 4-star review: "${review}". Acknowledge their point about the music and thank them for the birthday visit.`;
+      const prompt = `Act as a helpful customer success manager. Write a short, ${tone.toLowerCase()}, and empathetic response to this 4-star review: "${review}". Acknowledge their specific point about the music and thank them for celebrating with us.`;
       
       const result = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt,
         config: {
           temperature: 0.7,
-          maxOutputTokens: 200,
+          maxOutputTokens: 250,
         }
       });
 
-      setResponse(result.text || "Thank you so much for your feedback! We're glad the food was delicious and will keep the music volume in mind.");
+      setResponse(result.text || "Thank you so much for your feedback! We're thrilled you enjoyed the food and we'll certainly look into the music volume to ensure a better conversation environment next time.");
     } catch (error) {
       console.error("AI Demo Generation failed:", error);
-      // High-quality fallback if API fails
-      setResponse(`Hi there! Thank you so much for celebrating your daughter's birthday with us. We're thrilled you loved the food! We appreciate the feedback on the music volume and will definitely adjust it for a better conversation experience next time. Hope to see you again soon!`);
+      // Fallback for demo continuity
+      setResponse(`Hi there! Thank you so much for celebrating your daughter's birthday with us. We're glad the food was a hit! We appreciate the feedback on the music volume and will definitely look into adjusting it for a more comfortable atmosphere. Hope to see you again soon!`);
     } finally {
       setIsLoading(false);
     }
@@ -49,14 +49,14 @@ const InteractiveDemo: React.FC = () => {
               </h2>
             </div>
             <p className="text-slate-500 text-lg md:text-xl font-medium leading-relaxed">
-              Managing reviews shouldn't be a full-time job. Our AI analyzes sentiment and drafts human-perfect replies in seconds, keeping your engagement rates at 100%.
+              Never stare at a blank screen again. Our AI analyzes customer sentiment and drafts human-perfect replies in seconds, keeping your engagement rate at 100%.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
                {[
-                 { title: 'Semantic Context', desc: 'Understands sarcasm and nuance.' },
-                 { title: 'Brand Consistency', desc: 'Matches your specific tone.' },
-                 { title: 'SEO Optimized', desc: 'Boosts rankings with relevant keywords.' },
-                 { title: 'One-Click Post', desc: 'Syncs directly to Google.' }
+                 { title: 'Sentiment Analysis', desc: 'Understands tone and nuance.' },
+                 { title: 'Brand Voice', desc: 'Matches your specific brand tone.' },
+                 { title: 'SEO Boost', desc: 'Uses keywords that help you rank.' },
+                 { title: 'Instant Post', desc: 'Syncs directly to Google.' }
                ].map((item, i) => (
                  <div key={i} className="space-y-1">
                    <h4 className="text-slate-900 font-black text-sm uppercase tracking-tight flex items-center gap-2">
@@ -87,7 +87,7 @@ const InteractiveDemo: React.FC = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                   <span className="text-[10px] font-black text-slate-500 uppercase mr-2 tracking-widest">Brand Voice:</span>
+                   <span className="text-[10px] font-black text-slate-500 uppercase mr-2 tracking-widest">Select Tone:</span>
                    {['Professional', 'Friendly', 'Empathetic', 'Witty'].map(t => (
                      <button 
                       key={t}
@@ -107,9 +107,9 @@ const InteractiveDemo: React.FC = () => {
                   {isLoading ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                      Processing...
+                      Analyzing Feedback...
                     </>
-                  ) : "Generate AI Response"}
+                  ) : "Draft AI Response"}
                 </button>
 
                 {response && (
@@ -119,7 +119,6 @@ const InteractiveDemo: React.FC = () => {
                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                         <label className="text-slate-400 text-[10px] font-black uppercase tracking-widest">AI Draft Suggestion</label>
                       </div>
-                      <span className="text-[9px] font-black text-green-500 bg-green-500/10 px-2 py-0.5 rounded uppercase">98% Accuracy</span>
                     </div>
                     <p className="text-slate-200 text-sm leading-relaxed italic font-medium">"{response}"</p>
                     <div className="flex justify-end gap-3 pt-3">
