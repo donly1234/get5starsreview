@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient.ts';
 import Header from './components/Header.tsx';
@@ -96,14 +97,16 @@ const App: React.FC = () => {
       {view === 'login' && <Login onCancel={() => setView('landing')} onBusinessSignup={() => setView('signup-business')} onAgencySignup={() => setView('signup-agency')} onLoginSuccess={() => setView('dashboard')} />}
       {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToAgency={() => setView('signup-agency')} />}
       {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToBusiness={() => setView('signup-business')} />}
-      {view === 'app-selector' && <AppSelector onSelect={(id) => id === 'gbp-auditor' ? setView('auditor') : setView('dashboard')} onBack={() => setView('landing')} />}
 
       <Header 
         onLogin={() => {
           if (user) setView('dashboard');
           else setView('login');
         }} 
-        onToolsClick={() => setView('app-selector')}
+        onToolsClick={() => {
+          setView('app-selector');
+          window.scrollTo(0, 0);
+        }}
         onBusinessSignup={() => setView('signup-business')} 
         onAgencySignup={() => setView('signup-agency')}
         onHomeClick={() => setView('landing')}
@@ -111,6 +114,12 @@ const App: React.FC = () => {
       />
       
       <main className="flex-grow">
+        {view === 'app-selector' && (
+          <AppSelector 
+            onSelect={(id) => id === 'gbp-auditor' ? setView('auditor') : setView('dashboard')} 
+            onBack={() => setView('landing')} 
+          />
+        )}
         {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} />}
         {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => setView('blog')} onSignup={() => setView('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>}
