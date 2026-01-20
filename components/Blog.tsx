@@ -44,6 +44,50 @@ export const blogPostsData = [
   }
 ];
 
+export const extendedBlogPosts = [
+  ...blogPostsData,
+  {
+    id: 'p6',
+    title: "Review Velocity: The Secret Local Ranking Factor",
+    category: "Algorithm",
+    date: "July 20, 2025",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
+    excerpt: "Google tracks how often you get new reviews. Learn how automation maintains your ranking velocity."
+  },
+  {
+    id: 'p7',
+    title: "Social Proof Automation: From 0 to 500 Reviews",
+    category: "Growth",
+    date: "July 15, 2025",
+    image: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&q=80&w=800",
+    excerpt: "A step-by-step guide to scaling your reputation without lifting a finger using Get5StarsReview."
+  },
+  {
+    id: 'p8',
+    title: "Why SMS Requests Convert 3x Better Than Email",
+    category: "Data",
+    date: "July 10, 2025",
+    image: "https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=800",
+    excerpt: "Our internal metrics show SMS is the superior channel for capturing customer feedback."
+  },
+  {
+    id: 'p9',
+    title: "Google Business Profile Optimization Checklist 2025",
+    category: "Checklist",
+    date: "July 05, 2025",
+    image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=800",
+    excerpt: "Don't miss these 12 critical settings that tell Google you are a high-authority local business."
+  },
+  {
+    id: 'p10',
+    title: "The Future of Local Search: ChatGPT & AI Agents",
+    category: "Future Tech",
+    date: "June 28, 2025",
+    image: "https://images.unsplash.com/photo-1675271591211-126ad94e495d?auto=format&fit=crop&q=80&w=800",
+    excerpt: "How to ensure AI agents recommend your business when customers ask for local help."
+  }
+];
+
 interface BlogProps {
   onPostClick: (id: string) => void;
   onViewAll: () => void;
@@ -65,9 +109,9 @@ const Blog: React.FC<BlogProps> = ({ onPostClick, onViewAll }) => {
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
           <div className="max-w-2xl">
-            <h2 className="text-[#16A34A] font-black uppercase tracking-widest text-xs mb-4">Inside the Industry</h2>
+            <h2 className="text-[#16A34A] font-black uppercase tracking-widest text-xs mb-4">Intelligence Feed</h2>
             <h3 className="text-4xl md:text-6xl font-black text-slate-900 leading-none uppercase tracking-tighter italic">
-              Latest From Our <span className="text-[#16A34A]">Blog</span>
+              Local SEO <span className="text-[#16A34A]">Insights</span>
             </h3>
           </div>
           <div className="flex gap-4">
