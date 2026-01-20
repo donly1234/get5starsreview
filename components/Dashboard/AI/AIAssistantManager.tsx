@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 
@@ -32,7 +31,6 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
   useEffect(() => {
     const saved = localStorage.getItem('g5sr_active_strategy');
     if (saved) {
-      // Check if current strategy in storage matches current generation (simplified)
       setIsActivated(true);
     }
   }, []);
@@ -103,7 +101,7 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
     
     const flattenedTasks: StrategyTask[] = strategy.weeks.flatMap(w => 
       w.tasks.map((t, i) => ({
-        id: `task-w${w.week}-${i}`,
+        id: `task-w${w.week}-${i}-${Date.now()}`,
         week: w.week,
         text: t,
         completed: false
@@ -118,7 +116,9 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
     }));
 
     setIsActivated(true);
-    alert("Strategy Activated! Your tasks have been added to your Dashboard checklist.");
+    // Notify other components (Dashboard) that strategy is now active
+    window.dispatchEvent(new Event('g5sr_strategy_updated'));
+    alert("Strategy Activated! Your 30-day roadmap is now live on your Dashboard.");
   };
 
   return (
@@ -131,12 +131,12 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
           </h1>
           <p className="text-slate-500 text-sm font-bold">Personalized 30-day growth blueprints powered by Gemini Intelligence.</p>
         </div>
-        {!strategy && !loading && (
+        {strategy && !loading && (
           <button 
-            onClick={generateStrategy}
-            className="bg-black text-white px-8 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-600 transition-all shadow-xl shadow-black/10 active:scale-95"
+            onClick={() => setStrategy(null)}
+            className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors"
           >
-            Generate Blueprint
+            Discard & Restart
           </button>
         )}
       </div>
@@ -249,15 +249,6 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
                          </div>
                        ))}
                     </div>
-                 </div>
-
-                 <div className="pt-12 text-center md:text-left">
-                    <button 
-                      onClick={() => { setStrategy(null); setIsActivated(false); }}
-                      className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors underline underline-offset-4"
-                    >
-                      Regenerate Different Strategy
-                    </button>
                  </div>
               </div>
            </div>
