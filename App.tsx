@@ -37,19 +37,25 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Fail-safe: Force load after 2 seconds to prevent "Securing Session" hang
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 2500);
+
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        
         if (session) {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
-          // Optional: Auto-redirect logged in users to app selector
-          // setView('app-selector'); 
         }
       } catch (err) {
         console.error("Supabase Auth Init Failed:", err);
       } finally {
         setLoading(false);
+        clearTimeout(timeout);
       }
     };
     initAuth();
@@ -66,7 +72,10 @@ const App: React.FC = () => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -77,9 +86,9 @@ const App: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-        <div className="w-16 h-16 border-4 border-slate-100 border-t-[#16A34A] rounded-full animate-spin"></div>
-        <p className="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">
-          Get5StarsReview Intelligence Hub...
+        <div className="w-10 h-10 border-4 border-slate-100 border-t-[#16A34A] rounded-full animate-spin"></div>
+        <p className="mt-8 text-[9px] font-black uppercase tracking-[0.5em] text-slate-400 animate-pulse">
+          Securing Session
         </p>
       </div>
     );
