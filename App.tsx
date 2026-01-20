@@ -42,7 +42,7 @@ const App: React.FC = () => {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
           if (view === 'landing') {
-            setView('app-selector');
+            setView('dashboard');
           }
         }
       } catch (err) {
@@ -55,7 +55,7 @@ const App: React.FC = () => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
-        if (event === 'SIGNED_IN') setView('app-selector');
+        if (event === 'SIGNED_IN') setView('dashboard');
       } else {
         setUser(null);
         setUserType(null);
@@ -84,9 +84,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {view === 'login' && <Login onCancel={() => setView('landing')} onBusinessSignup={() => setView('signup-business')} onAgencySignup={() => setView('signup-agency')} onLoginSuccess={() => setView('app-selector')} />}
-      {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('app-selector')} onCancel={() => setView('landing')} onSwitchToAgency={() => setView('signup-agency')} />}
-      {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('app-selector')} onCancel={() => setView('landing')} onSwitchToBusiness={() => setView('signup-business')} />}
+      {view === 'login' && <Login onCancel={() => setView('landing')} onBusinessSignup={() => setView('signup-business')} onAgencySignup={() => setView('signup-agency')} onLoginSuccess={() => setView('dashboard')} />}
+      {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToAgency={() => setView('signup-agency')} />}
+      {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToBusiness={() => setView('signup-business')} />}
       {view === 'app-selector' && <AppSelector onSelect={(id) => id === 'gbp-auditor' ? setView('auditor') : setView('dashboard')} onBack={() => setView('landing')} />}
 
       <Header 
