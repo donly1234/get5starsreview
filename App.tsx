@@ -34,7 +34,6 @@ const App: React.FC = () => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [user, setUser] = useState<any>(null);
-  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -43,15 +42,13 @@ const App: React.FC = () => {
         if (session) {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
-          // Only auto-redirect to selector if they are on the root landing page
-          if (window.location.pathname === '/' || view === 'landing') {
+          // Only auto-redirect if user is fresh and at the landing page root
+          if (view === 'landing') {
             setView('app-selector');
           }
         }
       } catch (err) {
         console.error("Auth Background Check Error:", err);
-      } finally {
-        setIsAuthChecking(false);
       }
     };
     initAuth();
@@ -76,9 +73,6 @@ const App: React.FC = () => {
     setView('landing');
   };
 
-  // The landing page is now the default view.
-  // "isAuthChecking" is used for silent background checks.
-  
   if (view === 'dashboard') {
     return (
       <Dashboard 
@@ -111,8 +105,8 @@ const App: React.FC = () => {
         {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => setView('blog')} onSignup={() => setView('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>}
         
-        {(view === 'landing' || isAuthChecking) && (
-          <div className={view !== 'landing' ? 'hidden' : ''}>
+        {view === 'landing' && (
+          <>
             <Hero onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
             <Integrations />
             <AboutUs />
@@ -127,7 +121,7 @@ const App: React.FC = () => {
             <FAQ />
             <Blog onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} onViewAll={() => setView('blog')} />
             <ContactUs />
-          </div>
+          </>
         )}
       </main>
       
