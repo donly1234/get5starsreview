@@ -15,25 +15,9 @@
     <meta property="og:description" content="Turn every customer into a 5-star review. Automate social proof and dominate your local area with AI.">
     <meta property="og:image" content="https://get5starsreview.com/og-image.jpg">
 
-    <!-- JSON-LD Structured Data for Google -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Get5StarsReview",
-      "operatingSystem": "Web",
-      "applicationCategory": "BusinessApplication",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "reviewCount": "1284"
-      },
-      "offers": {
-        "@type": "Offer",
-        "price": "25.00",
-        "priceCurrency": "USD"
-      }
-    }
+    <!-- Global process polyfill -->
+    <script>
+        window.process = window.process || { env: { NODE_ENV: 'production' } };
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -82,11 +66,6 @@
         }
     </style>
 
-    <!-- Global process polyfill for SDKs -->
-    <script>
-        window.process = window.process || { env: { NODE_ENV: 'production' } };
-    </script>
-
     <script type="importmap">
 {
   "imports": {
@@ -105,13 +84,7 @@
 </script>
 </head>
 <body>
-    <div id="root">
-        <!-- SEO Fallback Content -->
-        <div style="display: none;">
-            <h1>Get5StarsReview | Rank #1 on Google Maps</h1>
-            <p>Automate your social proof and reputation management. Our AI tool helps you collect 5-star reviews and boost local SEO visibility.</p>
-        </div>
-    </div>
+    <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
 </body>
 </html>
