@@ -3,28 +3,28 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import Header from './components/Header';
 import Hero from './components/Hero';
-import Features from './components/Features';
-import Services from './components/Services';
-import ContactUs from './components/ContactUs';
+import Integrations from './components/Integrations';
+import AboutUs from './components/AboutUs';
+import InteractiveDemo from './components/InteractiveDemo';
 import MapComparison from './components/MapComparison';
+import HowItWorks from './components/HowItWorks';
+import Services from './components/Services';
+import Features from './components/Features';
+import VideoTestimonials from './components/VideoTestimonials';
+import ComparisonTable from './components/ComparisonTable';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
-import Footer from './components/Footer';
 import Blog from './components/Blog';
 import BlogPage from './components/BlogPage';
 import BlogPostView from './components/BlogPostView';
-import Integrations from './components/Integrations';
-import VideoTestimonials from './components/VideoTestimonials';
+import ContactUs from './components/ContactUs';
+import Footer from './components/Footer';
 import Dashboard from './components/Dashboard/Dashboard';
 import SignUpBusiness from './components/Auth/SignUpBusiness';
 import SignUpAgency from './components/Auth/SignUpAgency';
 import Login from './components/Auth/Login';
 import AppSelector from './components/Auth/AppSelector';
 import GBPAuditTool from './components/GBPAuditTool';
-import InteractiveDemo from './components/InteractiveDemo';
-import AboutUs from './components/AboutUs';
-import HowItWorks from './components/HowItWorks';
-import ComparisonTable from './components/ComparisonTable';
 
 export type UserType = 'business' | 'agency';
 export type AppView = 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'blog' | 'blog-post';
@@ -37,30 +37,35 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
+    const initAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
+          // Optional: Auto-redirect logged in users to app selector
+          // setView('app-selector'); 
         }
       } catch (err) {
-        console.error("Auth init failed:", err);
+        console.error("Supabase Auth Init Failed:", err);
       } finally {
         setLoading(false);
       }
     };
-    checkSession();
+    initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
+        if (event === 'SIGNED_IN') setView('app-selector');
       } else {
         setUser(null);
         setUserType(null);
+        if (event === 'SIGNED_OUT') setView('landing');
       }
     });
+
     return () => subscription.unsubscribe();
   }, []);
 
@@ -73,7 +78,9 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
         <div className="w-16 h-16 border-4 border-slate-100 border-t-[#16A34A] rounded-full animate-spin"></div>
-        <p className="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Get5StarsReview...</p>
+        <p className="mt-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">
+          Get5StarsReview Intelligence Hub...
+        </p>
       </div>
     );
   }
