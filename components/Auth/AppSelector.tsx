@@ -10,7 +10,7 @@ const apps = [
   {
     id: 'gbp-mgmt',
     name: 'GBP Management',
-    desc: 'Log in to manage your GBP with Get5Stars.',
+    desc: 'Log in to manage your GBP with Get5Starsreview.',
     icon: (
       <div className="flex items-center gap-1">
         <span className="text-2xl font-black text-[#16A34A] italic uppercase tracking-tighter">GBP Boost</span>
@@ -26,7 +26,7 @@ const apps = [
     desc: 'Log in to access partner resources.',
     icon: (
       <div className="flex flex-col">
-        <span className="text-2xl font-black text-[#16A34A] leading-none">get5stars</span>
+        <span className="text-2xl font-black text-[#16A34A] leading-none text-nowrap">get5starsreview</span>
         <span className="text-[10px] font-black text-slate-800 tracking-[0.2em] uppercase">Partner Hub</span>
       </div>
     )
@@ -88,8 +88,8 @@ const AppSelector: React.FC<AppSelectorProps> = ({ onSelect, onBack }) => {
           Back to Site
         </button>
 
-        <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-black tracking-tight z-10">
-          What are you trying <br /> to access?
+        <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-black tracking-tight z-10 uppercase italic">
+          Select Your <br /> Reputation Tool
         </h1>
       </div>
 
@@ -139,11 +139,11 @@ const AppSelector: React.FC<AppSelectorProps> = ({ onSelect, onBack }) => {
                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">It's popular</span>
             </div>
             <p className="text-xs font-bold text-slate-700 leading-tight">
-              <span className="text-green-600 font-black">79 people</span> started working with Get5Stars within the last week
+              <span className="text-green-600 font-black">79 people</span> started working with Get5Starsreview within the last week
             </p>
             <p className="text-[9px] text-slate-400 mt-1 flex items-center gap-1">
               <svg className="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
-              Verified by Get5Stars
+              Verified by Get5Starsreview
             </p>
           </div>
         </div>
