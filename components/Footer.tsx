@@ -53,7 +53,7 @@ const Footer: React.FC = () => {
 
         <div className="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
            <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-8 text-[9px] md:text-[11px] font-bold uppercase tracking-widest">
-             <span className="text-white">© Get5StarsReview</span>
+             <span className="text-white">© Get5Starsreview</span>
              <a href="#" className="text-slate-400 hover:text-[#16A34A]">Terms</a>
              <a href="#" className="text-slate-400 hover:text-[#16A34A]">Privacy</a>
            </div>
