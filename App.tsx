@@ -27,60 +27,50 @@ import AppSelector from './components/Auth/AppSelector.tsx';
 import GBPAuditTool from './components/GBPAuditTool.tsx';
 
 export type UserType = 'business' | 'agency';
-export type AppView = 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'blog' | 'blog-post';
+// Added 'loading' as a valid starting view to prevent auth race conditions
+export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'blog' | 'blog-post';
 
 const App: React.FC = () => {
-  const [view, setView] = useState<AppView>('landing');
+  const [view, setView] = useState<AppView>('loading');
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [user, setUser] = useState<any>(null);
-  const [authLoading, setAuthLoading] = useState(true);
 
-  // Unified Auth Listener
   useEffect(() => {
-    let mounted = true;
-
-    const checkInitialSession = async () => {
+    // 1. Check for initial session immediately
+    const initializeAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (mounted) {
-        if (session) {
-          setUser(session.user);
-          setUserType(session.user.user_metadata?.user_type || 'business');
-          // If they have a session, they belong in the dashboard unless viewing specific tools/blog
-          if (['landing', 'login', 'signup-business', 'signup-agency'].includes(view)) {
-            setView('dashboard');
-          }
-        }
-        setAuthLoading(false);
+      if (session) {
+        setUser(session.user);
+        setUserType(session.user.user_metadata?.user_type || 'business');
+        setView('dashboard');
+      } else {
+        setView('landing');
       }
     };
 
-    checkInitialSession();
+    initializeAuth();
 
+    // 2. Listen for real-time auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (mounted) {
-        if (session) {
-          setUser(session.user);
-          setUserType(session.user.user_metadata?.user_type || 'business');
-          // Force dashboard on any successful auth event if we're on a "gate" page
-          if (['landing', 'login', 'signup-business', 'signup-agency'].includes(view)) {
-            setView('dashboard');
-          }
-        } else {
-          setUser(null);
-          setUserType(null);
-          if (event === 'SIGNED_OUT') {
-            setView('landing');
-          }
+      if (session) {
+        setUser(session.user);
+        setUserType(session.user.user_metadata?.user_type || 'business');
+        // Only force dashboard if they are on a gate-keep page
+        if (['landing', 'login', 'signup-business', 'signup-agency', 'loading'].includes(view)) {
+          setView('dashboard');
+        }
+      } else {
+        setUser(null);
+        setUserType(null);
+        if (event === 'SIGNED_OUT') {
+          setView('landing');
         }
       }
     });
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [view]);
+    return () => subscription.unsubscribe();
+  }, []); // Re-run only on mount
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -91,23 +81,20 @@ const App: React.FC = () => {
     if (id === 'gbp-auditor') {
       setView('auditor');
     } else {
-      if (user) {
-        setView('dashboard');
-      } else {
-        setView('login');
-      }
+      setView(user ? 'dashboard' : 'login');
     }
   };
 
-  if (authLoading) {
+  // Global Loading State
+  if (view === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Initializing Secure Session...</p>
       </div>
     );
   }
 
-  // If user is authenticated, we return the Dashboard structure
   if (user && view === 'dashboard') {
     return (
       <Dashboard 
@@ -126,14 +113,8 @@ const App: React.FC = () => {
       {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToBusiness={() => setView('signup-business')} />}
 
       <Header 
-        onLogin={() => {
-          if (user) setView('dashboard');
-          else setView('login');
-        }} 
-        onToolsClick={() => {
-          setView('app-selector');
-          window.scrollTo(0, 0);
-        }}
+        onLogin={() => user ? setView('dashboard') : setView('login')} 
+        onToolsClick={() => { setView('app-selector'); window.scrollTo(0, 0); }}
         onBusinessSignup={() => setView('signup-business')} 
         onAgencySignup={() => setView('signup-agency')}
         onHomeClick={() => setView('landing')}
@@ -141,12 +122,7 @@ const App: React.FC = () => {
       />
       
       <main className="flex-grow">
-        {view === 'app-selector' && (
-          <AppSelector 
-            onSelect={handleAppSelect} 
-            onBack={() => setView('landing')} 
-          />
-        )}
+        {view === 'app-selector' && <AppSelector onSelect={handleAppSelect} onBack={() => setView('landing')} />}
         {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} />}
         {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => setView('blog')} onSignup={() => setView('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>}
@@ -160,7 +136,7 @@ const App: React.FC = () => {
             <MapComparison />
             <HowItWorks onStart={() => setView('signup-business')} />
             <Services onAuditClick={() => setView('app-selector')} />
-            <FeatureBanner />
+            <TrustStack />
             <Features />
             <VideoTestimonials />
             <ComparisonTable onBusinessClick={() => setView('signup-business')} onAgencyClick={() => setView('signup-agency')} />
@@ -171,27 +147,31 @@ const App: React.FC = () => {
           </>
         )}
       </main>
-      
       <Footer onBlogClick={() => setView('blog')} onHomeClick={() => setView('landing')} />
     </div>
   );
 };
 
-const FeatureBanner = () => (
+const TrustStack = () => (
   <div className="container mx-auto px-6 py-12">
-     <div className="bg-black rounded-[48px] p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 border-b-4 border-green-600">
+     <div className="bg-slate-950 rounded-[48px] p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 border-b-4 border-emerald-600 shadow-2xl">
         <div className="space-y-4">
-           <h3 className="text-3xl font-black uppercase italic tracking-tight">The #1 Choice for Local Business.</h3>
-           <p className="text-slate-400 font-medium">Join 2,000+ brands automating their path to 5-star perfection.</p>
+           <span className="text-emerald-500 font-black text-[10px] uppercase tracking-[0.3em]">Market Authority</span>
+           <h3 className="text-3xl font-black uppercase italic tracking-tight leading-none">The Trusted Choice for <br />Local Domination.</h3>
+           <p className="text-slate-400 font-medium max-w-sm">Join 2,000+ brands automating their path to Google Maps perfection.</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-10">
            <div className="text-center">
-             <p className="text-3xl font-black text-green-500">98%</p>
-             <p className="text-[10px] font-bold text-slate-500 uppercase">Retention</p>
+             <p className="text-4xl font-black text-emerald-500">98%</p>
+             <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Retention</p>
            </div>
            <div className="text-center">
-             <p className="text-3xl font-black text-green-500">24/7</p>
-             <p className="text-[10px] font-bold text-slate-500 uppercase">Support</p>
+             <p className="text-4xl font-black text-emerald-500">1.2M</p>
+             <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Requests</p>
+           </div>
+           <div className="text-center">
+             <p className="text-4xl font-black text-emerald-500">24/7</p>
+             <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">AI Logic</p>
            </div>
         </div>
      </div>
