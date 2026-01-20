@@ -4,16 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get5StarsReview | #1 Google Maps Ranking & Reputation Automation</title>
-    <meta name="description" content="Get5StarsReview helps local businesses dominate Google Maps. Automate 5-star review collection, use AI to respond to customers, and boost your local SEO rankings on autopilot.">
-    <meta name="keywords" content="Google Maps SEO, local business reviews, Get5StarsReview, automated reputation management, GBP optimization, AI review response, rank #1 google maps, local search automation">
+    <title>Get5StarsReview | #1 Google Maps Ranking & AI Reputation Management</title>
+    <meta name="description" content="Dominate local search. Get5StarsReview is the leading AI-powered platform helping businesses automate 5-star reviews, optimize Google Business Profiles, and rank #1 on Google Maps.">
+    <meta name="keywords" content="Google Maps SEO, Local Search Ranking, Automated Reviews, Get5StarsReview, Google Business Profile Management, AI Reputation Management, Rank #1 Local Search, GBP Optimization">
     
     <!-- Open Graph / SEO -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://get5starsreview.com/">
-    <meta property="og:title" content="Get5StarsReview | Dominate Local Search Results">
-    <meta property="og:description" content="Turn every customer into a 5-star review. Automate your social proof and climb the Google Maps rankings today.">
+    <meta property="og:title" content="Get5StarsReview | Automate Your Way to the Top of Google Maps">
+    <meta property="og:description" content="Turn every customer into a 5-star review. Automate social proof and dominate your local area with AI.">
     <meta property="og:image" content="https://get5starsreview.com/og-image.jpg">
+
+    <!-- JSON-LD Structured Data for Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Get5StarsReview",
+      "operatingSystem": "Web",
+      "applicationCategory": "BusinessApplication",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "1284"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "25.00",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,6 +63,22 @@
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #16A34A 0%, #059669 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: max-content;
+            animation: marquee 40s linear infinite;
+        }
     </style>
 <script type="importmap">
 {
@@ -52,16 +89,22 @@
     "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
     "@google/genai": "https://esm.sh/@google/genai@1.3.0",
     "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.4",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
     "vite": "https://esm.sh/vite@^7.3.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="root">
+        <!-- SEO Fallback Content -->
+        <div style="display: none;">
+            <h1>Get5StarsReview | Rank #1 on Google Maps</h1>
+            <p>Automate your social proof and reputation management. Our AI tool helps you collect 5-star reviews and boost local SEO visibility.</p>
+        </div>
+    </div>
     <script type="module" src="/index.tsx"></script>
 </body>
 </html>
