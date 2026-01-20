@@ -22,24 +22,25 @@ const Header: React.FC<HeaderProps> = ({ onLogin, onToolsClick, onBusinessSignup
   }, []);
 
   const navItems = [
-    { name: 'Services', section: 'services', action: 'scroll' },
-    { name: 'Process', section: 'how-it-works', action: 'scroll' },
-    { name: 'Pricing', section: 'pricing', action: 'scroll' },
-    { name: 'Testimonials', section: 'testimonials', action: 'scroll' },
-    { name: 'Blog', section: 'blog', action: 'view' },
+    { name: 'Services', section: 'services', type: 'scroll' },
+    { name: 'Process', section: 'how-it-works', type: 'scroll' },
+    { name: 'Pricing', section: 'pricing', type: 'scroll' },
+    { name: 'Testimonials', section: 'testimonials', type: 'scroll' },
+    { name: 'Blog', section: 'blog', type: 'view' },
   ];
 
   const handleNav = (item: typeof navItems[0]) => {
-    if (item.action === 'view' && item.name === 'Blog') {
+    setIsMobileMenuOpen(false);
+    if (item.type === 'view') {
       onBlogClick();
     } else {
       onHomeClick();
+      // Wait for home render then scroll
       setTimeout(() => {
         const el = document.getElementById(item.section);
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     }
-    setIsMobileMenuOpen(false);
   };
 
   return (
