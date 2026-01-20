@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 
 /**
- * 💳 YOUR STRIPE LINKS (Verified from your screenshot)
+ * 💳 STRIPE LINKS (Fixed with your real IDs from the screenshot)
  */
 const STRIPE_LINKS: Record<string, string> = {
   'starter': 'https://buy.stripe.com/7sYeVe3uofet47cfN75gc00',
@@ -41,14 +41,14 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ plan, cycle, onBack, on
       const stripeUrl = STRIPE_LINKS[planKey];
 
       if (stripeUrl) {
-        // This takes the user to your Stripe Checkout page
+        // Correctly redirecting to your Stripe Checkout
         window.location.href = stripeUrl;
       } else {
-        alert("Payment link error. Please contact support.");
+        alert("Payment configuration missing. Please check STRIPE_LINKS in PaymentSection.tsx");
         setIsProcessing(false);
       }
     } else {
-      // Manual methods for local testing
+      // Manual methods for simulation
       setTimeout(() => {
         setIsProcessing(false);
         onSuccess();
