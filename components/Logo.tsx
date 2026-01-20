@@ -20,13 +20,13 @@ const Logo: React.FC<LogoProps> = ({ variant = 'full', className = "" }) => {
       {variant === 'full' && (
         <div className="flex flex-col justify-center leading-none">
           <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-black tracking-tight text-black uppercase leading-[0.9]">Get5Starsreview</span>
+            <span className="text-xl md:text-2xl font-[900] tracking-tighter text-black uppercase leading-[0.9]">Get5Stars</span>
             <div className="flex items-center gap-2">
-               <span className="text-xl md:text-2xl font-black tracking-tight text-black uppercase leading-[0.9]">Review</span>
-               <div className="h-[3px] flex-grow min-w-[30px] bg-[#16A34A] rounded-full mt-1"></div>
+               <span className="text-xl md:text-2xl font-[900] tracking-tighter text-black uppercase leading-[0.9]">Review</span>
+               <div className="h-[4px] flex-grow min-w-[20px] bg-[#16A34A] rounded-full mt-1"></div>
             </div>
           </div>
-          <span className="text-[7px] md:text-[9px] font-bold text-black uppercase tracking-[0.1em] mt-1 whitespace-nowrap">Google Business Profile Agency</span>
+          <span className="text-[7px] md:text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1 whitespace-nowrap">Local SEO Automation Agency</span>
         </div>
       )}
     </div>
