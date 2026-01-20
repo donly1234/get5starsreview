@@ -1,35 +1,91 @@
-import React from 'react';
 
-interface LogoProps {
-  variant?: 'full' | 'icon';
-  className?: string;
+import React, { useState, useEffect } from 'react';
+import Logo from './Logo';
+
+interface HeaderProps {
+  onLogin: () => void;
+  onToolsClick: () => void;
+  onBusinessSignup: () => void;
+  onAgencySignup: () => void;
+  onHomeClick: () => void;
 }
 
-const Logo: React.FC<LogoProps> = ({ variant = 'full', className = "" }) => {
+const Header: React.FC<HeaderProps> = ({ onLogin, onToolsClick, onBusinessSignup, onAgencySignup, onHomeClick }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navItems = [
+    { name: 'Pricing', section: 'pricing' },
+    { name: 'Agency Hub', section: 'pricing' },
+    { name: 'Testimonials', section: 'testimonials' },
+    { name: 'Blog', section: 'blog' },
+  ];
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      {/* Professional Speech Bubble Icon with Star */}
-      <div className="relative shrink-0">
-        <svg width="42" height="38" viewBox="0 0 48 42" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm">
-          <path d="M43.2 0H4.8C2.14903 0 0 2.14903 0 4.8V28.8C0 31.451 2.14903 33.6 4.8 33.6H12L12 40.8L21.6 33.6H43.2C45.851 33.6 48 31.451 48 28.8V4.8C48 2.14903 45.851 0 43.2 0Z" fill="#16A34A"/>
-          <path d="M24 8L27.24 14.56L34.48 15.61L29.24 20.71L30.48 27.92L24 24.51L17.52 27.92L18.76 20.71L13.52 15.61L20.76 14.56L24 8Z" fill="#FACC15"/>
-        </svg>
-      </div>
-      
-      {variant === 'full' && (
-        <div className="flex flex-col justify-center leading-none">
-          <div className="flex flex-col">
-            <span className="text-xl md:text-2xl font-black tracking-tight text-black uppercase leading-[0.9]">Get5Stars</span>
-            <div className="flex items-center gap-2">
-               <span className="text-xl md:text-2xl font-black tracking-tight text-black uppercase leading-[0.9]">Review</span>
-               <div className="h-[3px] flex-grow min-w-[30px] bg-[#16A34A] rounded-full mt-1"></div>
+    <>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${isScrolled ? 'py-4' : 'py-8'}`}>
+        <div className="container mx-auto px-6">
+          <div className={`glass-panel rounded-[32px] px-8 py-3 flex items-center justify-between transition-all duration-500 ${isScrolled ? 'shadow-2xl border-slate-200' : 'border-transparent bg-transparent shadow-none'}`}>
+            
+            <div className="flex items-center gap-12">
+              <div className="cursor-pointer hover:scale-105 transition-transform" onClick={onHomeClick}>
+                 <Logo variant="full" className="scale-75 origin-left" />
+              </div>
+              
+              <nav className="hidden lg:flex items-center gap-10">
+                {navItems.map(item => (
+                  <button 
+                    key={item.name}
+                    onClick={() => scrollTo(item.section)}
+                    className="text-[11px] font-black text-slate-500 hover:text-green-600 transition-colors uppercase tracking-[0.2em]"
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={onBusinessSignup}
+                className="px-8 py-4 bg-slate-950 text-white rounded-[18px] text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-green-600 transition-all active:scale-95"
+              >
+                See Your Rankings
+              </button>
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-900">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+              </button>
             </div>
           </div>
-          <span className="text-[7px] md:text-[9px] font-bold text-black uppercase tracking-[0.1em] mt-1 whitespace-nowrap">Google Business Profile Agency</span>
         </div>
-      )}
-    </div>
+      </header>
+
+      {/* Mobile Menu */}
+      <div className={`fixed inset-0 z-40 bg-white lg:hidden transition-all duration-500 ${isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'}`}>
+        <div className="pt-32 px-10 space-y-8">
+           {navItems.map(item => (
+             <button key={item.name} onClick={() => scrollTo(item.section)} className="block text-4xl font-black uppercase italic text-slate-900">{item.name}</button>
+           ))}
+           <div className="pt-10 space-y-4">
+             <button onClick={() => { onLogin(); setIsMobileMenuOpen(false); }} className="w-full py-5 bg-slate-100 rounded-2xl font-black uppercase tracking-widest">Login</button>
+             <button onClick={() => { onBusinessSignup(); setIsMobileMenuOpen(false); }} className="w-full py-5 bg-green-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl">Get Started</button>
+           </div>
+        </div>
+      </div>
+    </>
   );
 };
 
-export default Logo;
+export default Header;
