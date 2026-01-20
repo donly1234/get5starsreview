@@ -26,7 +26,7 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency }) => {
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-[115px] font-[900] text-slate-950 leading-[0.85] tracking-[-0.05em] uppercase italic animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+          <h1 className="text-4xl md:text-[85px] font-[900] text-slate-950 leading-[0.9] tracking-[-0.05em] uppercase italic animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
             Rank #1 on <br className="hidden md:block" />
             <span className="gradient-text">Google Maps</span> <br className="hidden md:block" />
             In Record Time.
