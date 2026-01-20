@@ -33,7 +33,7 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency }) => {
           </h1>
           
           <p className="text-slate-500 text-lg md:text-2xl font-semibold max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-400">
-            Don't just collect reviews. Dominate local search. Get5StarsReview helps businesses automate social proof, boost map rankings, and turn every customer into a 5-star advocate.
+            Don't just collect reviews. Dominate local search. Get5Starsreview helps businesses automate social proof, boost map rankings, and turn every customer into a 5-star advocate.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
