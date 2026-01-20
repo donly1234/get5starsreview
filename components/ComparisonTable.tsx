@@ -50,7 +50,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({ onBusinessClick, onAg
             </button>
           </div>
 
-          {/* Agency Solution - Updated from Purple to Black/Yellow */}
+          {/* Agency Solution */}
           <div className="bg-slate-50 border-2 border-slate-200 rounded-[40px] p-10 flex flex-col relative overflow-hidden group hover:border-black transition-all">
              <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-black/5 rounded-full blur-2xl group-hover:bg-black/10 transition-all"></div>
 
@@ -84,6 +84,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({ onBusinessClick, onAg
             </button>
           </div>
         </div>
+        <p className="text-center mt-12 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Powered by Get5Starsreview Decision Intelligence</p>
       </div>
     </section>
   );
