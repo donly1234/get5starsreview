@@ -2,7 +2,12 @@
 import React from 'react';
 import Logo from './Logo';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onBlogClick: () => void;
+  onHomeClick: () => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onBlogClick, onHomeClick }) => {
   return (
     <footer className="bg-black text-white pt-16 md:pt-24 pb-12">
       <div className="container mx-auto px-4 md:px-6">
@@ -35,25 +40,25 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-base md:text-lg font-black mb-6 md:mb-8 uppercase tracking-tight">Services</h4>
             <ul className="space-y-3 md:space-y-4 text-xs md:text-sm font-medium text-slate-400">
-              <li><a href="#" className="hover:text-[#16A34A] transition-colors">GBP Management Service</a></li>
-              <li><a href="#" className="hover:text-[#16A34A] transition-colors">Agency Partner Program</a></li>
-              <li><a href="#" className="hover:text-[#16A34A] transition-colors">Local Citation Building</a></li>
+              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors">GBP Management Service</button></li>
+              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors">Agency Partner Program</button></li>
+              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors">Local Citation Building</button></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-base md:text-lg font-black mb-6 md:mb-8 uppercase tracking-tight">Helpful Links</h4>
             <ul className="space-y-3 md:space-y-4 text-xs md:text-sm font-medium text-slate-400">
-              <li><a href="#" className="hover:text-[#16A34A] transition-colors">Home</a></li>
-              <li><a href="#" className="hover:text-[#16A34A] transition-colors">Customer Success Stories</a></li>
-              <li><a href="#" className="hover:text-[#16A34A] transition-colors">Privacy Policy</a></li>
+              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors">Home</button></li>
+              <li><button onClick={onBlogClick} className="hover:text-[#16A34A] transition-colors font-bold text-white">Latest Blog Posts</button></li>
+              <li><button className="hover:text-[#16A34A] transition-colors">Privacy Policy</button></li>
             </ul>
           </div>
         </div>
 
         <div className="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
            <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-8 text-[9px] md:text-[11px] font-bold uppercase tracking-widest">
-             <span className="text-white">© Get5Starsreview</span>
+             <span className="text-white">© Get5StarsReview</span>
              <a href="#" className="text-slate-400 hover:text-[#16A34A]">Terms</a>
              <a href="#" className="text-slate-400 hover:text-[#16A34A]">Privacy</a>
            </div>
