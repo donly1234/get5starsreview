@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import Header from './components/Header';
@@ -29,6 +30,13 @@ const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setUserType(null);
+    setView('landing');
+  };
+
   useEffect(() => {
     // Initial session check
     const checkSession = async () => {
@@ -36,7 +44,8 @@ const App: React.FC = () => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
-        setView('dashboard');
+        // If they are already logged in when app loads, go to selector
+        setView('app-selector');
       }
       setLoading(false);
     };
@@ -48,16 +57,17 @@ const App: React.FC = () => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
-        setView('dashboard');
+        // Redirect to tools selector after login/signup
+        setView('app-selector');
       } else {
         setUser(null);
         setUserType(null);
-        if (view === 'dashboard') setView('landing');
+        if (view === 'dashboard' || view === 'app-selector') setView('landing');
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [view]);
+  }, []);
 
   if (loading) {
     return (
@@ -76,21 +86,22 @@ const App: React.FC = () => {
   }
 
   if (view === 'dashboard') {
-    return <Dashboard onLogout={() => setView('landing')} userType={userType || 'business'} user={user} />;
+    return <Dashboard onLogout={handleLogout} userType={userType || 'business'} user={user} />;
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {view === 'login' && <Login onCancel={() => setView('landing')} onBusinessSignup={() => setView('signup-business')} onAgencySignup={() => setView('signup-agency')} onLoginSuccess={() => setView('dashboard')} />}
-      {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToAgency={() => setView('signup-agency')} />}
-      {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToBusiness={() => setView('signup-business')} />}
-      {view === 'app-selector' && <AppSelector onSelect={(id) => id === 'gbp-auditor' ? setView('auditor') : setView('login')} onBack={() => setView('landing')} />}
+      {view === 'login' && <Login onCancel={() => setView('landing')} onBusinessSignup={() => setView('signup-business')} onAgencySignup={() => setView('signup-agency')} onLoginSuccess={() => setView('app-selector')} />}
+      {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('app-selector')} onCancel={() => setView('landing')} onSwitchToAgency={() => setView('signup-agency')} />}
+      {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('app-selector')} onCancel={() => setView('landing')} onSwitchToBusiness={() => setView('signup-business')} />}
+      {view === 'app-selector' && <AppSelector onSelect={(id) => id === 'gbp-auditor' ? setView('auditor') : setView('dashboard')} onBack={() => setView('landing')} />}
 
       <Header 
-        onLogin={() => setView('app-selector')} 
+        onLogin={() => setView('login')} 
         onToolsClick={() => setView('app-selector')}
         onBusinessSignup={() => setView('signup-business')} 
-        onAgencySignup={() => setView('signup-agency')} 
+        onAgencySignup={() => setView('signup-agency')}
+        onHomeClick={() => setView('landing')}
       />
       
       <main className="flex-grow">
@@ -98,7 +109,7 @@ const App: React.FC = () => {
           <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>
         ) : (
           <>
-            <Hero onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
+            <Hero onStartBusiness={() => setView('app-selector')} onStartAgency={() => setView('signup-agency')} />
             <Integrations />
             <InteractiveDemo />
             <MapComparison />
