@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../supabaseClient';
-import Sidebar from './Sidebar';
-import TopBar from './TopBar';
-import MetricsBar from './MetricsBar';
-import ReviewFeed from './ReviewFeed';
-import PerformanceGraph from './PerformanceGraph';
-import RequestStatus from './RequestStatus';
-import PlatformBreakdown from './PlatformBreakdown';
-import RequestsManager from './Requests/RequestsManager';
-import MonitoringManager from './Monitoring/MonitoringManager';
-import MediaManager from './Media/MediaManager';
-import WidgetsManager from './Widgets/WidgetsManager';
-import AnalyticsManager from './Analytics/AnalyticsManager';
-import SettingsManager from './Settings/SettingsManager';
-import AIAssistantManager from './AI/AIAssistantManager';
-import AgencyManager from './Agency/AgencyManager';
-import GBPAuditTool from '../GBPAuditTool';
-import BottomNav from './BottomNav';
-import UpgradeModal from './Trial/UpgradeModal';
-import ExpiredOverlay from './Trial/ExpiredOverlay';
-import TrialChecklist from './Trial/TrialChecklist';
-import NotificationCenter from './Notifications/NotificationCenter';
-import { UserType } from '../../App';
+import { supabase } from '../../supabaseClient.ts';
+import Sidebar from './Sidebar.tsx';
+import TopBar from './TopBar.tsx';
+import MetricsBar from './MetricsBar.tsx';
+import ReviewFeed from './ReviewFeed.tsx';
+import PerformanceGraph from './PerformanceGraph.tsx';
+import RequestStatus from './RequestStatus.tsx';
+import PlatformBreakdown from './PlatformBreakdown.tsx';
+import RequestsManager from './Requests/RequestsManager.tsx';
+import MonitoringManager from './Monitoring/MonitoringManager.tsx';
+import MediaManager from './Media/MediaManager.tsx';
+import WidgetsManager from './Widgets/WidgetsManager.tsx';
+import AnalyticsManager from './Analytics/AnalyticsManager.tsx';
+import SettingsManager from './Settings/SettingsManager.tsx';
+import AIAssistantManager from './AI/AIAssistantManager.tsx';
+import AgencyManager from './Agency/AgencyManager.tsx';
+import GBPAuditTool from '../GBPAuditTool.tsx';
+import BottomNav from './BottomNav.tsx';
+import UpgradeModal from './Trial/UpgradeModal.tsx';
+import ExpiredOverlay from './Trial/ExpiredOverlay.tsx';
+import TrialChecklist from './Trial/TrialChecklist.tsx';
+import NotificationCenter from './Notifications/NotificationCenter.tsx';
+import { UserType } from '../../App.tsx';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -193,7 +193,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       case 'All Reviews':
         return <MonitoringManager isTrial={isTrial} />;
       case 'SEO Auditor':
-        return <GBPAuditTool />;
+        return <GBPAuditTool onSignup={onUpgradeFlow || (() => {})} />;
       case 'GBP Media':
         return <MediaManager />;
       case 'Widgets':
