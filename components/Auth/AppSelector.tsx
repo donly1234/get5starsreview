@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface AppSelectorProps {
   onSelect: (appId: string) => void;
@@ -59,10 +59,14 @@ const apps = [
 ];
 
 const AppSelector: React.FC<AppSelectorProps> = ({ onSelect, onBack }) => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-slate-50 relative flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 relative flex flex-col font-sans pt-20">
       {/* Background Header with Ring Pattern */}
-      <div className="h-[400px] bg-[#064e3b] relative overflow-hidden flex flex-col items-center justify-center text-center px-6">
+      <div className="h-[350px] md:h-[450px] bg-[#064e3b] relative overflow-hidden flex flex-col items-center justify-center text-center px-6">
         {/* Concentric Rings Pattern */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -80,15 +84,15 @@ const AppSelector: React.FC<AppSelectorProps> = ({ onSelect, onBack }) => {
 
         <button 
           onClick={onBack}
-          className="absolute top-8 left-8 text-white/60 hover:text-white transition-colors flex items-center gap-2 text-sm font-bold"
+          className="absolute top-12 left-8 text-white/60 hover:text-white transition-colors flex items-center gap-2 text-sm font-bold z-30"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Site
+          Back to Home
         </button>
 
-        <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-black tracking-tight z-10 uppercase italic">
+        <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-black tracking-tight z-10 uppercase italic animate-in fade-in slide-in-from-bottom-4 duration-700">
           Select Your <br /> Reputation Tool
         </h1>
       </div>
@@ -96,11 +100,11 @@ const AppSelector: React.FC<AppSelectorProps> = ({ onSelect, onBack }) => {
       {/* Grid Section */}
       <div className="max-w-7xl mx-auto w-full px-6 -mt-20 relative z-20 pb-32">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {apps.map((app) => (
+          {apps.map((app, idx) => (
             <button 
               key={app.id} 
               onClick={() => onSelect(app.id)}
-              className="bg-white rounded-[32px] p-10 flex flex-col justify-between shadow-[0_15px_40px_-15px_rgba(0,0,0,0.08)] border border-slate-100 hover:shadow-2xl hover:border-green-200 transition-all duration-500 group text-left w-full"
+              className={`bg-white rounded-[32px] p-10 flex flex-col justify-between shadow-[0_15px_40px_-15px_rgba(0,0,0,0.08)] border border-slate-100 hover:shadow-2xl hover:border-green-200 transition-all duration-500 group text-left w-full animate-in fade-in slide-in-from-bottom-8 duration-700 delay-[${idx * 100}ms]`}
             >
               <div>
                 <div className="mb-8">
