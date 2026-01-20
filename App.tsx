@@ -1,30 +1,29 @@
-
 import React, { useState, useEffect } from 'react';
-import { supabase } from './supabaseClient';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import Integrations from './components/Integrations';
-import AboutUs from './components/AboutUs';
-import InteractiveDemo from './components/InteractiveDemo';
-import MapComparison from './components/MapComparison';
-import HowItWorks from './components/HowItWorks';
-import Services from './components/Services';
-import Features from './components/Features';
-import VideoTestimonials from './components/VideoTestimonials';
-import ComparisonTable from './components/ComparisonTable';
-import Pricing from './components/Pricing';
-import FAQ from './components/FAQ';
-import Blog from './components/Blog';
-import BlogPage from './components/BlogPage';
-import BlogPostView from './components/BlogPostView';
-import ContactUs from './components/ContactUs';
-import Footer from './components/Footer';
-import Dashboard from './components/Dashboard/Dashboard';
-import SignUpBusiness from './components/Auth/SignUpBusiness';
-import SignUpAgency from './components/Auth/SignUpAgency';
-import Login from './components/Auth/Login';
-import AppSelector from './components/Auth/AppSelector';
-import GBPAuditTool from './components/GBPAuditTool';
+import { supabase } from './supabaseClient.ts';
+import Header from './components/Header.tsx';
+import Hero from './components/Hero.tsx';
+import Integrations from './components/Integrations.tsx';
+import AboutUs from './components/AboutUs.tsx';
+import InteractiveDemo from './components/InteractiveDemo.tsx';
+import MapComparison from './components/MapComparison.tsx';
+import HowItWorks from './components/HowItWorks.tsx';
+import Services from './components/Services.tsx';
+import Features from './components/Features.tsx';
+import VideoTestimonials from './components/VideoTestimonials.tsx';
+import ComparisonTable from './components/ComparisonTable.tsx';
+import Pricing from './components/Pricing.tsx';
+import FAQ from './components/FAQ.tsx';
+import Blog from './components/Blog.tsx';
+import BlogPage from './components/BlogPage.tsx';
+import BlogPostView from './components/BlogPostView.tsx';
+import ContactUs from './components/ContactUs.tsx';
+import Footer from './components/Footer.tsx';
+import Dashboard from './components/Dashboard/Dashboard.tsx';
+import SignUpBusiness from './components/Auth/SignUpBusiness.tsx';
+import SignUpAgency from './components/Auth/SignUpAgency.tsx';
+import Login from './components/Auth/Login.tsx';
+import AppSelector from './components/Auth/AppSelector.tsx';
+import GBPAuditTool from './components/GBPAuditTool.tsx';
 
 export type UserType = 'business' | 'agency';
 export type AppView = 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'blog' | 'blog-post';
@@ -42,7 +41,6 @@ const App: React.FC = () => {
         if (session) {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
-          // Only auto-redirect if user is fresh and at the landing page root
           if (view === 'landing') {
             setView('app-selector');
           }
