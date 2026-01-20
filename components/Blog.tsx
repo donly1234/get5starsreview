@@ -1,7 +1,7 @@
 
 import React, { useRef } from 'react';
 
-export const blogPosts = [
+export const blogPostsData = [
   {
     id: 'p1',
     title: "How to Rank #1 on Google Maps in 2025",
@@ -54,8 +54,9 @@ const Blog: React.FC<BlogProps> = ({ onPostClick, onViewAll }) => {
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const amount = 400;
-      scrollRef.current.scrollBy({ left: direction === 'left' ? -amount : amount, behavior: 'smooth' });
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollTo = direction === 'left' ? scrollLeft - clientWidth : scrollLeft + clientWidth;
+      scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
     }
   };
 
@@ -70,23 +71,23 @@ const Blog: React.FC<BlogProps> = ({ onPostClick, onViewAll }) => {
             </h3>
           </div>
           <div className="flex gap-4">
-             <button onClick={() => scroll('left')} className="w-14 h-14 rounded-full border border-slate-200 flex items-center justify-center hover:bg-green-600 hover:text-white hover:border-green-600 transition-all">
+             <button onClick={() => scroll('left')} className="w-14 h-14 rounded-full border border-slate-200 flex items-center justify-center hover:bg-green-600 hover:text-white hover:border-green-600 transition-all shadow-sm">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
              </button>
-             <button onClick={() => scroll('right')} className="w-14 h-14 rounded-full border border-slate-200 flex items-center justify-center hover:bg-green-600 hover:text-white hover:border-green-600 transition-all">
+             <button onClick={() => scroll('right')} className="w-14 h-14 rounded-full border border-slate-200 flex items-center justify-center hover:bg-green-600 hover:text-white hover:border-green-600 transition-all shadow-sm">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
              </button>
           </div>
         </div>
 
         <div ref={scrollRef} className="flex gap-8 overflow-x-auto pb-12 scrollbar-hide snap-x">
-          {blogPosts.map((post) => (
+          {blogPostsData.map((post) => (
             <div 
               key={post.id} 
               onClick={() => onPostClick(post.id)}
               className="min-w-[320px] md:min-w-[400px] group cursor-pointer snap-start"
             >
-              <div className="relative aspect-[16/10] rounded-[32px] overflow-hidden mb-6 border border-slate-100 shadow-sm transition-all group-hover:shadow-2xl group-hover:scale-[1.02]">
+              <div className="relative aspect-[16/10] rounded-[32px] overflow-hidden mb-6 border border-slate-100 shadow-sm transition-all group-hover:shadow-2xl group-hover:scale-[1.01]">
                 <img src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute top-4 left-4">
                   <span className="bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-slate-900">{post.category}</span>
@@ -95,7 +96,7 @@ const Blog: React.FC<BlogProps> = ({ onPostClick, onViewAll }) => {
               <div className="px-2">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">{post.date}</p>
                 <h4 className="text-xl font-black text-slate-900 group-hover:text-[#16A34A] transition-colors leading-tight mb-4">{post.title}</h4>
-                <p className="text-slate-500 text-sm mb-6 line-clamp-2">{post.excerpt}</p>
+                <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">{post.excerpt}</p>
                 <button className="text-xs font-black uppercase tracking-widest text-slate-900 border-b-2 border-slate-900 group-hover:border-[#16A34A] group-hover:text-[#16A34A] transition-all pb-1">Read Article</button>
               </div>
             </div>
