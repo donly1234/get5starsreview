@@ -36,19 +36,30 @@ const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Initial session check
+  // Initial session check and Stripe redirect detection
   useEffect(() => {
     let mounted = true;
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      
+      // Check for Stripe success parameter in URL
+      const params = new URLSearchParams(window.location.search);
+      const isPaymentSuccess = params.get('session') === 'success';
+
       if (mounted) {
         if (session) {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
-          // If we're on landing or login, push to dashboard
-          if (view === 'landing' || view === 'login') {
+          
+          // CRITICAL: Force Dashboard if they just paid OR if they are already logged in on a fresh visit
+          if (isPaymentSuccess || view === 'landing' || view === 'login') {
             setView('dashboard');
+            // Clean up the URL
+            window.history.replaceState({}, '', window.location.pathname);
           }
+        } else if (isPaymentSuccess) {
+          // If paid but not logged in, prompt login
+          setView('login');
         }
         setAuthLoading(false);
       }
@@ -64,8 +75,7 @@ const App: React.FC = () => {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
         if (event === 'SIGNED_IN') {
-          // Stay on tool page if already there, otherwise go to dashboard
-          setView(prev => (prev === 'app-selector' || prev === 'auditor') ? prev : 'dashboard');
+          setView('dashboard');
         }
       } else {
         setUser(null);
@@ -88,7 +98,6 @@ const App: React.FC = () => {
     if (id === 'gbp-auditor') {
       setView('auditor');
     } else {
-      // For Heatmap or Partner Hub, go to Dashboard if logged in, else login
       if (user) {
         setView('dashboard');
       } else {
@@ -105,7 +114,6 @@ const App: React.FC = () => {
     );
   }
 
-  // Dashboard is the primary view for logged-in users
   if (view === 'dashboard' && user) {
     return (
       <Dashboard 
@@ -158,6 +166,7 @@ const App: React.FC = () => {
             <MapComparison />
             <HowItWorks onStart={() => setView('signup-business')} />
             <Services onAuditClick={() => setView('app-selector')} />
+            <FeatureBanner />
             <Features />
             <VideoTestimonials />
             <ComparisonTable onBusinessClick={() => setView('signup-business')} onAgencyClick={() => setView('signup-agency')} />
@@ -173,5 +182,27 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+// Internal component for clean organization
+const FeatureBanner = () => (
+  <div className="container mx-auto px-6 py-12">
+     <div className="bg-black rounded-[48px] p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 border-b-4 border-green-600">
+        <div className="space-y-4">
+           <h3 className="text-3xl font-black uppercase italic tracking-tight">The #1 Choice for Local Business.</h3>
+           <p className="text-slate-400 font-medium">Join 2,000+ brands automating their path to 5-star perfection.</p>
+        </div>
+        <div className="flex gap-4">
+           <div className="text-center">
+             <p className="text-3xl font-black text-green-500">98%</p>
+             <p className="text-[10px] font-bold text-slate-500 uppercase">Retention</p>
+           </div>
+           <div className="text-center">
+             <p className="text-3xl font-black text-green-500">24/7</p>
+             <p className="text-[10px] font-bold text-slate-500 uppercase">Support</p>
+           </div>
+        </div>
+     </div>
+  </div>
+);
 
 export default App;
