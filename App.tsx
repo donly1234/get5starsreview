@@ -11,7 +11,6 @@ import HowItWorks from './components/HowItWorks.tsx';
 import Services from './components/Services.tsx';
 import Features from './components/Features.tsx';
 import VideoTestimonials from './components/VideoTestimonials.tsx';
-import ComparisonTable from './components/ComparisonTable.tsx';
 import Pricing from './components/Pricing.tsx';
 import FAQ from './components/FAQ.tsx';
 import Blog from './components/Blog.tsx';
@@ -27,7 +26,6 @@ import AppSelector from './components/Auth/AppSelector.tsx';
 import GBPAuditTool from './components/GBPAuditTool.tsx';
 
 export type UserType = 'business' | 'agency';
-// Added 'loading' as a valid starting view to prevent auth race conditions
 export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'blog' | 'blog-post';
 
 const App: React.FC = () => {
@@ -37,7 +35,6 @@ const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    // 1. Check for initial session immediately
     const initializeAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -51,12 +48,10 @@ const App: React.FC = () => {
 
     initializeAuth();
 
-    // 2. Listen for real-time auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
-        // Only force dashboard if they are on a gate-keep page
         if (['landing', 'login', 'signup-business', 'signup-agency', 'loading'].includes(view)) {
           setView('dashboard');
         }
@@ -70,7 +65,7 @@ const App: React.FC = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, []); // Re-run only on mount
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -85,7 +80,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Global Loading State
   if (view === 'loading') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
@@ -139,7 +133,6 @@ const App: React.FC = () => {
             <TrustStack />
             <Features />
             <VideoTestimonials />
-            <ComparisonTable onBusinessClick={() => setView('signup-business')} onAgencyClick={() => setView('signup-agency')} />
             <Pricing onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
             <FAQ />
             <Blog onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} onViewAll={() => setView('blog')} />
