@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import Logo from './Logo';
+import Logo from './Logo.tsx';
 
 interface HeaderProps {
   onLogin: () => void;
