@@ -42,10 +42,7 @@ const App: React.FC = () => {
         if (session) {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
-          // If already logged in, show dashboard on start
-          if (view === 'landing' || view === 'login') {
-            setView('dashboard');
-          }
+          setView('dashboard');
         }
       } catch (err) {
         console.error("Auth Background Check Error:", err);
