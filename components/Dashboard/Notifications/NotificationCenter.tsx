@@ -38,7 +38,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onClose, trialD
     },
     { 
       day: 0, 
-      title: 'Welcome to Get5StarsReview - Your Free Trial Starts Now! 🎉', 
+      title: 'Welcome to Get5Starsreview - Your Free Trial Starts Now! 🎉', 
       content: 'Thanks for joining! Your 14-day window to 5-star success has officially started. Quick start guide inside.', 
       status: 'Sent', 
       type: 'Welcome' 
