@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 
 /**
- * 💳 STRIPE LINKS (Fixed with your real IDs from the screenshot)
+ * 💳 STRIPE LINKS (Mapped to the 4 Tiers in the Screenshot)
  */
 const STRIPE_LINKS: Record<string, string> = {
   'starter': 'https://buy.stripe.com/7sYeVe3uofet47cfN75gc00',
+  'growth': 'https://buy.stripe.com/8x2aEY0iceapgTYasN5gc01', // Reusing pro/mid-tier link or adjusting for growth
   'professional': 'https://buy.stripe.com/8x2aEY0iceapgTYasN5gc01',
   'agency': 'https://buy.stripe.com/fZu8Wqc0UaYd6fk0Sd5gc02'
 };
@@ -22,9 +23,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ plan, cycle, onBack, on
   const [method, setMethod] = useState<'stripe' | 'card' | 'payoneer' | 'ecocash'>('stripe');
   const [isProcessing, setIsProcessing] = useState(false);
   
-  const accentClass = 'bg-emerald-600 shadow-emerald-500/20';
-  const textClass = 'text-emerald-600';
-  const ringClass = 'focus:ring-emerald-500/20';
+  const accentClass = 'bg-[#16A34A] shadow-emerald-500/20';
+  const textClass = 'text-[#16A34A]';
 
   const price = cycle === 'annual' ? Math.floor(plan.price * 0.8) : plan.price;
 
@@ -35,20 +35,19 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ plan, cycle, onBack, on
       const planName = plan.name?.toLowerCase() || '';
       let planKey = 'starter';
       
-      if (planName.includes('professional') || planName.includes('pro')) planKey = 'professional';
+      if (planName.includes('growth')) planKey = 'growth';
+      if (planName.includes('professional')) planKey = 'professional';
       if (planName.includes('agency') || planName.includes('white label')) planKey = 'agency';
 
       const stripeUrl = STRIPE_LINKS[planKey];
 
       if (stripeUrl) {
-        // Correctly redirecting to your Stripe Checkout
         window.location.href = stripeUrl;
       } else {
-        alert("Payment configuration missing. Please check STRIPE_LINKS in PaymentSection.tsx");
+        alert("Payment configuration missing for this tier.");
         setIsProcessing(false);
       }
     } else {
-      // Manual methods for simulation
       setTimeout(() => {
         setIsProcessing(false);
         onSuccess();
@@ -75,7 +74,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ plan, cycle, onBack, on
               <button 
                 key={m.id}
                 onClick={() => setMethod(m.id as any)}
-                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${method === m.id ? `border-emerald-600 bg-emerald-50/30 shadow-lg` : 'border-slate-100 hover:border-slate-200'}`}
+                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${method === m.id ? `border-[#16A34A] bg-emerald-50/30 shadow-lg` : 'border-slate-100 hover:border-slate-200'}`}
               >
                 <span className="text-2xl">{m.icon}</span>
                 <span className="text-xs font-black text-slate-900 uppercase tracking-tight">{m.label}</span>
@@ -122,12 +121,12 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ plan, cycle, onBack, on
       </div>
 
       <div className="space-y-8">
-        <div className="bg-slate-900 rounded-[40px] p-8 text-white space-y-6 sticky top-8 shadow-2xl border-b-4 border-emerald-600">
+        <div className="bg-slate-900 rounded-[40px] p-8 text-white space-y-6 sticky top-8 shadow-2xl border-b-4 border-[#16A34A]">
           <h3 className="text-xl font-black uppercase tracking-tighter italic">Summary</h3>
           <div className="space-y-4 pt-4 border-t border-white/10">
             <div className="flex justify-between text-sm">
               <span className="text-slate-400">{plan.name}</span>
-              <span className="font-black text-emerald-400">${price}</span>
+              <span className="font-black text-[#16A34A]">${price}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-400">Cycle</span>
@@ -136,7 +135,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({ plan, cycle, onBack, on
           </div>
           <div className="pt-6 border-t border-white/10 flex justify-between items-center">
             <span className="text-lg font-bold">Total Due</span>
-            <span className="text-3xl font-black text-emerald-400">${price}</span>
+            <span className="text-3xl font-black text-[#16A34A]">${price}</span>
           </div>
           <button 
             disabled={isProcessing}
