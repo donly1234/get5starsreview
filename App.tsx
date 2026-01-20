@@ -33,6 +33,7 @@ const App: React.FC = () => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -41,12 +42,15 @@ const App: React.FC = () => {
         if (session) {
           setUser(session.user);
           setUserType(session.user.user_metadata?.user_type || 'business');
-          if (view === 'landing') {
+          // If already logged in, show dashboard on start
+          if (view === 'landing' || view === 'login') {
             setView('dashboard');
           }
         }
       } catch (err) {
         console.error("Auth Background Check Error:", err);
+      } finally {
+        setAuthLoading(false);
       }
     };
     initAuth();
@@ -71,6 +75,14 @@ const App: React.FC = () => {
     setView('landing');
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   if (view === 'dashboard') {
     return (
       <Dashboard 
@@ -90,7 +102,10 @@ const App: React.FC = () => {
       {view === 'app-selector' && <AppSelector onSelect={(id) => id === 'gbp-auditor' ? setView('auditor') : setView('dashboard')} onBack={() => setView('landing')} />}
 
       <Header 
-        onLogin={() => setView('login')} 
+        onLogin={() => {
+          if (user) setView('dashboard');
+          else setView('login');
+        }} 
         onToolsClick={() => setView('app-selector')}
         onBusinessSignup={() => setView('signup-business')} 
         onAgencySignup={() => setView('signup-agency')}
