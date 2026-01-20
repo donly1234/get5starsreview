@@ -1,50 +1,6 @@
 
 import React from 'react';
-import { blogPostsData } from './Blog';
-
-const extendedPosts = [
-  ...blogPostsData,
-  {
-    id: 'p6',
-    title: "Review Velocity: The Hidden Local Ranking Factor",
-    category: "Algorithm",
-    date: "July 20, 2025",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
-    excerpt: "Google doesn't just care about the count. Learn how Get5StarsReview maintains a consistent flow of reviews."
-  },
-  {
-    id: 'p7',
-    title: "How to Build a Fortress of Trust with Citations",
-    category: "Authority",
-    date: "July 15, 2025",
-    image: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&q=80&w=800",
-    excerpt: "Syncing your NAP data across 50+ directories is the backbone of ranking. Here is why it works."
-  },
-  {
-    id: 'p8',
-    title: "Why SMS Review Requests Convert 3x Better Than Email",
-    category: "Insights",
-    date: "July 10, 2025",
-    image: "https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=800",
-    excerpt: "Our data proves that text messages are the superior tool for local reputation growth."
-  },
-  {
-    id: 'p9',
-    title: "Google Business Profile Case Study: 300% Growth",
-    category: "Case Study",
-    date: "July 05, 2025",
-    image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=800",
-    excerpt: "See how a local bakery climbed from page 10 to rank #1 using automated responses and photo uploads."
-  },
-  {
-    id: 'p10',
-    title: "AI & The Future of Local Search: ChatGPT vs Google",
-    category: "Future Tech",
-    date: "June 28, 2025",
-    image: "https://images.unsplash.com/photo-1675271591211-126ad94e495d?auto=format&fit=crop&q=80&w=800",
-    excerpt: "How AI agents recommend businesses based on your review sentiment and profile activity."
-  }
-];
+import { extendedBlogPosts } from './Blog';
 
 interface BlogPageProps {
   onPostClick: (id: string) => void;
@@ -55,17 +11,17 @@ const BlogPage: React.FC<BlogPageProps> = ({ onPostClick }) => {
     <div className="pt-40 pb-24 bg-slate-50 min-h-screen">
       <div className="container mx-auto px-6">
         <div className="max-w-4xl mx-auto text-center mb-20 space-y-6">
-           <span className="text-green-600 font-black uppercase tracking-widest text-xs">Knowledge Base</span>
+           <span className="text-green-600 font-black uppercase tracking-widest text-xs">The Intelligence Hub</span>
            <h1 className="text-5xl md:text-7xl font-[900] text-slate-900 tracking-tighter uppercase italic leading-none">
-             Local Search <br /> <span className="text-green-600">Intelligence</span>
+             Mastering <br /> <span className="text-green-600">Local Reputation</span>
            </h1>
            <p className="text-slate-500 text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-             The latest strategies, data, and insights to help you dominate Google Maps and turn reviews into revenue.
+             Latest strategies, case studies, and updates to help your business dominate Google Maps and AI search results.
            </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {extendedPosts.map((post) => (
+          {extendedBlogPosts.map((post) => (
             <div 
               key={post.id} 
               onClick={() => onPostClick(post.id)}
