@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 
 interface Testimonial {
@@ -8,22 +9,20 @@ interface Testimonial {
   summary: string;
   videoUrl: string;
   thumbnail: string;
-  featured?: boolean;
 }
 
 const testimonialsData: Testimonial[] = [
   {
-    id: 't1',
+    id: 'v1',
     clientName: 'Sarah Johnson',
     company: 'The Bloom Studio',
     role: 'Owner & Founder',
-    summary: "Implementing Get5Stars changed our business overnight. We went from 10 to 200 reviews in just two months!",
+    summary: "Implementing Get5StarsReview changed our business overnight. We went from 10 to 200 reviews in just two months!",
     videoUrl: 'https://cdn.pixabay.com/video/2016/09/21/5361-183769151_tiny.mp4',
     thumbnail: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
-    featured: true
   },
   {
-    id: 't2',
+    id: 'v2',
     clientName: 'Mark Thompson',
     company: 'Summit Marketing Agency',
     role: 'Director',
@@ -32,109 +31,61 @@ const testimonialsData: Testimonial[] = [
     thumbnail: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400'
   },
   {
-    id: 't3',
+    id: 'v3',
     clientName: 'Dr. Elena Reyes',
     company: 'Reyes Family Dental',
     role: 'Lead Dentist',
-    summary: "Patient trust is everything. Seeing our 5-star rating right on the homepage makes booking so much easier for new patients.",
+    summary: "Patient trust is everything. Seeing our 5-star rating on Google Maps makes booking so much easier for new patients.",
     videoUrl: 'https://cdn.pixabay.com/video/2016/03/31/2539-159670119_tiny.mp4',
     thumbnail: 'https://images.unsplash.com/photo-1559839734-2b71f153673f?auto=format&fit=crop&q=80&w=400'
   }
 ];
 
-const VideoCard: React.FC<{ testimonial: Testimonial }> = ({ testimonial }) => {
+const GlowingVideoCard: React.FC<{ testimonial: Testimonial; isActive: boolean }> = ({ testimonial, isActive }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isMuted, setIsMuted] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            videoRef.current?.play().catch(() => {});
-            setIsPlaying(true);
-          } else {
-            videoRef.current?.pause();
-            setIsPlaying(false);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    if (videoRef.current) {
-      observer.observe(videoRef.current);
+    if (isActive) {
+      videoRef.current?.play().catch(() => {});
+    } else {
+      videoRef.current?.pause();
     }
-
-    return () => observer.disconnect();
-  }, []);
-
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (videoRef.current) {
-      const nextMuted = !videoRef.current.muted;
-      videoRef.current.muted = nextMuted;
-      setIsMuted(nextMuted);
-    }
-  };
+  }, [isActive]);
 
   return (
-    <div className={`flex flex-col bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-sm transition-all duration-500 hover:shadow-2xl hover:border-[#16A34A]/30 group`}>
-      <div className="relative aspect-video bg-black overflow-hidden cursor-pointer">
+    <div className={`relative transition-all duration-700 flex flex-col items-center ${isActive ? 'scale-100 opacity-100 z-10' : 'scale-90 opacity-40 grayscale blur-[2px]'}`}>
+      
+      {/* Moving Glowing Border Effect */}
+      {isActive && (
+        <div className="absolute -inset-[3px] rounded-[34px] overflow-hidden opacity-100 animate-pulse">
+           <div className="absolute inset-[-50%] bg-[conic-gradient(from_0deg,transparent_20%,#16A34A_50%,transparent_80%)] animate-[spin_4s_linear_infinite]" />
+        </div>
+      )}
+
+      <div className="relative w-[280px] md:w-[320px] aspect-[9/16] bg-black rounded-[32px] overflow-hidden shadow-2xl border-4 border-white/5">
         <video
           ref={videoRef}
           src={testimonial.videoUrl}
           poster={testimonial.thumbnail}
           loop
-          muted={isMuted}
+          muted
           playsInline
-          className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+          className="w-full h-full object-cover"
         />
         
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          {!isPlaying && (
-            <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
-               <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            </div>
-          )}
-        </div>
-
-        <button 
-          onClick={toggleMute}
-          className="absolute bottom-4 right-4 z-10 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full border border-white/20 transition-all text-white"
-        >
-          {isMuted ? (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5.586 15H4a1 1 0 01-1-1V10a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
-          ) : (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1V10a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
-          )}
-        </button>
-
-        <div className="absolute top-4 left-4">
-           <span className="bg-[#16A34A] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">Verified Success</span>
-        </div>
-      </div>
-
-      <div className="p-8 flex-1 flex flex-col justify-between">
-        <div>
-          <div className="flex gap-0.5 mb-4">
+        {/* Card Overlay */}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-6 space-y-3">
+          <div className="flex gap-0.5">
             {[...Array(5)].map((_, i) => (
-              <svg key={i} className="w-4 h-4 text-[#16A34A] fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+              <svg key={i} className="w-3.5 h-3.5 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
             ))}
           </div>
-          <p className="text-slate-600 text-sm italic leading-relaxed mb-6 font-medium">
+          <p className="text-white text-sm font-medium leading-relaxed line-clamp-3">
             "{testimonial.summary}"
           </p>
-        </div>
-        
-        <div className="flex items-center gap-4 pt-6 border-t border-slate-50">
-          <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden shrink-0 border-2 border-[#16A34A]/20">
-             <img src={testimonial.thumbnail} alt={testimonial.clientName} className="w-full h-full object-cover" />
-          </div>
-          <div>
-            <h4 className="text-sm font-black text-black uppercase tracking-tight leading-none">{testimonial.clientName}</h4>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">{testimonial.role} @ {testimonial.company}</p>
+          <div className="pt-2 border-t border-white/10">
+            <h4 className="text-white text-sm font-black uppercase tracking-tight">{testimonial.clientName}</h4>
+            <p className="text-green-400 text-[10px] font-bold uppercase tracking-wider">{testimonial.role} @ {testimonial.company}</p>
           </div>
         </div>
       </div>
@@ -143,38 +94,60 @@ const VideoCard: React.FC<{ testimonial: Testimonial }> = ({ testimonial }) => {
 };
 
 const VideoTestimonials: React.FC = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const next = () => setCurrentIndex((prev) => (prev + 1) % testimonialsData.length);
+  const prev = () => setCurrentIndex((prev) => (prev - 1 + testimonialsData.length) % testimonialsData.length);
+
   return (
-    <section id="testimonials" className="py-24 bg-white scroll-mt-20">
+    <section id="testimonials" className="py-24 bg-white overflow-hidden scroll-mt-20">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <h2 className="text-[#16A34A] font-black uppercase tracking-widest text-xs">Real Results</h2>
+        <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+          <h2 className="text-[#16A34A] font-black uppercase tracking-widest text-xs">Proof in Action</h2>
           <h3 className="text-4xl md:text-6xl font-black text-black leading-tight uppercase tracking-tighter">
-            What Our <span className="text-[#16A34A]">Clients</span> Say
+            Real Stories, <span className="text-[#16A34A]">Real Growth</span>
           </h3>
           <p className="text-slate-500 font-bold max-w-xl mx-auto">
-            Join 2,000+ businesses and agencies using Get5StarsReview to scale their social proof automatically.
+            See how Get5StarsReview is helping businesses across the globe dominate their local search and turn feedback into fuel.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonialsData.map((t) => (
-            <VideoCard key={t.id} testimonial={t} />
-          ))}
+        <div className="relative flex items-center justify-center min-h-[600px]">
+          {/* Navigation Controls */}
+          <button onClick={prev} className="absolute left-4 md:left-20 z-20 w-12 h-12 rounded-full bg-white shadow-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-green-600 transition-all hover:scale-110 active:scale-95">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <button onClick={next} className="absolute right-4 md:right-20 z-20 w-12 h-12 rounded-full bg-white shadow-xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-green-600 transition-all hover:scale-110 active:scale-95">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7"/></svg>
+          </button>
+
+          {/* Carousel Track */}
+          <div className="flex gap-4 md:gap-12 items-center justify-center overflow-visible">
+            {testimonialsData.map((t, i) => {
+              // Simple logic for showing 3 items with focus
+              const diff = i - currentIndex;
+              const isCenter = diff === 0;
+              const isPrev = diff === -1 || (currentIndex === 0 && i === testimonialsData.length - 1);
+              const isNext = diff === 1 || (currentIndex === testimonialsData.length - 1 && i === 0);
+              
+              if (!isCenter && !isPrev && !isNext) return null;
+
+              return (
+                <div key={t.id} className="transition-all duration-500">
+                  <GlowingVideoCard testimonial={t} isActive={isCenter} />
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className="mt-20 text-center">
-           <div className="inline-block p-1 bg-slate-50 rounded-[32px] border border-slate-100">
-             <button className="bg-black text-white px-10 py-5 rounded-[28px] font-black uppercase tracking-widest text-sm hover:bg-[#16A34A] transition-all shadow-2xl active:scale-95 flex items-center gap-3">
-               Start Building Your Reputation
-               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-             </button>
+           <div className="flex justify-center items-center gap-2 mb-8">
+              {testimonialsData.map((_, i) => (
+                <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === currentIndex ? 'w-12 bg-green-600' : 'w-4 bg-slate-200'}`} />
+              ))}
            </div>
-           <div className="flex justify-center items-center gap-8 mt-10 grayscale opacity-40">
-             <div className="font-black text-xl tracking-tighter">TRUSTPILOT</div>
-             <div className="font-black text-xl tracking-tighter text-[#16A34A] opacity-80">GOOGLE</div>
-             <div className="font-black text-xl tracking-tighter">FACEBOOK</div>
-             <div className="font-black text-xl tracking-tighter">YELP</div>
-           </div>
+           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Verified by Get5StarsReview Intelligence Hub</p>
         </div>
       </div>
     </section>
