@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import Logo from './Logo.tsx';
 
@@ -24,7 +24,30 @@ interface AuditData {
 const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const [data, setData] = useState<AuditData | null>(null);
+
+  const messages = [
+    "Initializing local crawler...",
+    "Querying Google Maps API...",
+    "Crawling competitor review profiles...",
+    "Analyzing sentiment distribution...",
+    "Calculating Authority Index...",
+    "Finalizing ranking report..."
+  ];
+
+  useEffect(() => {
+    let interval: any;
+    if (loading) {
+      let idx = 0;
+      setLoadingMessage(messages[0]);
+      interval = setInterval(() => {
+        idx = (idx + 1) % messages.length;
+        setLoadingMessage(messages[idx]);
+      }, 2500);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const runAudit = async () => {
     if (!query || loading) return;
@@ -78,14 +101,12 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
       const text = response.text;
       if (!text) throw new Error("Diagnostic core returned no data.");
 
-      // Robust JSON extraction: Find the first '{' and last '}'
       const jsonStart = text.indexOf('{');
       const jsonEnd = text.lastIndexOf('}');
       if (jsonStart === -1 || jsonEnd === -1) throw new Error("Invalid response format");
       
       const auditResult = JSON.parse(text.substring(jsonStart, jsonEnd + 1));
       
-      // Extract verification sources
       const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
       const urls = groundingChunks?.map((c: any) => c.web?.uri).filter(Boolean) || [];
       
@@ -95,7 +116,7 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
       });
     } catch (e) {
       console.error("Audit processing error:", e);
-      alert("We couldn't generate the audit report. Please try a more specific search including city (e.g. 'Paints Harare').");
+      alert("Diagnostic core failed to connect. Ensure your API key is configured correctly and search includes business name + city.");
     } finally {
       setLoading(false);
     }
@@ -135,7 +156,7 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
                  {loading ? (
                     <div className="flex items-center gap-3">
                       <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                      Running Live Scan...
+                      {loadingMessage}
                     </div>
                  ) : 'Get Live SEO Report'}
                </button>
