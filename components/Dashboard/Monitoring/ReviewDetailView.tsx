@@ -8,9 +8,10 @@ interface ReviewDetailViewProps {
   onBack: () => void;
   isMobileComposer?: boolean;
   isTrial?: boolean;
+  onShowUpgrade?: () => void;
 }
 
-const ReviewDetailView: React.FC<ReviewDetailViewProps> = ({ review, onBack, isMobileComposer, isTrial = false }) => {
+const ReviewDetailView: React.FC<ReviewDetailViewProps> = ({ review, onBack, isMobileComposer, isTrial = false, onShowUpgrade }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [composerView, setComposerView] = useState<'review' | 'write'>('review');
@@ -20,7 +21,7 @@ const ReviewDetailView: React.FC<ReviewDetailViewProps> = ({ review, onBack, isM
 
   const generateAIResponse = async (toneOverride?: string) => {
     if (isTrial) {
-      alert("AI Responses are locked during trial. Please upgrade to Professional plan.");
+      if (onShowUpgrade) onShowUpgrade();
       return;
     }
     
@@ -56,7 +57,7 @@ const ReviewDetailView: React.FC<ReviewDetailViewProps> = ({ review, onBack, isM
       });
       
       setReplyText(result.text || "Thank you for your feedback! We appreciate your business.");
-      setConfidence(Math.floor(85 + Math.random() * 14)); // Mock confidence score
+      setConfidence(Math.floor(85 + Math.random() * 14)); 
     } catch (error) {
       console.error("AI Generation failed:", error);
       setReplyText(`Hi ${review.author}, thank you for taking the time to leave us feedback regarding your experience with us on ${review.platform}. We appreciate your support!`);
@@ -106,7 +107,7 @@ const ReviewDetailView: React.FC<ReviewDetailViewProps> = ({ review, onBack, isM
            <button 
             onClick={() => {
               if (isTrial) {
-                alert("Composer is locked. Please respond manually or upgrade.");
+                if (onShowUpgrade) onShowUpgrade();
               } else {
                 setComposerView('write');
               }
@@ -141,9 +142,9 @@ const ReviewDetailView: React.FC<ReviewDetailViewProps> = ({ review, onBack, isM
             </div>
 
             {isTrial && (
-              <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
+              <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl cursor-pointer hover:bg-amber-100 transition-colors" onClick={onShowUpgrade}>
                  <p className="text-xs text-amber-700 font-bold leading-relaxed">
-                   🔒 AI-powered response suggestions are a Professional feature. Respond manually below or upgrade to save hours every week.
+                   🔒 AI-powered response suggestions are a Professional feature. Click here to upgrade and save hours every week.
                  </p>
               </div>
             )}
@@ -166,7 +167,7 @@ const ReviewDetailView: React.FC<ReviewDetailViewProps> = ({ review, onBack, isM
             )}
 
             <button 
-              onClick={() => isTrial ? setComposerView('write') : generateAIResponse()}
+              onClick={() => isTrial ? (onShowUpgrade && onShowUpgrade()) : generateAIResponse()}
               className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-sm shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all"
             >
               {isGenerating ? (
@@ -174,7 +175,7 @@ const ReviewDetailView: React.FC<ReviewDetailViewProps> = ({ review, onBack, isM
               ) : (
                 <>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                  {isTrial ? 'Compose Manual Reply' : `Generate ${selectedTone} Response`}
+                  {isTrial ? 'Unlock AI Suggestions' : `Generate ${selectedTone} Response`}
                 </>
               )}
             </button>
