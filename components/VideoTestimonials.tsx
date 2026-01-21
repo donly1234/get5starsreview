@@ -22,7 +22,7 @@ const testimonialsData: Testimonial[] = [
     role: 'Owner & Founder',
     summary: "Implementing Get5StarsReview changed our business overnight. We went from 10 to 200 reviews in just two months and our phone hasn't stopped ringing!",
     videoUrl: 'https://cdn.pixabay.com/video/2016/09/21/5361-183769151_tiny.mp4',
-    thumbnail: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
+    thumbnail: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600',
     metric: '+184%',
     metricLabel: 'Visibility Lift',
     industry: 'Hospitality'
@@ -34,7 +34,7 @@ const testimonialsData: Testimonial[] = [
     role: 'Agency Director',
     summary: "The white-label features allowed me to scale to 40 clients in 6 months. It's the highest margin service in my agency by far.",
     videoUrl: 'https://cdn.pixabay.com/video/2020/09/24/50771-463212879_tiny.mp4',
-    thumbnail: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400',
+    thumbnail: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=600',
     metric: '$12k',
     metricLabel: 'Added MRR',
     industry: 'Marketing Agency'
@@ -45,8 +45,8 @@ const testimonialsData: Testimonial[] = [
     company: 'Reyes Family Dental',
     role: 'Lead Dentist',
     summary: "We used to struggle with 1-star spam. The automated filtering helped us recover our 4.9-star reputation in weeks.",
-    videoUrl: 'https://cdn.pixabay.com/video/2016/03/31/2539-159670119_tiny.mp4',
-    thumbnail: 'https://images.unsplash.com/photo-1559839734-2b71f153673f?auto=format&fit=crop&q=80&w=400',
+    videoUrl: 'https://cdn.pixabay.com/video/2017/08/04/10931-224855909_tiny.mp4', // More robust video link
+    thumbnail: 'https://images.unsplash.com/photo-1559839734-2b71f153673f?auto=format&fit=crop&q=80&w=600',
     metric: '4.9★',
     metricLabel: 'Average Rating',
     industry: 'Healthcare'
@@ -58,14 +58,19 @@ const GlowingVideoCard: React.FC<{ testimonial: Testimonial; isActive: boolean }
 
   useEffect(() => {
     if (isActive) {
-      videoRef.current?.play().catch(() => {});
+      const playPromise = videoRef.current?.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Auto-play might be blocked, silent fail is okay as poster shows
+        });
+      }
     } else {
       videoRef.current?.pause();
     }
   }, [isActive]);
 
   return (
-    <div className={`relative transition-all duration-700 flex flex-col items-center ${isActive ? 'scale-100 opacity-100 z-10' : 'scale-90 opacity-30 grayscale blur-[2px]'}`}>
+    <div className={`relative transition-all duration-700 flex flex-col items-center ${isActive ? 'scale-100 opacity-100 z-10' : 'scale-90 opacity-40 grayscale blur-[2px]'}`}>
       
       {/* Moving Glowing Border Effect */}
       {isActive && (
@@ -74,7 +79,14 @@ const GlowingVideoCard: React.FC<{ testimonial: Testimonial; isActive: boolean }
         </div>
       )}
 
-      <div className="relative w-[280px] md:w-[320px] aspect-[9/16] bg-black rounded-[32px] overflow-hidden shadow-2xl border-4 border-white/5 group">
+      <div className="relative w-[280px] md:w-[320px] aspect-[9/16] bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl border-4 border-white/5 group">
+        {/* Poster Image as a Background Fallback */}
+        <img 
+          src={testimonial.thumbnail} 
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isActive ? 'opacity-20' : 'opacity-100'}`} 
+          alt="background fallback"
+        />
+        
         <video
           ref={videoRef}
           src={testimonial.videoUrl}
@@ -82,11 +94,11 @@ const GlowingVideoCard: React.FC<{ testimonial: Testimonial; isActive: boolean }
           loop
           muted
           playsInline
-          className="w-full h-full object-cover"
+          className="relative z-10 w-full h-full object-cover"
         />
         
         {/* Floating ROI Badge */}
-        <div className={`absolute top-6 right-6 transition-all duration-700 ${isActive ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
+        <div className={`absolute top-6 right-6 z-20 transition-all duration-700 ${isActive ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
            <div className="bg-white p-3 rounded-2xl shadow-2xl border border-slate-100 flex flex-col items-center min-w-[100px] animate-bounce">
               <span className="text-xl font-black text-emerald-600 leading-none">{testimonial.metric}</span>
               <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1">{testimonial.metricLabel}</span>
@@ -94,14 +106,14 @@ const GlowingVideoCard: React.FC<{ testimonial: Testimonial; isActive: boolean }
         </div>
 
         {/* Industry Tag */}
-        <div className="absolute top-6 left-6">
+        <div className="absolute top-6 left-6 z-20">
            <span className="bg-black/60 backdrop-blur-md text-white text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-white/20">
              {testimonial.industry}
            </span>
         </div>
         
         {/* Card Overlay */}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/40 to-transparent p-8 space-y-4">
+        <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black via-black/40 to-transparent p-8 space-y-4">
           <div className="flex gap-0.5">
             {[...Array(5)].map((_, i) => (
               <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
@@ -166,6 +178,7 @@ const VideoTestimonials: React.FC = () => {
               const isPrev = diff === -1 || (currentIndex === 0 && i === testimonialsData.length - 1);
               const isNext = diff === 1 || (currentIndex === testimonialsData.length - 1 && i === 0);
               
+              // Ensure we show surrounding items in the small loop
               if (!isCenter && !isPrev && !isNext) return null;
 
               return (
