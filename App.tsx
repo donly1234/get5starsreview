@@ -24,9 +24,12 @@ import SignUpAgency from './components/Auth/SignUpAgency.tsx';
 import Login from './components/Auth/Login.tsx';
 import AppSelector from './components/Auth/AppSelector.tsx';
 import GBPAuditTool from './components/GBPAuditTool.tsx';
+import LegalView from './components/LegalView.tsx';
+import SocialNudge from './components/SocialNudge.tsx';
+import Newsletter from './components/Newsletter.tsx';
 
 export type UserType = 'business' | 'agency';
-export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'blog' | 'blog-post';
+export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'blog' | 'blog-post' | 'privacy' | 'terms';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>('loading');
@@ -80,6 +83,11 @@ const App: React.FC = () => {
     }
   };
 
+  const navigate = (newView: AppView) => {
+    setView(newView);
+    window.scrollTo(0, 0);
+  };
+
   if (view === 'loading') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
@@ -95,52 +103,60 @@ const App: React.FC = () => {
         onLogout={handleLogout} 
         userType={userType || 'business'} 
         user={user} 
-        onUpgradeFlow={() => setView('signup-business')} 
+        onUpgradeFlow={() => navigate('signup-business')} 
       />
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {view === 'login' && <Login onCancel={() => setView('landing')} onBusinessSignup={() => setView('signup-business')} onAgencySignup={() => setView('signup-agency')} onLoginSuccess={() => setView('dashboard')} />}
-      {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToAgency={() => setView('signup-agency')} />}
-      {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => setView('landing')} onSwitchToBusiness={() => setView('signup-business')} />}
+      {view === 'login' && <Login onCancel={() => navigate('landing')} onBusinessSignup={() => navigate('signup-business')} onAgencySignup={() => navigate('signup-agency')} onLoginSuccess={() => navigate('dashboard')} />}
+      {view === 'signup-business' && <SignUpBusiness onComplete={() => navigate('dashboard')} onCancel={() => navigate('landing')} onSwitchToAgency={() => navigate('signup-agency')} />}
+      {view === 'signup-agency' && <SignUpAgency onComplete={() => navigate('dashboard')} onCancel={() => navigate('landing')} onSwitchToBusiness={() => navigate('signup-business')} />}
 
       <Header 
-        onLogin={() => user ? setView('dashboard') : setView('login')} 
-        onToolsClick={() => { setView('app-selector'); window.scrollTo(0, 0); }}
-        onBusinessSignup={() => setView('signup-business')} 
-        onAgencySignup={() => setView('signup-agency')}
-        onHomeClick={() => setView('landing')}
-        onBlogClick={() => setView('blog')}
+        onLogin={() => user ? navigate('dashboard') : navigate('login')} 
+        onToolsClick={() => navigate('app-selector')}
+        onBusinessSignup={() => navigate('signup-business')} 
+        onAgencySignup={() => navigate('signup-agency')}
+        onHomeClick={() => navigate('landing')}
+        onBlogClick={() => navigate('blog')}
       />
       
       <main className="flex-grow">
-        {view === 'app-selector' && <AppSelector onSelect={handleAppSelect} onBack={() => setView('landing')} />}
-        {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} />}
-        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => setView('blog')} onSignup={() => setView('signup-business')} />}
-        {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => setView('signup-business')} /></div>}
+        {view === 'app-selector' && <AppSelector onSelect={handleAppSelect} onBack={() => navigate('landing')} />}
+        {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} />}
+        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
+        {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
+        {(view === 'privacy' || view === 'terms') && <LegalView type={view} onBack={() => navigate('landing')} />}
         
         {view === 'landing' && (
           <>
-            <Hero onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
+            <Hero onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
             <Integrations />
             <AboutUs />
             <InteractiveDemo />
             <MapComparison />
-            <HowItWorks onStart={() => setView('signup-business')} />
-            <Services onAuditClick={() => setView('app-selector')} />
+            <HowItWorks onStart={() => navigate('signup-business')} />
+            <Services onAuditClick={() => navigate('app-selector')} />
             <TrustStack />
             <Features />
             <VideoTestimonials />
-            <Pricing onStartBusiness={() => setView('signup-business')} onStartAgency={() => setView('signup-agency')} />
+            <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
             <FAQ />
-            <Blog onPostClick={(id) => { setSelectedPostId(id); setView('blog-post'); }} onViewAll={() => setView('blog')} />
+            <Blog onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} onViewAll={() => navigate('blog')} />
             <ContactUs />
+            <Newsletter />
+            <SocialNudge />
           </>
         )}
       </main>
-      <Footer onBlogClick={() => setView('blog')} onHomeClick={() => setView('landing')} />
+      <Footer 
+        onBlogClick={() => navigate('blog')} 
+        onHomeClick={() => navigate('landing')} 
+        onPrivacyClick={() => navigate('privacy')}
+        onTermsClick={() => navigate('terms')}
+      />
     </div>
   );
 };
