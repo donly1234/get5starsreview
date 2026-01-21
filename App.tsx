@@ -24,12 +24,13 @@ import SignUpAgency from './components/Auth/SignUpAgency.tsx';
 import Login from './components/Auth/Login.tsx';
 import AppSelector from './components/Auth/AppSelector.tsx';
 import GBPAuditTool from './components/GBPAuditTool.tsx';
+import HeatmapTool from './components/HeatmapTool.tsx';
 import LegalView from './components/LegalView.tsx';
 import SocialNudge from './components/SocialNudge.tsx';
 import Newsletter from './components/Newsletter.tsx';
 
 export type UserType = 'business' | 'agency';
-export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'blog' | 'blog-post' | 'privacy' | 'terms';
+export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'blog' | 'blog-post' | 'privacy' | 'terms';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>('loading');
@@ -82,6 +83,8 @@ const App: React.FC = () => {
   const handleAppSelect = (id: string) => {
     if (id === 'gbp-auditor') {
       setView('auditor');
+    } else if (id === 'heatmap') {
+      setView('heatmap');
     } else {
       setView(user ? 'dashboard' : 'login');
     }
@@ -134,6 +137,7 @@ const App: React.FC = () => {
         {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} />}
         {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
+        {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
         {(view === 'privacy' || view === 'terms') && <LegalView type={view} onBack={() => navigate('landing')} />}
         
         {view === 'landing' && (
