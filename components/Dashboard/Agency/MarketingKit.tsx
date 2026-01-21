@@ -20,6 +20,11 @@ const MarketingKit: React.FC = () => {
     niche: 'Local Businesses'
   });
 
+  const [deployedSites] = useState([
+    { domain: 'growth.myagency.com', template: 'The Growth Pro', status: 'Live', visitors: '1,284' },
+    { domain: 'sales.myagency.com', template: 'Dark Mode SaaS', status: 'Pending DNS', visitors: '0' },
+  ]);
+
   const generateAIContent = async () => {
     setIsGenerating(true);
     try {
@@ -139,6 +144,48 @@ const MarketingKit: React.FC = () => {
              </div>
           </div>
         ))}
+      </div>
+
+      <div className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-8 border-b border-slate-100">
+           <h3 className="text-lg font-black uppercase tracking-tight italic">Deployed Funnels</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              <tr>
+                <th className="px-8 py-4">Custom Domain</th>
+                <th className="px-8 py-4">Template</th>
+                <th className="px-8 py-4">Status</th>
+                <th className="px-8 py-4 text-center">Visitors</th>
+                <th className="px-8 py-4"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {deployedSites.map((s, i) => (
+                <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-8 py-5">
+                    <span className="text-sm font-bold text-blue-600 hover:underline cursor-pointer">{s.domain}</span>
+                  </td>
+                  <td className="px-8 py-5">
+                    <span className="text-xs font-medium text-slate-600">{s.template}</span>
+                  </td>
+                  <td className="px-8 py-5">
+                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${s.status === 'Live' ? 'bg-emerald-50 text-emerald-600' : 'bg-yellow-50 text-yellow-600'}`}>
+                      {s.status}
+                    </span>
+                  </td>
+                  <td className="px-8 py-5 text-center text-sm font-bold text-slate-900">{s.visitors}</td>
+                  <td className="px-8 py-5 text-right">
+                    <button className="text-slate-400 hover:text-slate-900 transition-colors">
+                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="bg-emerald-50 p-8 rounded-[40px] border border-emerald-100 flex flex-col md:flex-row items-center justify-between gap-8">
