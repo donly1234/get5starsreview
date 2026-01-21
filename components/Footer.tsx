@@ -1,12 +1,15 @@
+
 import React from 'react';
 import Logo from './Logo.tsx';
 
 interface FooterProps {
   onBlogClick: () => void;
   onHomeClick: () => void;
+  onPrivacyClick?: () => void;
+  onTermsClick?: () => void;
 }
 
-const Footer: React.FC<FooterProps> = ({ onBlogClick, onHomeClick }) => {
+const Footer: React.FC<FooterProps> = ({ onBlogClick, onHomeClick, onPrivacyClick, onTermsClick }) => {
   return (
     <footer className="bg-black text-white pt-16 md:pt-24 pb-12">
       <div className="container mx-auto px-4 md:px-6">
@@ -39,18 +42,19 @@ const Footer: React.FC<FooterProps> = ({ onBlogClick, onHomeClick }) => {
           <div>
             <h4 className="text-base md:text-lg font-black mb-6 md:mb-8 uppercase tracking-tight">Services</h4>
             <ul className="space-y-3 md:space-y-4 text-xs md:text-sm font-medium text-slate-400">
-              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors">GBP Management Service</button></li>
-              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors">Agency Partner Program</button></li>
-              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors">Local Citation Building</button></li>
+              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors text-left">GBP Management Service</button></li>
+              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors text-left">Agency Partner Program</button></li>
+              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors text-left">Local Citation Building</button></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-base md:text-lg font-black mb-6 md:mb-8 uppercase tracking-tight">Helpful Links</h4>
             <ul className="space-y-3 md:space-y-4 text-xs md:text-sm font-medium text-slate-400">
-              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors">Home</button></li>
-              <li><button onClick={onBlogClick} className="hover:text-[#16A34A] transition-colors font-bold text-white">Latest Blog Posts</button></li>
-              <li><button className="hover:text-[#16A34A] transition-colors">Privacy Policy</button></li>
+              <li><button onClick={onHomeClick} className="hover:text-[#16A34A] transition-colors text-left">Home</button></li>
+              <li><button onClick={onBlogClick} className="hover:text-[#16A34A] transition-colors font-bold text-white text-left">Latest Blog Posts</button></li>
+              <li><button onClick={onPrivacyClick} className="hover:text-[#16A34A] transition-colors text-left">Privacy Policy</button></li>
+              <li><button onClick={onTermsClick} className="hover:text-[#16A34A] transition-colors text-left">Terms of Service</button></li>
             </ul>
           </div>
         </div>
@@ -58,8 +62,8 @@ const Footer: React.FC<FooterProps> = ({ onBlogClick, onHomeClick }) => {
         <div className="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
            <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-8 text-[9px] md:text-[11px] font-bold uppercase tracking-widest">
              <span className="text-white">© Get5StarsReview</span>
-             <a href="#" className="text-slate-400 hover:text-[#16A34A]">Terms</a>
-             <a href="#" className="text-slate-400 hover:text-[#16A34A]">Privacy</a>
+             <button onClick={onTermsClick} className="text-slate-400 hover:text-[#16A34A]">Terms</button>
+             <button onClick={onPrivacyClick} className="text-slate-400 hover:text-[#16A34A]">Privacy</button>
            </div>
            <div className="flex items-center gap-2 md:gap-3">
               <span className="text-[10px] md:text-xs font-bold text-slate-400">Excellent</span>
