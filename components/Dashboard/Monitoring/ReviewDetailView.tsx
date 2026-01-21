@@ -19,6 +19,20 @@ const ReviewDetailView: React.FC<ReviewDetailViewProps> = ({ review, onBack, isM
   const [confidence, setConfidence] = useState<number | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
 
+  useEffect(() => {
+    // Sync with global settings if they exist
+    const loadConfig = () => {
+      const saved = localStorage.getItem('g5sr_ai_config');
+      if (saved) {
+        const config = JSON.parse(saved);
+        if (config.brandVoice) setSelectedTone(config.brandVoice.split(' ')[0]);
+      }
+    };
+    loadConfig();
+    window.addEventListener('g5sr_ai_updated', loadConfig);
+    return () => window.removeEventListener('g5sr_ai_updated', loadConfig);
+  }, []);
+
   const generateAIResponse = async (toneOverride?: string) => {
     if (isTrial) {
       if (onShowUpgrade) onShowUpgrade();
