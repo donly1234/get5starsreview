@@ -36,6 +36,7 @@ const App: React.FC = () => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [showCookieConsent, setShowCookieConsent] = useState(false);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -50,6 +51,9 @@ const App: React.FC = () => {
     };
 
     initializeAuth();
+
+    const consent = localStorage.getItem('g5sr_cookies');
+    if (!consent) setShowCookieConsent(true);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
@@ -110,6 +114,8 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <SystemStatus />
+      
       {view === 'login' && <Login onCancel={() => navigate('landing')} onBusinessSignup={() => navigate('signup-business')} onAgencySignup={() => navigate('signup-agency')} onLoginSuccess={() => navigate('dashboard')} />}
       {view === 'signup-business' && <SignUpBusiness onComplete={() => navigate('dashboard')} onCancel={() => navigate('landing')} onSwitchToAgency={() => navigate('signup-agency')} />}
       {view === 'signup-agency' && <SignUpAgency onComplete={() => navigate('dashboard')} onCancel={() => navigate('landing')} onSwitchToBusiness={() => navigate('signup-business')} />}
@@ -151,15 +157,54 @@ const App: React.FC = () => {
           </>
         )}
       </main>
+
       <Footer 
         onBlogClick={() => navigate('blog')} 
         onHomeClick={() => navigate('landing')} 
         onPrivacyClick={() => navigate('privacy')}
         onTermsClick={() => navigate('terms')}
       />
+
+      {showCookieConsent && <CookieConsent onClose={() => { localStorage.setItem('g5sr_cookies', 'true'); setShowCookieConsent(false); }} />}
     </div>
   );
 };
+
+const SystemStatus = () => (
+  <div className="bg-slate-950 py-2 border-b border-white/5 relative z-[60]">
+     <div className="container mx-auto px-6 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+           <span className="flex h-2 w-2 relative">
+             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+           </span>
+           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">GSR Core v5.2: All Systems Operational</span>
+        </div>
+        <div className="hidden md:flex items-center gap-4">
+           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Live Traffic: 2,142 Req/m</span>
+           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">API Latency: 42ms</span>
+        </div>
+     </div>
+  </div>
+);
+
+const CookieConsent = ({ onClose }: { onClose: () => void }) => (
+  <div className="fixed bottom-0 inset-x-0 z-[120] p-6 animate-in slide-in-from-bottom-full duration-500">
+     <div className="max-w-4xl mx-auto bg-white rounded-3xl p-6 shadow-[0_-20px_50px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex gap-4">
+           <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl shrink-0">🍪</div>
+           <div>
+              <p className="text-sm font-bold text-slate-900 leading-tight">We value your privacy.</p>
+              <p className="text-xs text-slate-500 mt-1">We use cookies to enhance your ranking experience and analyze platform performance. By clicking "Accept", you agree to our usage of cookies.</p>
+           </div>
+        </div>
+        <div className="flex gap-3 shrink-0">
+           <button onClick={onClose} className="px-6 py-3 rounded-xl text-xs font-black uppercase text-slate-400 hover:text-slate-900 transition-all tracking-widest">Settings</button>
+           <button onClick={onClose} className="px-8 py-3 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl">Accept All</button>
+        </div>
+     </div>
+  </div>
+);
 
 const TrustStack = () => (
   <div className="container mx-auto px-6 py-12">
