@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const AIAssistantManager: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
@@ -13,8 +13,17 @@ const AIAssistantManager: React.FC = () => {
     delayResponse: '30m'
   });
 
+  useEffect(() => {
+    const saved = localStorage.getItem('g5sr_ai_config');
+    if (saved) setSettings(JSON.parse(saved));
+  }, []);
+
   const handleSave = () => {
     setIsSaving(true);
+    localStorage.setItem('g5sr_ai_config', JSON.stringify(settings));
+    // Trigger global event for components like Composer
+    window.dispatchEvent(new Event('g5sr_ai_updated'));
+    
     setTimeout(() => {
       setIsSaving(false);
       setShowToast(true);
