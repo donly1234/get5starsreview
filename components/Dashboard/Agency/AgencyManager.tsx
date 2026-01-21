@@ -4,13 +4,14 @@ import ClientsTable from './ClientsTable';
 import WhiteLabelSettings from './WhiteLabelSettings';
 import AgencyMetrics from './AgencyMetrics';
 import MarketingKit from './MarketingKit';
+import ProspectingTool from './ProspectingTool';
 
 interface AgencyManagerProps {
   onSwitchClient: (name: string) => void;
 }
 
 const AgencyManager: React.FC<AgencyManagerProps> = ({ onSwitchClient }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'clients' | 'whitelabel' | 'marketing'>('overview');
+  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'clients' | 'prospecting' | 'whitelabel' | 'marketing'>('overview');
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-12">
@@ -26,8 +27,9 @@ const AgencyManager: React.FC<AgencyManagerProps> = ({ onSwitchClient }) => {
           {[
             { id: 'overview', label: 'Overview', icon: '📊' },
             { id: 'clients', label: 'Managed Clients', icon: '💼' },
-            { id: 'whitelabel', label: 'White-Labeling', icon: '🎨' },
+            { id: 'prospecting', label: 'Lead Finder', icon: '🔎' },
             { id: 'marketing', label: 'Marketing Kit', icon: '🚀' },
+            { id: 'whitelabel', label: 'Settings', icon: '🎨' },
           ].map(tab => (
             <button
               key={tab.id}
@@ -39,7 +41,7 @@ const AgencyManager: React.FC<AgencyManagerProps> = ({ onSwitchClient }) => {
               }`}
             >
               <span className="text-base leading-none">{tab.icon}</span>
-              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="hidden xl:inline">{tab.label}</span>
             </button>
           ))}
         </div>
@@ -48,6 +50,7 @@ const AgencyManager: React.FC<AgencyManagerProps> = ({ onSwitchClient }) => {
       <div className="grid grid-cols-1 gap-8">
         {activeSubTab === 'overview' && <AgencyMetrics />}
         {activeSubTab === 'clients' && <ClientsTable onImpersonate={onSwitchClient} />}
+        {activeSubTab === 'prospecting' && <ProspectingTool />}
         {activeSubTab === 'whitelabel' && <WhiteLabelSettings />}
         {activeSubTab === 'marketing' && <MarketingKit />}
       </div>
