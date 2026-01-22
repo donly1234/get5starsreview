@@ -35,6 +35,7 @@ const Header: React.FC<HeaderProps> = ({
     { name: 'Services', type: 'scroll', section: 'services' },
     { name: 'About', type: 'about' },
     { name: 'Pricing', section: 'pricing', type: 'scroll' },
+    { name: 'Agency', type: 'agency' },
     { name: 'Blog', section: 'blog', type: 'view' },
   ];
 
@@ -44,6 +45,8 @@ const Header: React.FC<HeaderProps> = ({
       onToolsClick();
     } else if (item.type === 'about') {
       if (onAboutClick) onAboutClick();
+    } else if (item.type === 'agency') {
+      onAgencySignup();
     } else if (item.type === 'view') {
       onBlogClick();
     } else if (item.type === 'scroll') {
