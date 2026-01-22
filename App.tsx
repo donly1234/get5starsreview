@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import Header from './components/Header';
@@ -93,7 +94,7 @@ const App: React.FC = () => {
 
   const navigate = (newView: AppView) => {
     setView(newView);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const scrollToSection = (sectionId: string) => {
@@ -118,172 +119,179 @@ const App: React.FC = () => {
     );
   }
 
+  // Auth views should be isolated and not render the global Header/Footer
+  const isAuthView = ['login', 'signup-business', 'signup-agency', 'reset-password'].includes(view);
+
+  if (user && view === 'dashboard') {
+    return (
+      <Dashboard 
+        onLogout={handleLogout} 
+        userType={userType || 'business'} 
+        user={user} 
+        onUpgradeFlow={() => navigate('signup-business')} 
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white overflow-x-hidden relative">
-      <SystemStatus />
+      {!isAuthView && <SystemStatus />}
       
-      {user && view === 'dashboard' ? (
-        <Dashboard 
-          onLogout={handleLogout} 
-          userType={userType || 'business'} 
-          user={user} 
-          onUpgradeFlow={() => navigate('signup-business')} 
+      {/* Auth Components - Full Screen Modals */}
+      {(view === 'login' || view === 'reset-password') && (
+        <Login 
+          initialMode={view === 'reset-password' ? 'reset' : 'login'}
+          onCancel={() => navigate('landing')} 
+          onBusinessSignup={() => navigate('signup-business')} 
+          onAgencySignup={() => navigate('signup-agency')} 
+          onLoginSuccess={() => setView('dashboard')} 
         />
-      ) : (
-        <>
-          {(view === 'login' || view === 'reset-password') && (
-            <Login 
-              initialMode={view === 'reset-password' ? 'reset' : 'login'}
-              onCancel={() => navigate('landing')} 
-              onBusinessSignup={() => navigate('signup-business')} 
-              onAgencySignup={() => navigate('signup-agency')} 
-              onLoginSuccess={() => setView('dashboard')} 
-            />
-          )}
-          {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToAgency={() => navigate('signup-agency')} />}
-          {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToBusiness={() => navigate('signup-business')} />}
+      )}
+      {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToAgency={() => navigate('signup-agency')} />}
+      {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToBusiness={() => navigate('signup-business')} />}
 
-          <Header 
-            onLogin={() => user ? setView('dashboard') : navigate('login')} 
-            onToolsClick={() => navigate('app-selector')}
-            onBusinessSignup={() => navigate('signup-business')} 
-            onAgencySignup={() => navigate('signup-agency')}
-            onHomeClick={() => navigate('landing')}
-            onBlogClick={() => navigate('blog')}
-            onAboutClick={() => navigate('about')}
-            onScrollToSection={scrollToSection}
+      {!isAuthView && (
+        <Header 
+          onLogin={() => navigate('login')} 
+          onToolsClick={() => navigate('app-selector')}
+          onBusinessSignup={() => navigate('signup-business')} 
+          onAgencySignup={() => navigate('signup-agency')}
+          onHomeClick={() => navigate('landing')}
+          onBlogClick={() => navigate('blog')}
+          onAboutClick={() => navigate('about')}
+          onScrollToSection={scrollToSection}
+        />
+      )}
+      
+      <main className="flex-grow">
+        {view === 'app-selector' && (
+          <AppSelector 
+            onSelect={(id) => {
+              if (id === 'gbp-auditor') navigate('auditor');
+              else if (id === 'heatmap') navigate('heatmap');
+              else if (id === 'prospector') navigate('prospector');
+              else navigate(user ? 'dashboard' : 'login');
+            }} 
+            onBack={() => navigate('landing')} 
           />
-          
-          <main className="flex-grow">
-            {view === 'app-selector' && (
-              <AppSelector 
-                onSelect={(id) => {
-                  if (id === 'gbp-auditor') navigate('auditor');
-                  else if (id === 'heatmap') navigate('heatmap');
-                  else if (id === 'prospector') navigate('prospector');
-                  else navigate(user ? 'dashboard' : 'login');
-                }} 
-                onBack={() => navigate('landing')} 
-              />
-            )}
-            {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} />}
-            {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
-            {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
-            {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
-            {view === 'prospector' && <div className="pt-20 container mx-auto px-6"><ProspectingTool /></div>}
-            {(view === 'privacy' || view === 'terms') && <LegalView type={view} onBack={() => navigate('landing')} />}
-            {view === 'about' && <AboutView onBack={() => navigate('landing')} onStart={() => navigate('signup-business')} />}
+        )}
+        {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} />}
+        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
+        {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
+        {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
+        {view === 'prospector' && <div className="pt-20 container mx-auto px-6"><ProspectingTool /></div>}
+        {(view === 'privacy' || view === 'terms') && <LegalView type={view} onBack={() => navigate('landing')} />}
+        {view === 'about' && <AboutView onBack={() => navigate('landing')} onStart={() => navigate('signup-business')} />}
+        
+        {view === 'landing' && (
+          <div className="overflow-x-hidden">
+            <Hero 
+              onStartBusiness={() => navigate('signup-business')} 
+              onStartAgency={() => navigate('signup-agency')} 
+              onProspectorClick={() => navigate('prospector')} 
+            />
+            <Integrations />
+            <AboutUs />
+            <section id="ranking-report" className="py-24 bg-slate-50">
+              <div className="container mx-auto px-6 text-center mb-16">
+                <span className="text-[#16A34A] font-black text-[10px] uppercase tracking-widest">Market Intel</span>
+                <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] uppercase italic">Get Your <span className="text-[#16A34A]">Ranking Report</span></h2>
+              </div>
+              <div className="container mx-auto px-6">
+                <ProspectingTool />
+              </div>
+            </section>
+            <InteractiveDemo />
+            <ROICalculator onStart={() => navigate('signup-business')} />
             
-            {view === 'landing' && (
-              <div className="overflow-x-hidden">
-                <Hero 
-                  onStartBusiness={() => navigate('signup-business')} 
-                  onStartAgency={() => navigate('signup-agency')} 
-                  onProspectorClick={() => navigate('prospector')} 
-                />
-                <Integrations />
-                <AboutUs />
-                <section id="ranking-report" className="py-24 bg-slate-50">
-                  <div className="container mx-auto px-6 text-center mb-16">
-                    <span className="text-[#16A34A] font-black text-[10px] uppercase tracking-widest">Market Intel</span>
-                    <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] uppercase italic">Get Your <span className="text-[#16A34A]">Ranking Report</span></h2>
-                  </div>
-                  <div className="container mx-auto px-6">
-                    <ProspectingTool />
-                  </div>
-                </section>
-                <InteractiveDemo />
-                <ROICalculator onStart={() => navigate('signup-business')} />
-                
-                {/* Agency Program Details Section */}
-                <section id="agency-program" className="py-24 bg-white scroll-mt-32">
-                  <div className="container mx-auto px-6">
-                    <div className="bg-[#0F172A] rounded-[64px] p-8 md:p-20 text-white relative overflow-hidden shadow-2xl border-b-8 border-[#FACC15]">
-                      <div className="absolute top-0 right-0 w-1/2 h-full bg-[#16A34A]/5 blur-3xl rounded-full translate-x-1/2"></div>
-                      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                        <div className="space-y-10">
-                          <div className="space-y-4">
-                            <span className="text-[#FACC15] font-black uppercase tracking-[0.3em] text-[10px]">Partnership Opportunity</span>
-                            <h2 className="text-4xl md:text-6xl font-black leading-none uppercase italic tracking-tighter">
-                              Scale Your <br /> <span className="text-[#16A34A]">Agency Brand.</span>
-                            </h2>
-                            <p className="text-slate-400 text-lg font-medium leading-relaxed">
-                              Own the #1 local SEO software under your own brand. Provide world-class reputation tools to your clients without writing a single line of code.
-                            </p>
-                          </div>
-                          <ul className="space-y-4">
-                            {[
-                              '100% White Label Branding',
-                              'Custom CNAME / Custom Domain',
-                              'Centralized Multi-Client Dashboard',
-                              'Bulk Reseller Pricing',
-                              'Lead Prospecting & Audit Tools',
-                              'Marketing Sales Kits Included'
-                            ].map((item, i) => (
-                              <li key={i} className="flex items-center gap-3 text-sm font-bold text-slate-300">
-                                <svg className="w-5 h-5 text-[#FACC15] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                          <button 
-                            onClick={() => navigate('signup-agency')}
-                            className="bg-[#16A34A] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black transition-all shadow-xl active:scale-95 cursor-pointer"
-                          >
-                            Join Agency Program
-                          </button>
-                        </div>
-                        <div className="bg-white/5 border border-white/10 p-10 md:p-16 rounded-[48px] space-y-8 relative group">
-                           <div className="text-center space-y-2">
-                             <p className="text-[#FACC15] font-black uppercase text-[10px] tracking-widest">Reseller Package</p>
-                             <p className="text-5xl font-black text-white">$250<span className="text-lg text-slate-500">/mo</span></p>
-                             <p className="text-xs text-slate-400 font-bold">Unlimited Client Accounts</p>
-                           </div>
-                           <div className="h-px w-full bg-white/10"></div>
-                           <div className="space-y-4">
-                              <p className="text-sm font-bold text-slate-300 italic">"Get5StarsReview is the most profitable service in our agency. Our clients love the automated responses and we love the white-label recurring revenue."</p>
-                              <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-full bg-slate-800"></div>
-                                <div>
-                                   <p className="text-xs font-black uppercase tracking-tighter">Mark Thompson</p>
-                                   <p className="text-[10px] text-slate-500 font-bold">Summit Marketing Director</p>
-                                </div>
-                              </div>
-                           </div>
-                        </div>
+            <section id="agency-program" className="py-24 bg-white scroll-mt-32">
+              <div className="container mx-auto px-6">
+                <div className="bg-[#0F172A] rounded-[64px] p-8 md:p-20 text-white relative overflow-hidden shadow-2xl border-b-8 border-[#FACC15]">
+                  <div className="absolute top-0 right-0 w-1/2 h-full bg-[#16A34A]/5 blur-3xl rounded-full translate-x-1/2"></div>
+                  <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                    <div className="space-y-10">
+                      <div className="space-y-4">
+                        <span className="text-[#FACC15] font-black uppercase tracking-[0.3em] text-[10px]">Partnership Opportunity</span>
+                        <h2 className="text-4xl md:text-6xl font-black leading-none uppercase italic tracking-tighter">
+                          Scale Your <br /> <span className="text-[#16A34A]">Agency Brand.</span>
+                        </h2>
+                        <p className="text-slate-400 text-lg font-medium leading-relaxed">
+                          Own the #1 local SEO software under your own brand. Provide world-class reputation tools to your clients without writing a single line of code.
+                        </p>
                       </div>
+                      <ul className="space-y-4">
+                        {[
+                          '100% White Label Branding',
+                          'Custom CNAME / Custom Domain',
+                          'Centralized Multi-Client Dashboard',
+                          'Bulk Reseller Pricing',
+                          'Lead Prospecting & Audit Tools',
+                          'Marketing Sales Kits Included'
+                        ].map((item, i) => (
+                          <li key={i} className="flex items-center gap-3 text-sm font-bold text-slate-300">
+                            <svg className="w-5 h-5 text-[#FACC15] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                      <button 
+                        onClick={() => navigate('signup-agency')}
+                        className="bg-[#16A34A] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black transition-all shadow-xl active:scale-95 cursor-pointer"
+                      >
+                        Join Agency Program
+                      </button>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 p-10 md:p-16 rounded-[48px] space-y-8 relative group">
+                       <div className="text-center space-y-2">
+                         <p className="text-[#FACC15] font-black uppercase text-[10px] tracking-widest">Reseller Package</p>
+                         <p className="text-5xl font-black text-white">$250<span className="text-lg text-slate-500">/mo</span></p>
+                         <p className="text-xs text-slate-400 font-bold">Unlimited Client Accounts</p>
+                       </div>
+                       <div className="h-px w-full bg-white/10"></div>
+                       <div className="space-y-4">
+                          <p className="text-sm font-bold text-slate-300 italic">"Get5StarsReview is the most profitable service in our agency. Our clients love the automated responses and we love the white-label recurring revenue."</p>
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-slate-800"></div>
+                            <div>
+                               <p className="text-xs font-black uppercase tracking-tighter">Mark Thompson</p>
+                               <p className="text-[10px] text-slate-500 font-bold">Summit Marketing Director</p>
+                            </div>
+                          </div>
+                       </div>
                     </div>
                   </div>
-                </section>
-
-                <MapComparison />
-                <DashboardShowcase />
-                <HowItWorks onStart={() => navigate('signup-business')} />
-                <Services onAuditClick={() => navigate('app-selector')} onSignup={() => navigate('signup-business')} />
-                <TrustStack />
-                <Features onSignup={() => navigate('signup-business')} onContact={() => scrollToSection('contact')} />
-                <VideoTestimonials />
-                <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
-                <FAQ />
-                <Blog onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} onViewAll={() => navigate('blog')} />
-                <ContactUs />
-                <Newsletter />
-                <SocialNudge />
+                </div>
               </div>
-            )}
-          </main>
+            </section>
 
-          <Footer 
-            onBlogClick={() => navigate('blog')} 
-            onHomeClick={() => navigate('landing')} 
-            onPrivacyClick={() => navigate('privacy')}
-            onTermsClick={() => navigate('terms')}
-            onAboutClick={() => navigate('about')}
-            onScrollToSection={scrollToSection}
-            onAgencySignup={() => navigate('signup-agency')}
-            onToolsClick={() => navigate('app-selector')}
-          />
-        </>
+            <MapComparison />
+            <DashboardShowcase />
+            <HowItWorks onStart={() => navigate('signup-business')} />
+            <Services onAuditClick={() => navigate('app-selector')} onSignup={() => navigate('signup-business')} />
+            <TrustStack />
+            <Features onSignup={() => navigate('signup-business')} onContact={() => scrollToSection('contact')} />
+            <VideoTestimonials />
+            <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
+            <FAQ />
+            <Blog onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} onViewAll={() => navigate('blog')} />
+            <ContactUs />
+            <Newsletter />
+            <SocialNudge />
+          </div>
+        )}
+      </main>
+
+      {!isAuthView && (
+        <Footer 
+          onBlogClick={() => navigate('blog')} 
+          onHomeClick={() => navigate('landing')} 
+          onPrivacyClick={() => navigate('privacy')}
+          onTermsClick={() => navigate('terms')}
+          onAboutClick={() => navigate('about')}
+          onScrollToSection={scrollToSection}
+          onAgencySignup={() => navigate('signup-agency')}
+          onToolsClick={() => navigate('app-selector')}
+        />
       )}
 
       {showCookieConsent && <CookieConsent onClose={() => { localStorage.setItem('g5sr_cookies', 'true'); setShowCookieConsent(false); }} />}
