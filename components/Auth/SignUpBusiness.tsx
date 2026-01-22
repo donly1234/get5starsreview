@@ -17,7 +17,9 @@ const industries = [
 const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, onSwitchToAgency, isUpgradeFlow = false, skipSuccessScreen = false }) => {
   const [step, setStep] = useState(isUpgradeFlow ? 4 : 1);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [verificationRequired, setVerificationRequired] = useState(false);
   const [formData, setFormData] = useState({
     email: '', password: '', businessName: '', fullName: '', phone: '',
@@ -35,12 +37,10 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
 
     setLoading(true);
     setError(null);
+    setSuccessMsg(null);
     
     try {
-      // Explicitly use production URL for verification link redirects
-      const redirectUrl = window.location.hostname === 'localhost' 
-        ? window.location.origin 
-        : 'https://get5starsreview.com';
+      const redirectUrl = window.location.origin;
 
       const { data, error: signupError } = await supabase.auth.signUp({
         email: formData.email,
@@ -79,18 +79,36 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
     }
   };
 
+  const handleResendVerification = async () => {
+    if (!formData.email) return;
+    setResending(true);
+    setError(null);
+    setSuccessMsg(null);
+    
+    const { error: resendError } = await supabase.auth.resend({
+      type: 'signup',
+      email: formData.email,
+      options: {
+        emailRedirectTo: window.location.origin
+      }
+    });
+
+    if (resendError) {
+      setError(resendError.message);
+    } else {
+      setSuccessMsg("Verification email sent! Please check your inbox.");
+    }
+    setResending(false);
+  };
+
   const handleGoogleSignup = async () => {
     setLoading(true);
     setError(null);
     try {
-      const redirectUrl = window.location.hostname === 'localhost' 
-        ? window.location.origin 
-        : 'https://get5starsreview.com';
-
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: window.location.origin,
         }
       });
       if (googleError) throw googleError;
@@ -104,19 +122,34 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
     if (verificationRequired) {
       return (
         <div className="text-center space-y-6 animate-in fade-in zoom-in-95 duration-300 py-8">
-          <div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-sm">✉️</div>
-          <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">Verify Your Email</h2>
-          <p className="text-slate-500 font-bold max-w-md mx-auto">
-            We've sent a confirmation link to <span className="text-slate-900 font-black">{formData.email}</span>. 
-            Please check your inbox and click the link to activate your account.
+          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-sm animate-pulse">✉️</div>
+          <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">Check Your Inbox</h2>
+          <p className="text-slate-500 font-bold max-w-md mx-auto leading-relaxed">
+            Almost there! We've sent a verification link to <br /> <span className="text-slate-900 font-black px-2 py-1 bg-slate-100 rounded">{formData.email}</span>. 
+            Click the link in that email to activate your account.
           </p>
-          <div className="pt-6">
+
+          {successMsg && (
+            <div className="p-4 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-2xl text-sm font-bold animate-bounce">
+              {successMsg}
+            </div>
+          )}
+
+          <div className="pt-6 flex flex-col gap-4">
+            <button 
+              onClick={handleResendVerification}
+              disabled={resending}
+              className="text-xs font-black text-emerald-600 uppercase tracking-widest hover:underline disabled:opacity-50 cursor-pointer"
+            >
+              {resending ? "Sending..." : "Didn't get the email? Resend link"}
+            </button>
             <button 
               onClick={onCancel}
-              className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all"
+              className="px-8 py-4 bg-slate-950 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-xl cursor-pointer"
             >
               Return to Homepage
             </button>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tip: Check your spam folder if you don't see it.</p>
           </div>
         </div>
       );
@@ -134,7 +167,7 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
             <button 
               onClick={handleGoogleSignup}
               disabled={loading}
-              className="w-full py-4 border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 mb-6 group"
+              className="w-full py-4 border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 mb-6 group cursor-pointer"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-slate-300 border-t-green-600 rounded-full animate-spin"></div>
@@ -181,12 +214,12 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
                 setError(null);
                 setStep(2);
               }}
-              className="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-green-500/20 hover:bg-green-700 transition-all active:scale-[0.98] uppercase tracking-widest"
+              className="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-green-500/20 hover:bg-green-700 transition-all active:scale-[0.98] uppercase tracking-widest cursor-pointer"
             >
               Continue to Setup
             </button>
             <div className="text-center">
-              <button onClick={onSwitchToAgency} className="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest underline">Are you an Agency? Click here</button>
+              <button onClick={onSwitchToAgency} className="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest underline cursor-pointer">Are you an Agency? Click here</button>
             </div>
           </div>
         );
@@ -201,7 +234,7 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <label className="block space-y-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Industry</span>
-                <select value={formData.industry} onChange={e => updateForm({industry: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 outline-none font-bold">
+                <select value={formData.industry} onChange={e => updateForm({industry: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 outline-none font-bold cursor-pointer">
                   {industries.map(i => <option key={i} value={i}>{i}</option>)}
                 </select>
               </label>
@@ -216,14 +249,14 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
                   setError(null);
                   setStep(1);
                 }}
-                className="flex-1 bg-slate-100 text-slate-600 py-5 rounded-2xl font-black text-lg hover:bg-slate-200 transition-all uppercase tracking-widest"
+                className="flex-1 bg-slate-100 text-slate-600 py-5 rounded-2xl font-black text-lg hover:bg-slate-200 transition-all uppercase tracking-widest cursor-pointer"
               >
                 Back
               </button>
               <button 
                 onClick={handleSignupComplete} 
                 disabled={loading}
-                className="flex-[2] bg-slate-900 text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98] flex items-center justify-center disabled:opacity-50 uppercase tracking-widest"
+                className="flex-[2] bg-slate-900 text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98] flex items-center justify-center disabled:opacity-50 uppercase tracking-widest cursor-pointer"
               >
                 {loading ? (
                   <div className="flex items-center gap-3">
@@ -244,10 +277,10 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-slate-50 flex flex-col overflow-y-auto">
-      <div className="max-w-4xl mx-auto w-full px-6 py-12 md:py-24">
-        <div className="flex justify-between items-center mb-12 shrink-0">
-           <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 font-black transition-all uppercase text-xs tracking-widest">
+    <div className="bg-slate-50 min-h-full flex flex-col py-12 md:py-24">
+      <div className="max-w-4xl mx-auto w-full px-6">
+        <div className="flex justify-between items-center mb-12">
+           <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 font-black transition-all uppercase text-xs tracking-widest cursor-pointer">
              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"/></svg>
              Back to Home
            </button>
