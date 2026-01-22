@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
 
@@ -53,21 +52,21 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 z-[140] transition-all duration-700 ${isScrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
+      <header className={`fixed top-0 left-0 right-0 transition-all duration-700 pointer-events-none z-[200] ${isScrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
         <div className="container mx-auto px-4 md:px-6">
-          <div className={`glass-panel rounded-[24px] md:rounded-[32px] px-3 md:px-6 py-2 md:py-3 flex items-center justify-between transition-all duration-500 ${isScrolled ? 'shadow-2xl border-slate-200 bg-white/95' : 'border-transparent bg-transparent shadow-none'}`}>
+          <div className={`glass-panel rounded-[24px] md:rounded-[32px] px-3 md:px-6 py-2 md:py-3 flex items-center justify-between transition-all duration-500 pointer-events-auto ${isScrolled ? 'shadow-2xl border-slate-200 bg-white/95' : 'border-transparent bg-transparent shadow-none'}`}>
             
             <div className="flex items-center gap-2 md:gap-8">
-              <div className="cursor-pointer hover:scale-105 transition-transform pointer-events-auto" onClick={onHomeClick}>
+              <div className="cursor-pointer hover:scale-105 transition-transform" onClick={() => { onHomeClick(); window.scrollTo(0,0); }}>
                  <Logo variant="full" className="scale-[0.5] md:scale-[0.7] origin-left" />
               </div>
               
-              <nav className="hidden lg:flex items-center gap-2 xl:gap-6 relative z-[150] pointer-events-auto">
+              <nav className="hidden lg:flex items-center gap-2 xl:gap-6">
                 {navItems.map(item => (
                   <button 
                     key={item.name}
                     onClick={() => handleNav(item)}
-                    className="text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-all uppercase tracking-[0.15em] xl:tracking-[0.2em] cursor-pointer p-3 hover:scale-110"
+                    className="text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-all uppercase tracking-[0.15em] xl:tracking-[0.2em] cursor-pointer p-4 hover:scale-110 active:scale-95"
                   >
                     {item.name}
                   </button>
@@ -75,10 +74,10 @@ const Header: React.FC<HeaderProps> = ({
               </nav>
             </div>
 
-            <div className="flex items-center gap-1 md:gap-4 relative z-[150] pointer-events-auto">
+            <div className="flex items-center gap-1 md:gap-4">
               <button 
                 onClick={onLogin}
-                className="hidden md:block text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-all uppercase tracking-[0.15em] xl:tracking-[0.2em] px-4 py-2 cursor-pointer hover:scale-110"
+                className="hidden md:block text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-all uppercase tracking-[0.15em] xl:tracking-[0.2em] px-4 py-2 cursor-pointer hover:scale-110 active:scale-95"
               >
                 Login
               </button>
@@ -97,9 +96,9 @@ const Header: React.FC<HeaderProps> = ({
       </header>
 
       {/* Mobile Menu */}
-      <div className={`fixed inset-0 z-[200] bg-white transition-all duration-500 ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
+      <div className={`fixed inset-0 z-[300] bg-white transition-all duration-500 ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
         <div className="p-6 md:p-8 flex justify-between items-center">
-            <div onClick={() => { onHomeClick(); setIsMobileMenuOpen(false); }} className="cursor-pointer">
+            <div onClick={() => { onHomeClick(); setIsMobileMenuOpen(false); window.scrollTo(0,0); }} className="cursor-pointer">
               <Logo variant="full" className="scale-75 origin-left" />
             </div>
             <button onClick={() => setIsMobileMenuOpen(false)} className="p-3 bg-slate-50 rounded-full cursor-pointer" aria-label="Close Menu">
