@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient.ts';
 import Header from './components/Header.tsx';
-import Hero from './components/Hero.tsx';
+import Hero from './components/Hero';
 import Integrations from './components/Integrations.tsx';
 import AboutUs from './components/AboutUs.tsx';
 import InteractiveDemo from './components/InteractiveDemo.tsx';
