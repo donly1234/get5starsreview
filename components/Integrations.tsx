@@ -15,10 +15,10 @@ const Integrations: React.FC = () => {
   const scrollItems = [...allPlatforms, ...allPlatforms];
 
   return (
-    <section className="py-16 bg-white border-y border-slate-100 overflow-hidden">
-      <div className="container mx-auto px-4 md:px-6 mb-10">
+    <section className="py-8 md:py-12 bg-white border-y border-slate-100 overflow-hidden">
+      <div className="container mx-auto px-4 md:px-6 mb-6">
         <div className="text-center">
-          <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px]">
+          <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-[10px]">
             TRUSTED BY 2,000+ BUSINESSES & INTEGRATING WITH
           </p>
         </div>
