@@ -1,6 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
+
+// Core Components
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Integrations from './components/Integrations';
@@ -63,16 +64,11 @@ const App: React.FC = () => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
-        // Only force dashboard if they aren't already there or on a sub-view
-        if (['login', 'signup-business', 'signup-agency', 'landing', 'loading'].includes(view)) {
-          setView('dashboard');
-        }
+        setView(prev => ['login', 'signup-business', 'signup-agency', 'landing', 'loading'].includes(prev) ? 'dashboard' : prev);
       } else {
         setUser(null);
         setUserType(null);
-        if (view === 'dashboard') {
-          setView('landing');
-        }
+        setView(prev => prev === 'dashboard' ? 'landing' : prev);
       }
 
       if (event === 'PASSWORD_RECOVERY') {
@@ -84,7 +80,7 @@ const App: React.FC = () => {
     if (!consent) setShowCookieConsent(true);
 
     return () => subscription.unsubscribe();
-  }, [view]);
+  }, []);
 
   const handleLogout = async () => {
     setAuthReady(false);
@@ -145,7 +141,7 @@ const App: React.FC = () => {
               onCancel={() => navigate('landing')} 
               onBusinessSignup={() => navigate('signup-business')} 
               onAgencySignup={() => navigate('signup-agency')} 
-              onLoginSuccess={() => {}} // Relies on onAuthStateChange
+              onLoginSuccess={() => {}} 
             />
           )}
           {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToAgency={() => navigate('signup-agency')} />}
@@ -210,6 +206,7 @@ const App: React.FC = () => {
             <DashboardShowcase />
             <HowItWorks onStart={() => navigate('signup-business')} />
             <Services onAuditClick={() => navigate('app-selector')} onSignup={() => navigate('signup-business')} />
+            <TrustStack />
             <Features onSignup={() => navigate('signup-business')} onContact={() => scrollToSection('contact')} />
             <VideoTestimonials />
             <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
@@ -269,6 +266,32 @@ const CookieConsent = ({ onClose }: { onClose: () => void }) => (
         </div>
         <div className="flex gap-3 shrink-0">
            <button onClick={onClose} className="px-8 py-3 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#16A34A] transition-all shadow-xl cursor-pointer">Accept All</button>
+        </div>
+     </div>
+  </div>
+);
+
+const TrustStack = () => (
+  <div className="container mx-auto px-6 py-12">
+     <div className="bg-slate-950 rounded-[32px] md:rounded-[48px] p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 border-b-4 border-[#16A34A] shadow-2xl">
+        <div className="space-y-4 text-center md:text-left">
+           <span className="text-[#16A34A] font-black text-[10px] uppercase tracking-[0.3em]">Market Authority</span>
+           <h3 className="text-2xl md:text-3xl font-black uppercase italic tracking-tight leading-none">The Trusted Choice for <br />Local Domination.</h3>
+           <p className="text-slate-400 font-medium max-w-sm mx-auto md:mx-0 text-sm">Join 2,000+ brands automating their path to Google Maps perfection.</p>
+        </div>
+        <div className="flex gap-6 md:gap-10">
+           <div className="text-center">
+             <p className="text-2xl md:text-4xl font-black text-[#16A34A]">98%</p>
+             <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mt-1">Retention</p>
+           </div>
+           <div className="text-center">
+             <p className="text-2xl md:text-4xl font-black text-[#16A34A]">1.2M</p>
+             <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mt-1">Requests</p>
+           </div>
+           <div className="text-center">
+             <p className="text-2xl md:text-4xl font-black text-[#16A34A]">24/7</p>
+             <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mt-1">AI Logic</p>
+           </div>
         </div>
      </div>
   </div>
