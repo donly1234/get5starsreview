@@ -112,7 +112,7 @@ const App: React.FC = () => {
   if (view === 'loading' || !authReady) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-        <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <div className="w-12 h-12 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin mb-4"></div>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Securing Connection...</p>
       </div>
     );
@@ -176,13 +176,17 @@ const App: React.FC = () => {
             
             {view === 'landing' && (
               <div className="overflow-x-hidden">
-                <Hero onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} onProspectorClick={() => navigate('prospector')} />
+                <Hero 
+                  onStartBusiness={() => navigate('signup-business')} 
+                  onStartAgency={() => navigate('signup-agency')} 
+                  onProspectorClick={() => navigate('prospector')} 
+                />
                 <Integrations />
                 <AboutUs />
                 <section className="py-24 bg-slate-50">
                   <div className="container mx-auto px-6 text-center mb-16">
-                    <span className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">Market Intel</span>
-                    <h2 className="text-4xl md:text-6xl font-black text-slate-900 uppercase italic">Get Your <span className="text-emerald-600">Ranking Report</span></h2>
+                    <span className="text-[#16A34A] font-black text-[10px] uppercase tracking-widest">Market Intel</span>
+                    <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] uppercase italic">Get Your <span className="text-[#16A34A]">Ranking Report</span></h2>
                   </div>
                   <div className="container mx-auto px-6">
                     <ProspectingTool />
@@ -190,6 +194,68 @@ const App: React.FC = () => {
                 </section>
                 <InteractiveDemo />
                 <ROICalculator onStart={() => navigate('signup-business')} />
+                
+                {/* Agency Program Details Section */}
+                <section id="agency-program" className="py-24 bg-white">
+                  <div className="container mx-auto px-6">
+                    <div className="bg-[#0F172A] rounded-[64px] p-8 md:p-20 text-white relative overflow-hidden shadow-2xl border-b-8 border-[#FACC15]">
+                      <div className="absolute top-0 right-0 w-1/2 h-full bg-[#16A34A]/5 blur-3xl rounded-full translate-x-1/2"></div>
+                      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                        <div className="space-y-10">
+                          <div className="space-y-4">
+                            <span className="text-[#FACC15] font-black uppercase tracking-[0.3em] text-[10px]">Partnership Opportunity</span>
+                            <h2 className="text-4xl md:text-6xl font-black leading-none uppercase italic tracking-tighter">
+                              Scale Your <br /> <span className="text-[#16A34A]">Agency Brand.</span>
+                            </h2>
+                            <p className="text-slate-400 text-lg font-medium leading-relaxed">
+                              Own the #1 local SEO software under your own brand. Provide world-class reputation tools to your clients without writing a single line of code.
+                            </p>
+                          </div>
+                          <ul className="space-y-4">
+                            {[
+                              '100% White Label Branding',
+                              'Custom CNAME / Custom Domain',
+                              'Centralized Multi-Client Dashboard',
+                              'Bulk Reseller Pricing',
+                              'Lead Prospecting & Audit Tools',
+                              'Marketing Sales Kits Included'
+                            ].map((item, i) => (
+                              <li key={i} className="flex items-center gap-3 text-sm font-bold text-slate-300">
+                                <svg className="w-5 h-5 text-[#FACC15] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                          <button 
+                            onClick={() => navigate('signup-agency')}
+                            className="bg-[#16A34A] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black transition-all shadow-xl active:scale-95"
+                          >
+                            Join Agency Program
+                          </button>
+                        </div>
+                        <div className="bg-white/5 border border-white/10 p-10 md:p-16 rounded-[48px] space-y-8 relative group">
+                           <div className="text-center space-y-2">
+                             <p className="text-[#FACC15] font-black uppercase text-[10px] tracking-widest">Reseller Package</p>
+                             <p className="text-5xl font-black text-white">$250<span className="text-lg text-slate-500">/mo</span></p>
+                             <p className="text-xs text-slate-400 font-bold">Unlimited Client Accounts</p>
+                           </div>
+                           <div className="h-px w-full bg-white/10"></div>
+                           <div className="space-y-4">
+                              <p className="text-sm font-bold text-slate-300 italic">"Get5StarsReview is the most profitable service in our agency. Our clients love the automated responses and we love the white-label recurring revenue."</p>
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-full bg-slate-800"></div>
+                                <div>
+                                   <p className="text-xs font-black uppercase tracking-tighter">Mark Thompson</p>
+                                   <p className="text-[10px] text-slate-500 font-bold">Summit Marketing Director</p>
+                                </div>
+                              </div>
+                           </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
                 <MapComparison />
                 <DashboardShowcase />
                 <HowItWorks onStart={() => navigate('signup-business')} />
@@ -253,7 +319,7 @@ const CookieConsent = ({ onClose }: { onClose: () => void }) => (
            </div>
         </div>
         <div className="flex gap-3 shrink-0">
-           <button onClick={onClose} className="px-8 py-3 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl">Accept All</button>
+           <button onClick={onClose} className="px-8 py-3 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#16A34A] transition-all shadow-xl">Accept All</button>
         </div>
      </div>
   </div>
