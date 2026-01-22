@@ -1,46 +1,49 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import Header from './components/Header';
 import Hero from './components/Hero';
-import Integrations from './components/Integrations.tsx';
-import AboutUs from './components/AboutUs.tsx';
-import InteractiveDemo from './components/InteractiveDemo.tsx';
-import MapComparison from './components/MapComparison.tsx';
-import HowItWorks from './components/HowItWorks.tsx';
-import Services from './components/Services.tsx';
-import Features from './components/Features.tsx';
-import VideoTestimonials from './components/VideoTestimonials.tsx';
-import Pricing from './components/Pricing.tsx';
-import FAQ from './components/FAQ.tsx';
-import Blog from './components/Blog.tsx';
-import BlogPage from './components/BlogPage.tsx';
-import BlogPostView from './components/BlogPostView.tsx';
-import ContactUs from './components/ContactUs.tsx';
-import Footer from './components/Footer.tsx';
-import Dashboard from './components/Dashboard/Dashboard.tsx';
-import SignUpBusiness from './components/Auth/SignUpBusiness.tsx';
-import SignUpAgency from './components/Auth/SignUpAgency.tsx';
-import Login from './components/Auth/Login.tsx';
-import AppSelector from './components/Auth/AppSelector.tsx';
-import GBPAuditTool from './components/GBPAuditTool.tsx';
-import HeatmapTool from './components/HeatmapTool.tsx';
-import LegalView from './components/LegalView.tsx';
-import SocialNudge from './components/SocialNudge.tsx';
-import Newsletter from './components/Newsletter.tsx';
+import Integrations from './components/Integrations';
+import AboutUs from './components/AboutUs';
+import AboutView from './components/AboutView';
+import InteractiveDemo from './components/InteractiveDemo';
+import MapComparison from './components/MapComparison';
+import DashboardShowcase from './components/DashboardShowcase'; 
+import HowItWorks from './components/HowItWorks';
+import Services from './components/Services';
+import Features from './components/Features';
+import VideoTestimonials from './components/VideoTestimonials';
+import Pricing from './components/Pricing';
+import FAQ from './components/FAQ';
+import Blog from './components/Blog';
+import BlogPage from './components/BlogPage';
+import BlogPostView from './components/BlogPostView';
+import ContactUs from './components/ContactUs';
+import Footer from './components/Footer';
+import Dashboard from './components/Dashboard/Dashboard';
+import SignUpBusiness from './components/Auth/SignUpBusiness';
+import SignUpAgency from './components/Auth/SignUpAgency';
+import Login from './components/Auth/Login';
+import AppSelector from './components/Auth/AppSelector';
+import GBPAuditTool from './components/GBPAuditTool';
+import HeatmapTool from './components/HeatmapTool';
+import ProspectingTool from './components/Dashboard/Agency/ProspectingTool';
+import LegalView from './components/LegalView';
+import SocialNudge from './components/SocialNudge';
+import Newsletter from './components/Newsletter';
 
 export type UserType = 'business' | 'agency';
-export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'blog' | 'blog-post' | 'privacy' | 'terms';
+export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>('loading');
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [authReady, setAuthReady] = useState(false);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
 
   useEffect(() => {
-    const initializeAuth = async () => {
+    const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setUser(session.user);
@@ -49,45 +52,42 @@ const App: React.FC = () => {
       } else {
         setView('landing');
       }
+      setAuthReady(true);
     };
 
-    initializeAuth();
-
-    const consent = localStorage.getItem('g5sr_cookies');
-    if (!consent) setShowCookieConsent(true);
+    checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
-        if (['landing', 'login', 'signup-business', 'signup-agency', 'loading'].includes(view)) {
+        if (['login', 'signup-business', 'signup-agency', 'landing', 'loading'].includes(view)) {
           setView('dashboard');
         }
       } else {
         setUser(null);
         setUserType(null);
-        if (event === 'SIGNED_OUT') {
+        if (view === 'dashboard') {
           setView('landing');
         }
       }
+
+      if (event === 'PASSWORD_RECOVERY') {
+        setView('reset-password');
+      }
     });
 
+    const consent = localStorage.getItem('g5sr_cookies');
+    if (!consent) setShowCookieConsent(true);
+
     return () => subscription.unsubscribe();
-  }, []);
+  }, [view]);
 
   const handleLogout = async () => {
+    setAuthReady(false);
     await supabase.auth.signOut();
     setView('landing');
-  };
-
-  const handleAppSelect = (id: string) => {
-    if (id === 'gbp-auditor') {
-      setView('auditor');
-    } else if (id === 'heatmap') {
-      setView('heatmap');
-    } else {
-      setView(user ? 'dashboard' : 'login');
-    }
+    setAuthReady(true);
   };
 
   const navigate = (newView: AppView) => {
@@ -95,79 +95,111 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  if (view === 'loading') {
+  if (view === 'loading' || !authReady) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-        <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Initializing Secure Session...</p>
+        <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Securing Connection...</p>
       </div>
     );
   }
 
-  if (user && view === 'dashboard') {
-    return (
-      <Dashboard 
-        onLogout={handleLogout} 
-        userType={userType || 'business'} 
-        user={user} 
-        onUpgradeFlow={() => navigate('signup-business')} 
-      />
-    );
-  }
-
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
       <SystemStatus />
       
-      {view === 'login' && <Login onCancel={() => navigate('landing')} onBusinessSignup={() => navigate('signup-business')} onAgencySignup={() => navigate('signup-agency')} onLoginSuccess={() => navigate('dashboard')} />}
-      {view === 'signup-business' && <SignUpBusiness onComplete={() => navigate('dashboard')} onCancel={() => navigate('landing')} onSwitchToAgency={() => navigate('signup-agency')} />}
-      {view === 'signup-agency' && <SignUpAgency onComplete={() => navigate('dashboard')} onCancel={() => navigate('landing')} onSwitchToBusiness={() => navigate('signup-business')} />}
+      {user && view === 'dashboard' ? (
+        <Dashboard 
+          onLogout={handleLogout} 
+          userType={userType || 'business'} 
+          user={user} 
+          onUpgradeFlow={() => navigate('signup-business')} 
+        />
+      ) : (
+        <>
+          {(view === 'login' || view === 'reset-password') && (
+            <Login 
+              initialMode={view === 'reset-password' ? 'reset' : 'login'}
+              onCancel={() => navigate('landing')} 
+              onBusinessSignup={() => navigate('signup-business')} 
+              onAgencySignup={() => navigate('signup-agency')} 
+              onLoginSuccess={() => setView('dashboard')} 
+            />
+          )}
+          {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToAgency={() => navigate('signup-agency')} />}
+          {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToBusiness={() => navigate('signup-business')} />}
 
-      <Header 
-        onLogin={() => user ? navigate('dashboard') : navigate('login')} 
-        onToolsClick={() => navigate('app-selector')}
-        onBusinessSignup={() => navigate('signup-business')} 
-        onAgencySignup={() => navigate('signup-agency')}
-        onHomeClick={() => navigate('landing')}
-        onBlogClick={() => navigate('blog')}
-      />
-      
-      <main className="flex-grow">
-        {view === 'app-selector' && <AppSelector onSelect={handleAppSelect} onBack={() => navigate('landing')} />}
-        {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} />}
-        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
-        {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
-        {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
-        {(view === 'privacy' || view === 'terms') && <LegalView type={view} onBack={() => navigate('landing')} />}
-        
-        {view === 'landing' && (
-          <>
-            <Hero onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
-            <Integrations />
-            <AboutUs />
-            <InteractiveDemo />
-            <MapComparison />
-            <HowItWorks onStart={() => navigate('signup-business')} />
-            <Services onAuditClick={() => navigate('app-selector')} />
-            <TrustStack />
-            <Features />
-            <VideoTestimonials />
-            <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
-            <FAQ />
-            <Blog onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} onViewAll={() => navigate('blog')} />
-            <ContactUs />
-            <Newsletter />
-            <SocialNudge />
-          </>
-        )}
-      </main>
+          <Header 
+            onLogin={() => user ? setView('dashboard') : navigate('login')} 
+            onToolsClick={() => navigate('app-selector')}
+            onBusinessSignup={() => navigate('signup-business')} 
+            onAgencySignup={() => navigate('signup-agency')}
+            onHomeClick={() => navigate('landing')}
+            onBlogClick={() => navigate('blog')}
+            onAboutClick={() => navigate('about')}
+          />
+          
+          <main className="flex-grow">
+            {view === 'app-selector' && (
+              <AppSelector 
+                onSelect={(id) => {
+                  if (id === 'gbp-auditor') navigate('auditor');
+                  else if (id === 'heatmap') navigate('heatmap');
+                  else if (id === 'prospector') navigate('prospector');
+                  else navigate(user ? 'dashboard' : 'login');
+                }} 
+                onBack={() => navigate('landing')} 
+              />
+            )}
+            {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} />}
+            {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
+            {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
+            {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
+            {view === 'prospector' && <div className="pt-20 container mx-auto px-6"><ProspectingTool /></div>}
+            {(view === 'privacy' || view === 'terms') && <LegalView type={view} onBack={() => navigate('landing')} />}
+            {view === 'about' && <AboutView onBack={() => navigate('landing')} onStart={() => navigate('signup-business')} />}
+            
+            {view === 'landing' && (
+              <div className="overflow-x-hidden">
+                <Hero onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} onProspectorClick={() => navigate('prospector')} />
+                <Integrations />
+                <AboutUs />
+                <section className="py-24 bg-slate-50">
+                  <div className="container mx-auto px-6 text-center mb-16">
+                    <span className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">Market Intel</span>
+                    <h2 className="text-4xl md:text-6xl font-black text-slate-900 uppercase italic">Get Your <span className="text-emerald-600">Ranking Report</span></h2>
+                  </div>
+                  <div className="container mx-auto px-6">
+                    <ProspectingTool />
+                  </div>
+                </section>
+                <InteractiveDemo />
+                <MapComparison />
+                <DashboardShowcase />
+                <HowItWorks onStart={() => navigate('signup-business')} />
+                <Services onAuditClick={() => navigate('app-selector')} />
+                <TrustStack />
+                <Features />
+                <VideoTestimonials />
+                <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
+                <FAQ />
+                <Blog onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} onViewAll={() => navigate('blog')} />
+                <ContactUs />
+                <Newsletter />
+                <SocialNudge />
+              </div>
+            )}
+          </main>
 
-      <Footer 
-        onBlogClick={() => navigate('blog')} 
-        onHomeClick={() => navigate('landing')} 
-        onPrivacyClick={() => navigate('privacy')}
-        onTermsClick={() => navigate('terms')}
-      />
+          <Footer 
+            onBlogClick={() => navigate('blog')} 
+            onHomeClick={() => navigate('landing')} 
+            onPrivacyClick={() => navigate('privacy')}
+            onTermsClick={() => navigate('terms')}
+            onAboutClick={() => navigate('about')}
+          />
+        </>
+      )}
 
       {showCookieConsent && <CookieConsent onClose={() => { localStorage.setItem('g5sr_cookies', 'true'); setShowCookieConsent(false); }} />}
     </div>
@@ -182,11 +214,10 @@ const SystemStatus = () => (
              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
            </span>
-           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">GSR Core v5.2: All Systems Operational</span>
+           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">GSR Session Engine v5.6: Locked & Persisted</span>
         </div>
         <div className="hidden md:flex items-center gap-4">
-           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Live Traffic: 2,142 Req/m</span>
-           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">API Latency: 42ms</span>
+           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Identity State: Verified</span>
         </div>
      </div>
   </div>
@@ -199,11 +230,10 @@ const CookieConsent = ({ onClose }: { onClose: () => void }) => (
            <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl shrink-0">🍪</div>
            <div>
               <p className="text-sm font-bold text-slate-900 leading-tight">We value your privacy.</p>
-              <p className="text-xs text-slate-500 mt-1">We use cookies to enhance your ranking experience and analyze platform performance. By clicking "Accept", you agree to our usage of cookies.</p>
+              <p className="text-xs text-slate-500 mt-1">We use cookies to enhance your experience.</p>
            </div>
         </div>
         <div className="flex gap-3 shrink-0">
-           <button onClick={onClose} className="px-6 py-3 rounded-xl text-xs font-black uppercase text-slate-400 hover:text-slate-900 transition-all tracking-widest">Settings</button>
            <button onClick={onClose} className="px-8 py-3 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl">Accept All</button>
         </div>
      </div>
@@ -212,24 +242,24 @@ const CookieConsent = ({ onClose }: { onClose: () => void }) => (
 
 const TrustStack = () => (
   <div className="container mx-auto px-6 py-12">
-     <div className="bg-slate-950 rounded-[48px] p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 border-b-4 border-emerald-600 shadow-2xl">
-        <div className="space-y-4">
+     <div className="bg-slate-950 rounded-[32px] md:rounded-[48px] p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 border-b-4 border-emerald-600 shadow-2xl">
+        <div className="space-y-4 text-center md:text-left">
            <span className="text-emerald-500 font-black text-[10px] uppercase tracking-[0.3em]">Market Authority</span>
-           <h3 className="text-3xl font-black uppercase italic tracking-tight leading-none">The Trusted Choice for <br />Local Domination.</h3>
-           <p className="text-slate-400 font-medium max-w-sm">Join 2,000+ brands automating their path to Google Maps perfection.</p>
+           <h3 className="text-2xl md:text-3xl font-black uppercase italic tracking-tight leading-none">The Trusted Choice for <br />Local Domination.</h3>
+           <p className="text-slate-400 font-medium max-w-sm mx-auto md:mx-0 text-sm">Join 2,000+ brands automating their path to Google Maps perfection.</p>
         </div>
-        <div className="flex gap-10">
+        <div className="flex gap-6 md:gap-10">
            <div className="text-center">
-             <p className="text-4xl font-black text-emerald-500">98%</p>
-             <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Retention</p>
+             <p className="text-2xl md:text-4xl font-black text-emerald-500">98%</p>
+             <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mt-1">Retention</p>
            </div>
            <div className="text-center">
-             <p className="text-4xl font-black text-emerald-500">1.2M</p>
-             <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">Requests</p>
+             <p className="text-2xl md:text-4xl font-black text-emerald-600">1.2M</p>
+             <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mt-1">Requests</p>
            </div>
            <div className="text-center">
-             <p className="text-4xl font-black text-emerald-500">24/7</p>
-             <p className="text-[10px] font-bold text-slate-500 uppercase mt-1">AI Logic</p>
+             <p className="text-2xl md:text-4xl font-black text-emerald-500">24/7</p>
+             <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mt-1">AI Logic</p>
            </div>
         </div>
      </div>
