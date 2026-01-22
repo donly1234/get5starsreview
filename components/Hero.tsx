@@ -9,8 +9,8 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspectorClick }) => {
   return (
     <section className="relative pt-24 pb-16 md:pt-40 lg:pt-56 md:pb-52 overflow-hidden hero-gradient">
-      {/* Background Ambience - Ensure pointer-events-none is set */}
-      <div className="absolute top-[-10%] right-[-5%] w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-[#16A34A]/5 blur-[100px] md:blur-[160px] rounded-full pointer-events-none animate-pulse duration-[15s]"></div>
+      {/* Background Ambience - pointer-events-none is vital to prevent click blocking */}
+      <div className="absolute top-[-10%] right-[-5%] w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-[#16A34A]/5 blur-[100px] md:blur-[160px] rounded-full pointer-events-none animate-pulse duration-[15s] -z-10"></div>
       
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-6xl mx-auto text-center space-y-8 md:space-y-12 lg:space-y-16">
@@ -31,36 +31,42 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
             & Increase Sales.
           </h1>
           
-          <p className="text-slate-500 text-base md:text-xl lg:text-2xl font-semibold max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-400">
-            If you aren't in the Top 3, you're handing profit to your competition. We automate <span className="text-[#16A34A] font-black">Google Business Profile</span> and turn map searchers into <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">paying customers</span>.
+          <p className="text-slate-500 text-base md:text-xl lg:text-2xl font-semibold max-w-4xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-400">
+            If you aren't in the Top 3, you're handing profit to your competition. We automate <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">Google Business Profile</span> and turn map searchers into <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">paying customers</span>.
           </p>
 
-          <div className="relative z-30 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+          <div className="relative z-50 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
             <button 
-              onClick={onStartBusiness}
-              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-[#16A34A] text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl shadow-[#16A34A]/30 hover:bg-[#0F172A] hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onStartBusiness();
+              }}
+              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-[#16A34A] text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl shadow-[#16A34A]/30 hover:bg-[#0F172A] hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer relative z-50"
             >
               Start Free Trial
             </button>
             <button 
-              onClick={onProspectorClick}
-              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-[#0F172A] text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl hover:bg-[#16A34A] transition-all uppercase tracking-widest cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                if(onProspectorClick) onProspectorClick();
+              }}
+              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-[#0F172A] text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl hover:bg-[#16A34A] transition-all uppercase tracking-widest cursor-pointer relative z-50"
             >
               Analyze My Lost Profit
             </button>
             <button 
               onClick={(e) => {
-                e.preventDefault();
+                e.stopPropagation();
                 onStartAgency();
               }}
-              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-white text-[#0F172A] border-2 border-slate-100 rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-xl hover:border-[#FACC15] transition-all uppercase tracking-widest cursor-pointer relative z-40"
+              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-white text-[#0F172A] border-2 border-slate-100 rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-xl hover:border-[#FACC15] transition-all uppercase tracking-widest cursor-pointer relative z-[60]"
             >
               Agency Program
             </button>
           </div>
 
           {/* Device Mockup Section */}
-          <div className="pt-12 md:pt-24 lg:pt-36 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700 relative z-10">
+          <div className="pt-12 md:pt-24 lg:pt-36 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700 relative z-10 pointer-events-none">
             <div className="relative mx-auto max-w-5xl bg-[#0F172A] rounded-[32px] md:rounded-[44px] lg:rounded-[56px] p-1.5 md:p-3 lg:p-5 shadow-[0_50px_100px_-20px_rgba(15,23,42,0.4)] border border-white/10 overflow-hidden">
                <div className="bg-white rounded-[24px] md:rounded-[36px] lg:rounded-[44px] overflow-hidden border border-slate-200 aspect-[16/9] flex items-center justify-center relative">
                   <div className="absolute inset-0 bg-slate-50 flex flex-col">
@@ -96,7 +102,7 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
                        <div className="hidden md:block col-span-4 space-y-4 lg:space-y-8">
                           <div className="bg-[#0F172A] rounded-[24px] lg:rounded-[40px] p-6 lg:p-10 space-y-4 lg:space-y-8 shadow-2xl">
                              <div className="h-2 lg:h-4 w-2/3 bg-white/20 rounded-full"></div>
-                             <div className="w-full aspect-square bg-white/5 rounded-xl lg:rounded-[32px] flex items-center justify-center text-4xl lg:text-6xl text-[#FACC15]">💰</div>
+                             <div className="w-full aspect-square bg-white/5 rounded-xl lg:rounded-[32px] flex items-center justify-center text-4xl lg:text-6xl text-[#FACC15]">★</div>
                              <div className="h-8 lg:h-14 w-full bg-[#16A34A] rounded-lg lg:rounded-[20px]"></div>
                           </div>
                        </div>
@@ -105,7 +111,7 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
                   
                   <div className="absolute inset-0 flex items-center justify-center bg-black/5 backdrop-blur-[1px]">
                      <div className="bg-white p-4 md:p-8 lg:p-12 rounded-[24px] md:rounded-[36px] lg:rounded-[48px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.18)] border border-slate-50 flex items-center gap-3 lg:gap-10 max-w-[85%] md:max-w-xl animate-bounce duration-[3000ms]">
-                        <div className="w-10 h-10 md:w-16 lg:w-24 bg-[#16A34A] rounded-lg md:rounded-3xl flex items-center justify-center text-[#FACC15] text-xl md:text-3xl lg:text-5xl shrink-0">★</div>
+                        <div className="w-10 h-10 md:w-16 lg:w-24 bg-[#16A34A] rounded-lg md:rounded-3xl flex items-center justify-center text-[#FACC15] text-xl md:text-3xl lg:text-5xl shrink-0">📈</div>
                         <div>
                            <p className="text-[6px] md:text-[8px] lg:text-[10px] font-[900] text-[#16A34A] uppercase tracking-[0.25em] mb-1">Profit Intelligence</p>
                            <p className="text-xs md:text-2xl lg:text-3xl font-[900] text-[#0F172A] leading-tight tracking-tight uppercase italic">Sales increased by <br className="hidden md:block" />40% this month!</p>
