@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -17,12 +16,14 @@ const InteractiveDemo: React.FC = () => {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const prompt = `Act as a helpful customer success manager. Write a short, ${tone.toLowerCase()}, and empathetic response to this 4-star review: "${review}". Acknowledge their specific point about the music and thank them for celebrating with us.`;
       
+      // Added thinkingBudget alongside maxOutputTokens to ensure model has room to process response
       const result = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt,
         config: {
           temperature: 0.7,
           maxOutputTokens: 250,
+          thinkingConfig: { thinkingBudget: 100 },
         }
       });
 
@@ -70,7 +71,7 @@ const InteractiveDemo: React.FC = () => {
           </div>
 
           <div className="lg:w-1/2 w-full">
-            <div className="bg-slate-900 rounded-[48px] p-8 md:p-12 shadow-[0_50px_100px_-20px_rgba(15,23,42,0.4)] relative">
+            <div className="bg-slate-900 rounded-[48px] p-8 md:p-12 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] relative">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-green-500 to-emerald-500"></div>
               
               <div className="space-y-8">
