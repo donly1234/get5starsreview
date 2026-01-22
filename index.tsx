@@ -1,27 +1,109 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App';
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get5StarsReview | #1 Google Maps Ranking & AI Reputation Management</title>
+    <meta name="description" content="Dominate local search. Get5StarsReview is the leading AI-powered platform helping businesses automate 5-star reviews, optimize Google Business Profiles, and rank #1 on Google Maps.">
+    <meta name="keywords" content="Google Maps SEO, Local Search Ranking, Automated Reviews, Get5StarsReview, Google Business Profile Management, AI Reputation Management, Rank #1 Local Search, GBP Optimization">
+    <link rel="canonical" href="https://get5starsreview.com/" />
+    
+    <!-- Global process polyfill for Gemini API -->
+    <script>
+        window.process = { 
+            env: { 
+                NODE_ENV: 'production',
+                API_KEY: '' 
+            } 
+        };
+    </script>
 
-const mountApp = () => {
-  const container = document.getElementById('root');
-  if (container) {
-    try {
-      const root = createRoot(container);
-      root.render(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      );
-    } catch (error) {
-      console.error("React Mounting Error:", error);
-    }
-  } else {
-    console.error("Critical Error: Root element not found in index.html");
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-green: #16A34A;
+            --brand-yellow: #FACC15;
+            --deep-slate: #0F172A;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FFFFFF;
+            -webkit-font-smoothing: antialiased;
+            color: var(--deep-slate);
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at top right, rgba(22, 163, 74, 0.05), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(250, 204, 21, 0.03), transparent 40%);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #16A34A 0%, #15803d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: max-content;
+            animation: marquee 40s linear infinite;
+        }
+
+        /* Strict UI consistency overrides */
+        .accent-yellow { color: var(--brand-yellow); }
+        .bg-brand-green { background-color: var(--brand-green); }
+        .border-brand-green { border-color: var(--brand-green); }
+
+        @media print {
+            .print-hide { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; padding: 0 !important; }
+            .report-container { 
+                box-shadow: none !important; 
+                border: none !important; 
+                width: 100% !important; 
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 20px !important;
+            }
+        }
+    </style>
+
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react/jsx-runtime": "https://esm.sh/react@19.0.0/jsx-runtime",
+    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.45.4",
+    "html-to-image": "https://esm.sh/html-to-image@1.11.11",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
-};
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountApp);
-} else {
-  mountApp();
 }
+</script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+</body>
+</html>
