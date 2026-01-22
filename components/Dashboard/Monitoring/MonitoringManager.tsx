@@ -1,14 +1,13 @@
-
 import React, { useState } from 'react';
 import ReviewInbox from './ReviewInbox';
 import AlertSettings from './AlertSettings';
 
-// added MonitoringManagerProps to fix error in Dashboard.tsx
 interface MonitoringManagerProps {
   isTrial: boolean;
+  onShowUpgrade?: () => void;
 }
 
-const MonitoringManager: React.FC<MonitoringManagerProps> = ({ isTrial }) => {
+const MonitoringManager: React.FC<MonitoringManagerProps> = ({ isTrial, onShowUpgrade }) => {
   const [subTab, setSubTab] = useState<'inbox' | 'alerts'>('inbox');
 
   return (
@@ -34,8 +33,7 @@ const MonitoringManager: React.FC<MonitoringManagerProps> = ({ isTrial }) => {
         </div>
       </div>
 
-      {/* passing isTrial to ReviewInbox */}
-      {subTab === 'inbox' ? <ReviewInbox isTrial={isTrial} /> : <AlertSettings />}
+      {subTab === 'inbox' ? <ReviewInbox isTrial={isTrial} onShowUpgrade={onShowUpgrade} /> : <AlertSettings />}
     </div>
   );
 };
