@@ -8,7 +8,7 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspectorClick }) => {
   return (
-    <section className="relative pt-24 pb-4 md:pt-40 lg:pt-48 md:pb-8 overflow-hidden hero-gradient">
+    <section className="relative pt-24 pb-0 md:pt-40 lg:pt-48 md:pb-0 overflow-hidden hero-gradient">
       {/* Background Ambience - pointer-events-none is vital to prevent click blocking */}
       <div className="absolute top-[-10%] right-[-5%] w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-[#16A34A]/5 blur-[100px] md:blur-[160px] rounded-full pointer-events-none animate-pulse duration-[15s] -z-10"></div>
       
@@ -35,7 +35,7 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
             If you aren't in the Top 3, you're handing profit to your competition. We automate <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">Google Business Profile</span> and turn map searchers into <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">paying customers</span>.
           </p>
 
-          <div className="relative z-50 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+          <div className="relative z-50 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500 pb-16 md:pb-24">
             <button 
               onClick={(e) => {
                 e.preventDefault();
