@@ -9,7 +9,7 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspectorClick }) => {
   return (
     <section className="relative pt-24 pb-16 md:pt-40 lg:pt-56 md:pb-52 overflow-hidden hero-gradient">
-      {/* Background Ambience */}
+      {/* Background Ambience - pointer-events-none is crucial here */}
       <div className="absolute top-[-10%] right-[-5%] w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-green-500/5 blur-[100px] md:blur-[160px] rounded-full pointer-events-none animate-pulse duration-[15s]"></div>
       
       <div className="container mx-auto px-6 relative z-10">
@@ -35,29 +35,29 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
             Don't just collect reviews. Dominate local search. Turn every customer into a 5-star advocate with zero effort.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+          <div className="relative z-20 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
             <button 
               onClick={onStartBusiness}
-              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-green-600 text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl shadow-green-600/30 hover:bg-slate-950 hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest"
+              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-green-600 text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl shadow-green-600/30 hover:bg-slate-950 hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer"
             >
               Start Free Trial
             </button>
             <button 
               onClick={onProspectorClick}
-              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-slate-950 text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl hover:bg-emerald-600 transition-all uppercase tracking-widest"
+              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-slate-950 text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl hover:bg-emerald-600 transition-all uppercase tracking-widest cursor-pointer"
             >
               Free Ranking Report
             </button>
             <button 
               onClick={onStartAgency}
-              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-white text-slate-900 border-2 border-slate-100 rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-xl hover:bg-slate-50 transition-all uppercase tracking-widest"
+              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-white text-slate-900 border-2 border-slate-100 rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-xl hover:bg-slate-50 transition-all uppercase tracking-widest cursor-pointer relative z-30"
             >
               Agency Program
             </button>
           </div>
 
           {/* Device Mockup Section */}
-          <div className="pt-12 md:pt-24 lg:pt-36 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700">
+          <div className="pt-12 md:pt-24 lg:pt-36 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700 relative z-10">
             <div className="relative mx-auto max-w-5xl bg-slate-950 rounded-[32px] md:rounded-[44px] lg:rounded-[56px] p-1.5 md:p-3 lg:p-5 shadow-[0_50px_100px_-20px_rgba(15,23,42,0.4)] border border-white/10 overflow-hidden">
                <div className="bg-white rounded-[24px] md:rounded-[36px] lg:rounded-[44px] overflow-hidden border border-slate-200 aspect-[16/9] flex items-center justify-center relative">
                   <div className="absolute inset-0 bg-slate-50 flex flex-col">
@@ -102,7 +102,7 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
                   
                   <div className="absolute inset-0 flex items-center justify-center bg-black/5 backdrop-blur-[1px]">
                      <div className="bg-white p-4 md:p-8 lg:p-12 rounded-[24px] md:rounded-[36px] lg:rounded-[48px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.18)] border border-slate-50 flex items-center gap-3 lg:gap-10 max-w-[85%] md:max-w-xl animate-bounce duration-[3000ms]">
-                        <div className="w-10 h-10 md:w-16 lg:w-24 h-10 md:h-16 lg:h-24 bg-green-600 rounded-lg md:rounded-3xl flex items-center justify-center text-white text-xl md:text-3xl lg:text-5xl shrink-0">⭐</div>
+                        <div className="w-10 h-10 md:w-16 lg:w-24 bg-green-600 rounded-lg md:rounded-3xl flex items-center justify-center text-white text-xl md:text-3xl lg:text-5xl shrink-0">⭐</div>
                         <div>
                            <p className="text-[6px] md:text-[8px] lg:text-[10px] font-[900] text-green-600 uppercase tracking-[0.25em] mb-1">Growth Intelligence</p>
                            <p className="text-xs md:text-2xl lg:text-3xl font-[900] text-slate-950 leading-tight tracking-tight uppercase italic">Ranked #1 for <br className="hidden md:block" />"Best Bakery"!</p>
