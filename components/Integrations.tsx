@@ -15,8 +15,8 @@ const Integrations: React.FC = () => {
   const scrollItems = [...allPlatforms, ...allPlatforms];
 
   return (
-    <section className="py-8 md:py-12 bg-white border-y border-slate-100 overflow-hidden">
-      <div className="container mx-auto px-4 md:px-6 mb-6">
+    <section className="py-4 md:py-8 bg-white border-y border-slate-100 overflow-hidden -mt-4">
+      <div className="container mx-auto px-4 md:px-6 mb-4">
         <div className="text-center">
           <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-[10px]">
             TRUSTED BY 2,000+ BUSINESSES & INTEGRATING WITH
@@ -32,12 +32,12 @@ const Integrations: React.FC = () => {
           {scrollItems.map((platform, idx) => (
             <div 
               key={idx} 
-              className="px-8 py-4 bg-white rounded-2xl border border-slate-50 shadow-sm hover:shadow-md hover:border-[#16A34A]/30 transition-all hover:scale-105 cursor-default flex items-center justify-center min-w-[180px] h-20 group"
+              className="px-8 py-4 bg-white rounded-2xl border border-slate-50 shadow-sm hover:shadow-md hover:border-[#16A34A]/30 transition-all hover:scale-105 cursor-default flex items-center justify-center min-w-[180px] h-16 group"
             >
               <img 
                 src={platform.logo} 
                 alt={platform.name} 
-                className="h-8 w-auto max-w-[140px] object-contain transition-all duration-500 grayscale group-hover:grayscale-0" 
+                className="h-6 md:h-8 w-auto max-w-[140px] object-contain transition-all duration-500 grayscale group-hover:grayscale-0" 
               />
             </div>
           ))}
