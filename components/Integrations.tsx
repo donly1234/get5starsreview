@@ -37,12 +37,13 @@ const Integrations: React.FC = () => {
           {scrollItems.map((platform, idx) => (
             <div 
               key={idx} 
-              className="px-8 py-4 bg-white rounded-2xl border border-slate-50 shadow-sm hover:shadow-md hover:border-slate-200 transition-all hover:scale-105 cursor-default flex items-center justify-center min-w-[180px] h-20"
+              className="px-8 py-4 bg-white rounded-2xl border border-slate-50 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all hover:scale-105 cursor-default flex items-center justify-center min-w-[180px] h-20 group"
+              aria-label={`Integrated with ${platform.name}`}
             >
               <img 
                 src={platform.logo} 
                 alt={platform.name} 
-                className="h-8 w-auto max-w-[140px] object-contain transition-all duration-500" 
+                className="h-8 w-auto max-w-[140px] object-contain transition-all duration-500 grayscale group-hover:grayscale-0" 
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = `https://logo.clearbit.com/${platform.name.toLowerCase().replace(/\s/g, '')}.com`;
                 }}
