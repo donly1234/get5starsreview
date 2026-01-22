@@ -10,7 +10,7 @@ import AboutView from './components/AboutView';
 import InteractiveDemo from './components/InteractiveDemo';
 import ROICalculator from './components/ROICalculator';
 import MapComparison from './components/MapComparison';
-import DashboardShowcase from './components/DashboardShowcase'; 
+import DashboardShowcase from './components/DashboardShowcase';
 import HowItWorks from './components/HowItWorks';
 import Services from './components/Services';
 import Features from './components/Features';
@@ -44,8 +44,10 @@ const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
+    // Auth Session Check
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -53,12 +55,47 @@ const App: React.FC = () => {
         setUserType(session.user.user_metadata?.user_type || 'business');
         setView('dashboard');
       } else {
-        setView(prev => prev === 'loading' ? 'landing' : prev);
+        // Handle deep-linking via query params
+        const params = new URLSearchParams(window.location.search);
+        const p = params.get('p') as AppView;
+        const id = params.get('id');
+        if (p === 'blog-post' && id) {
+          setSelectedPostId(id);
+          setView('blog-post');
+        } else if (p) {
+          setView(p);
+        } else {
+          setView('landing');
+        }
       }
       setAuthReady(true);
     };
 
     checkSession();
+
+    // Intersection Observer for Reveal Animations
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const setupAnimations = () => {
+      document.querySelectorAll('section, .reveal-item').forEach(el => {
+        el.classList.add('reveal');
+        observer.observe(el);
+      });
+    };
+
+    if (view === 'landing') setTimeout(setupAnimations, 100);
+
+    // Scroll Handler
+    const handleScroll = () => setShowScrollTop(window.scrollY > 800);
+    window.addEventListener('scroll', handleScroll);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
@@ -68,19 +105,18 @@ const App: React.FC = () => {
       } else {
         setUser(null);
         setUserType(null);
-        setView(prev => prev === 'dashboard' ? 'landing' : prev);
-      }
-
-      if (event === 'PASSWORD_RECOVERY') {
-        setView('reset-password');
+        if (view === 'dashboard') setView('landing');
       }
     });
 
     const consent = localStorage.getItem('g5sr_cookies');
     if (!consent) setShowCookieConsent(true);
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [view]);
 
   const handleLogout = async () => {
     setAuthReady(false);
@@ -92,6 +128,20 @@ const App: React.FC = () => {
   const navigate = (newView: AppView) => {
     setView(newView);
     window.scrollTo({ top: 0, behavior: 'instant' });
+    const url = new URL(window.location.href);
+    if (newView === 'landing') url.search = '';
+    else url.searchParams.set('p', newView);
+    window.history.pushState({}, '', url);
+  };
+
+  const handlePostClick = (id: string) => {
+    setSelectedPostId(id);
+    setView('blog-post');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    const url = new URL(window.location.href);
+    url.searchParams.set('p', 'blog-post');
+    url.searchParams.set('id', id);
+    window.history.pushState({}, '', url);
   };
 
   const scrollToSection = (sectionId: string) => {
@@ -111,7 +161,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
         <div className="w-12 h-12 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Securing Connection...</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Establishing Secure Uplink...</p>
       </div>
     );
   }
@@ -174,7 +224,7 @@ const App: React.FC = () => {
             onBack={() => navigate('landing')} 
           />
         )}
-        {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} />}
+        {view === 'blog' && <BlogPage onPostClick={handlePostClick} />}
         {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
@@ -211,7 +261,7 @@ const App: React.FC = () => {
             <VideoTestimonials />
             <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
             <FAQ />
-            <Blog onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} onViewAll={() => navigate('blog')} />
+            <Blog onPostClick={handlePostClick} onViewAll={() => navigate('blog')} />
             <ContactUs />
             <Newsletter />
             <SocialNudge />
@@ -232,6 +282,14 @@ const App: React.FC = () => {
         />
       )}
 
+      {/* Scroll to Top */}
+      <button 
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className={`fixed bottom-8 right-8 z-[150] w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:bg-[#16A34A] hover:scale-110 active:scale-95 ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7 7"/></svg>
+      </button>
+
       {showCookieConsent && <CookieConsent onClose={() => { localStorage.setItem('g5sr_cookies', 'true'); setShowCookieConsent(false); }} />}
     </div>
   );
@@ -245,10 +303,10 @@ const SystemStatus = () => (
              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
            </span>
-           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">GSR Session Engine v5.6: Locked & Persisted</span>
+           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">GSR Session Engine v5.6: Online & Synchronized</span>
         </div>
         <div className="hidden md:flex items-center gap-4">
-           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Identity State: Verified</span>
+           <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">System Health: Nominal</span>
         </div>
      </div>
   </div>
@@ -261,7 +319,7 @@ const CookieConsent = ({ onClose }: { onClose: () => void }) => (
            <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl shrink-0">🍪</div>
            <div>
               <p className="text-sm font-bold text-slate-900 leading-tight">We value your privacy.</p>
-              <p className="text-xs text-slate-500 mt-1">We use cookies to enhance your experience.</p>
+              <p className="text-xs text-slate-500 mt-1">We use cookies to enhance your experience and optimize our local ranking algorithms.</p>
            </div>
         </div>
         <div className="flex gap-3 shrink-0">
