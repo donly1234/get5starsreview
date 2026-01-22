@@ -6,6 +6,7 @@ import Integrations from './components/Integrations';
 import AboutUs from './components/AboutUs';
 import AboutView from './components/AboutView';
 import InteractiveDemo from './components/InteractiveDemo';
+import ROICalculator from './components/ROICalculator';
 import MapComparison from './components/MapComparison';
 import DashboardShowcase from './components/DashboardShowcase'; 
 import HowItWorks from './components/HowItWorks';
@@ -174,6 +175,7 @@ const App: React.FC = () => {
                   </div>
                 </section>
                 <InteractiveDemo />
+                <ROICalculator onStart={() => navigate('signup-business')} />
                 <MapComparison />
                 <DashboardShowcase />
                 <HowItWorks onStart={() => navigate('signup-business')} />
