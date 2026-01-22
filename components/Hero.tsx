@@ -9,7 +9,7 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspectorClick }) => {
   return (
     <section className="relative pt-24 pb-16 md:pt-40 lg:pt-56 md:pb-52 overflow-hidden hero-gradient">
-      {/* Background Ambience */}
+      {/* Background Ambience - Ensure pointer-events-none is set */}
       <div className="absolute top-[-10%] right-[-5%] w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-[#16A34A]/5 blur-[100px] md:blur-[160px] rounded-full pointer-events-none animate-pulse duration-[15s]"></div>
       
       <div className="container mx-auto px-6 relative z-10">
@@ -32,15 +32,15 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
           </h1>
           
           <p className="text-slate-500 text-base md:text-xl lg:text-2xl font-semibold max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-400">
-            If you aren't in the Top 3, you're handing profit to your competition. We automate the 5-star trust that turns map searchers into <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">paying customers</span>.
+            If you aren't in the Top 3, you're handing profit to your competition. We automate <span className="text-[#16A34A] font-black">Google Business Profile</span> and turn map searchers into <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">paying customers</span>.
           </p>
 
-          <div className="relative z-20 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+          <div className="relative z-30 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
             <button 
               onClick={onStartBusiness}
               className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-[#16A34A] text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl shadow-[#16A34A]/30 hover:bg-[#0F172A] hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer"
             >
-              Unlock My Sales Growth
+              Start Free Trial
             </button>
             <button 
               onClick={onProspectorClick}
@@ -49,8 +49,11 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
               Analyze My Lost Profit
             </button>
             <button 
-              onClick={onStartAgency}
-              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-white text-[#0F172A] border-2 border-slate-100 rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-xl hover:border-[#FACC15] transition-all uppercase tracking-widest cursor-pointer relative z-30"
+              onClick={(e) => {
+                e.preventDefault();
+                onStartAgency();
+              }}
+              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-white text-[#0F172A] border-2 border-slate-100 rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-xl hover:border-[#FACC15] transition-all uppercase tracking-widest cursor-pointer relative z-40"
             >
               Agency Program
             </button>
