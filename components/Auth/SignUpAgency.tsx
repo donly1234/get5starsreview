@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import PaymentSection from './PaymentSection';
@@ -41,15 +42,11 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
     setLoading(true);
     setError(null);
     
-    const redirectUrl = window.location.hostname === 'localhost' 
-      ? window.location.origin 
-      : 'https://get5starsreview.com';
-
     const { data, error: signupError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
-        emailRedirectTo: redirectUrl,
+        emailRedirectTo: window.location.origin,
         data: {
           full_name: formData.fullName,
           agency_name: formData.agencyName,
@@ -73,14 +70,10 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
     setLoading(true);
     setError(null);
     try {
-      const redirectUrl = window.location.hostname === 'localhost' 
-        ? window.location.origin 
-        : 'https://get5starsreview.com';
-
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: window.location.origin,
         }
       });
       if (googleError) throw googleError;
@@ -104,7 +97,7 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
             <button 
               onClick={handleGoogleSignup}
               disabled={loading}
-              className="w-full py-4 border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 mb-6 group"
+              className="w-full py-4 border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 mb-6 group cursor-pointer"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-slate-300 border-t-green-600 rounded-full animate-spin"></div>
@@ -158,7 +151,7 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
             </div>
             <button 
               onClick={() => setStep(2)}
-              className="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-green-500/20 hover:bg-green-700 transition-all uppercase tracking-widest"
+              className="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-green-500/20 hover:bg-green-700 transition-all uppercase tracking-widest cursor-pointer"
             >
               Continue to Preview
             </button>
@@ -202,14 +195,14 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
             <div className="flex gap-4">
               <button 
                 onClick={() => setStep(1)}
-                className="flex-1 bg-slate-100 text-slate-600 py-5 rounded-2xl font-black text-lg hover:bg-slate-200 transition-all uppercase tracking-widest"
+                className="flex-1 bg-slate-100 text-slate-600 py-5 rounded-2xl font-black text-lg hover:bg-slate-200 transition-all uppercase tracking-widest cursor-pointer"
               >
                 Back
               </button>
               <button 
                 onClick={handleAgencySignup}
                 disabled={loading}
-                className="flex-[2] bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-green-500/20 hover:bg-green-700 transition-all disabled:opacity-50 uppercase tracking-widest"
+                className="flex-[2] bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-green-500/20 hover:bg-green-700 transition-all disabled:opacity-50 uppercase tracking-widest cursor-pointer"
               >
                 {loading ? "Creating Account..." : "Confirm & Proceed to Payment"}
               </button>
@@ -231,10 +224,10 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-slate-50 flex flex-col overflow-y-auto">
+    <div className="bg-white min-h-full flex flex-col">
       <div className="max-w-4xl mx-auto w-full px-6 py-12 md:py-24">
         <div className="flex justify-between items-center mb-12">
-           <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 font-bold transition-all uppercase text-xs tracking-widest">
+           <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 font-bold transition-all uppercase text-xs tracking-widest cursor-pointer">
              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"/></svg>
              Back to Home
            </button>
