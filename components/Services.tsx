@@ -48,10 +48,10 @@ const Services: React.FC<ServicesProps> = ({ onAuditClick, onSignup }) => {
             </h3>
           </div>
           <div className="text-right">
-             <p className="text-slate-500 font-bold max-w-sm mb-2">
+             <p className="text-slate-500 font-bold max-w-sm mb-4">
               More than just a tool, we are your partner in digital credibility. We handle the tech so you can handle the customers.
             </p>
-            <button onClick={onAuditClick} className="text-[#16A34A] text-xs font-black uppercase tracking-widest hover:text-[#0F172A] transition-colors">Launch Diagnostic Audit →</button>
+            <button onClick={onAuditClick} className="text-[#16A34A] text-xs font-black uppercase tracking-widest hover:text-[#0F172A] transition-colors cursor-pointer">Launch Diagnostic Audit →</button>
           </div>
         </div>
 
@@ -60,7 +60,7 @@ const Services: React.FC<ServicesProps> = ({ onAuditClick, onSignup }) => {
             <button 
               key={i} 
               onClick={onSignup}
-              className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-[#16A34A] transition-all group text-left w-full h-full flex flex-col"
+              className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-[#16A34A] transition-all group text-left w-full h-full flex flex-col cursor-pointer active:scale-95"
             >
               <div className="mb-6 group-hover:scale-110 transition-transform">
                 {s.icon}
@@ -76,7 +76,7 @@ const Services: React.FC<ServicesProps> = ({ onAuditClick, onSignup }) => {
 
         {/* Feature Banner for Audit Tool */}
         <div className="mt-12 bg-[#0F172A] rounded-[32px] p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden group border-b-4 border-[#16A34A]">
-           <div className="absolute top-0 right-0 w-64 h-64 bg-[#16A34A]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-125 transition-transform duration-700"></div>
+           <div className="absolute top-0 right-0 w-64 h-64 bg-[#16A34A]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-125 transition-transform duration-700 pointer-events-none"></div>
            <div className="space-y-4 relative z-10">
               <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-[#16A34A]/20 px-3 py-1 rounded-full text-[#16A34A]">New Feature</span>
               <h4 className="text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none italic">
@@ -84,7 +84,7 @@ const Services: React.FC<ServicesProps> = ({ onAuditClick, onSignup }) => {
               </h4>
               <p className="text-slate-400 font-medium max-w-md">Discover exactly where your competitors are outperforming you in local search results.</p>
            </div>
-           <button onClick={onAuditClick} className="bg-[#16A34A] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black transition-all shadow-xl active:scale-95 shrink-0 relative z-10">
+           <button onClick={onAuditClick} className="bg-[#16A34A] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black transition-all shadow-xl active:scale-95 shrink-0 relative z-10 cursor-pointer">
              Audit My Business
            </button>
         </div>
