@@ -35,10 +35,10 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
             If you aren't in the Top 3, you're handing profit to your competition. We automate <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">Google Business Profile</span> and turn map searchers into <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">paying customers</span>.
           </p>
 
-          <div className="relative z-50 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+          <div className="relative z-[100] flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
             <button 
               onClick={(e) => {
-                e.stopPropagation();
+                e.preventDefault();
                 onStartBusiness();
               }}
               className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-[#16A34A] text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl shadow-[#16A34A]/30 hover:bg-[#0F172A] hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer relative z-50"
@@ -47,7 +47,7 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
             </button>
             <button 
               onClick={(e) => {
-                e.stopPropagation();
+                e.preventDefault();
                 if(onProspectorClick) onProspectorClick();
               }}
               className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-[#0F172A] text-white rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-2xl hover:bg-[#16A34A] transition-all uppercase tracking-widest cursor-pointer relative z-50"
@@ -56,16 +56,16 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
             </button>
             <button 
               onClick={(e) => {
-                e.stopPropagation();
+                e.preventDefault();
                 onStartAgency();
               }}
-              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-white text-[#0F172A] border-2 border-slate-100 rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-xl hover:border-[#FACC15] transition-all uppercase tracking-widest cursor-pointer relative z-[60]"
+              className="w-full sm:w-auto px-8 lg:px-16 py-5 lg:py-7 bg-white text-[#0F172A] border-2 border-slate-100 rounded-2xl md:rounded-[28px] font-black text-base lg:text-xl shadow-xl hover:border-[#FACC15] transition-all uppercase tracking-widest cursor-pointer relative z-[101]"
             >
               Agency Program
             </button>
           </div>
 
-          {/* Device Mockup Section */}
+          {/* Device Mockup Section - Pointer Events None to avoid invisible coverage */}
           <div className="pt-12 md:pt-24 lg:pt-36 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700 relative z-10 pointer-events-none">
             <div className="relative mx-auto max-w-5xl bg-[#0F172A] rounded-[32px] md:rounded-[44px] lg:rounded-[56px] p-1.5 md:p-3 lg:p-5 shadow-[0_50px_100px_-20px_rgba(15,23,42,0.4)] border border-white/10 overflow-hidden">
                <div className="bg-white rounded-[24px] md:rounded-[36px] lg:rounded-[44px] overflow-hidden border border-slate-200 aspect-[16/9] flex items-center justify-center relative">
