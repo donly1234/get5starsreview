@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ReviewDetailView from './ReviewDetailView';
 import ReviewCard from './ReviewCard';
@@ -61,12 +60,12 @@ const mockReviews = [
   }
 ];
 
-// added ReviewInboxProps
 interface ReviewInboxProps {
   isTrial?: boolean;
+  onShowUpgrade?: () => void;
 }
 
-const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false }) => {
+const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false, onShowUpgrade }) => {
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [filterRating, setFilterRating] = useState<string>('All');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -96,10 +95,7 @@ const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false }) => {
 
   return (
     <div className="flex h-[calc(100vh-250px)] md:h-[calc(100vh-250px)] gap-6 overflow-hidden relative">
-      {/* List View Container */}
       <div className={`flex flex-col h-full w-full transition-all duration-300 ${selectedReviewId ? 'lg:w-1/3 hidden lg:flex' : 'w-full'}`}>
-        
-        {/* Mobile Filter & Search Area */}
         <div className="p-4 bg-white md:bg-transparent border-b md:border-none border-slate-100 flex items-center justify-between gap-3 shrink-0">
           <div className="relative flex-1">
             <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -129,13 +125,11 @@ const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false }) => {
           </div>
         </div>
 
-        {/* Swipe Hint (Mobile Only) */}
         <div className="px-4 py-2 md:hidden flex items-center justify-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
           <svg className="w-3 h-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
           Swipe left to mark read
         </div>
 
-        {/* Scrollable List */}
         <div 
           className="flex-1 overflow-y-auto px-4 md:px-0 space-y-3 pb-20 scroll-smooth"
           onScroll={(e) => {
@@ -161,7 +155,6 @@ const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false }) => {
           ))}
         </div>
 
-        {/* Bulk Action Bar (Floating on Mobile) */}
         {isBulkMode && selectedIds.size > 0 && (
           <div className="fixed bottom-20 left-4 right-4 bg-slate-900 text-white p-4 rounded-2xl flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-4 z-[100]">
             <span className="text-sm font-bold">{selectedIds.size} Selected</span>
@@ -173,7 +166,6 @@ const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false }) => {
         )}
       </div>
 
-      {/* Detail View / Full Screen Composer */}
       {selectedReviewId && (
         <div className="fixed inset-0 lg:relative lg:flex-1 lg:inset-auto z-[60] lg:z-0 bg-white lg:bg-transparent overflow-hidden">
           <div className="h-full animate-in fade-in slide-in-from-right-4 duration-300">
@@ -181,18 +173,17 @@ const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false }) => {
               review={selectedReview} 
               onBack={() => setSelectedReviewId(null)} 
               isMobileComposer={true}
-              // passing isTrial to ReviewDetailView
               isTrial={isTrial}
+              onShowUpgrade={onShowUpgrade}
             />
           </div>
         </div>
       )}
 
-      {/* Floating Action Button (FAB) for Mobile Quick Add */}
       {!selectedReviewId && (
         <button 
           className="md:hidden fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center z-40 animate-bounce transition-transform active:scale-95"
-          onClick={() => {/* Open quick search or filter */}}
+          onClick={() => {}}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
         </button>
