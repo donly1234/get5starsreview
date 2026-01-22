@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import Header from './components/Header';
@@ -93,12 +94,13 @@ const App: React.FC = () => {
 
   const navigate = (newView: AppView) => {
     setView(newView);
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const scrollToSection = (sectionId: string) => {
     if (view !== 'landing') {
       setView('landing');
+      // Delay needed to allow DOM to swap before searching for ID
       setTimeout(() => {
         const el = document.getElementById(sectionId);
         if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -183,7 +185,7 @@ const App: React.FC = () => {
                 />
                 <Integrations />
                 <AboutUs />
-                <section className="py-24 bg-slate-50">
+                <section id="ranking-report" className="py-24 bg-slate-50">
                   <div className="container mx-auto px-6 text-center mb-16">
                     <span className="text-[#16A34A] font-black text-[10px] uppercase tracking-widest">Market Intel</span>
                     <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] uppercase italic">Get Your <span className="text-[#16A34A]">Ranking Report</span></h2>
@@ -196,7 +198,7 @@ const App: React.FC = () => {
                 <ROICalculator onStart={() => navigate('signup-business')} />
                 
                 {/* Agency Program Details Section */}
-                <section id="agency-program" className="py-24 bg-white">
+                <section id="agency-program" className="py-24 bg-white scroll-mt-32">
                   <div className="container mx-auto px-6">
                     <div className="bg-[#0F172A] rounded-[64px] p-8 md:p-20 text-white relative overflow-hidden shadow-2xl border-b-8 border-[#FACC15]">
                       <div className="absolute top-0 right-0 w-1/2 h-full bg-[#16A34A]/5 blur-3xl rounded-full translate-x-1/2"></div>
@@ -228,7 +230,7 @@ const App: React.FC = () => {
                           </ul>
                           <button 
                             onClick={() => navigate('signup-agency')}
-                            className="bg-[#16A34A] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black transition-all shadow-xl active:scale-95"
+                            className="bg-[#16A34A] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-white hover:text-black transition-all shadow-xl active:scale-95 cursor-pointer"
                           >
                             Join Agency Program
                           </button>
@@ -319,7 +321,7 @@ const CookieConsent = ({ onClose }: { onClose: () => void }) => (
            </div>
         </div>
         <div className="flex gap-3 shrink-0">
-           <button onClick={onClose} className="px-8 py-3 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#16A34A] transition-all shadow-xl">Accept All</button>
+           <button onClick={onClose} className="px-8 py-3 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#16A34A] transition-all shadow-xl cursor-pointer">Accept All</button>
         </div>
      </div>
   </div>
