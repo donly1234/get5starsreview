@@ -45,6 +45,7 @@ const Header: React.FC<HeaderProps> = ({
       onAboutClick();
     } else if (item.type === 'blog') {
       onBlogClick();
+      window.scrollTo(0,0);
     } else if (item.section && onScrollToSection) {
       onScrollToSection(item.section);
     }
