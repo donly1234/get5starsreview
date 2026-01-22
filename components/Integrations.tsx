@@ -12,7 +12,6 @@ const allPlatforms = [
 ];
 
 const Integrations: React.FC = () => {
-  // Duplicate the array for seamless infinite scroll
   const scrollItems = [...allPlatforms, ...allPlatforms];
 
   return (
@@ -26,27 +25,19 @@ const Integrations: React.FC = () => {
       </div>
 
       <div className="relative flex">
-        {/* Left Gradient Shadow */}
         <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-        
-        {/* Right Gradient Shadow */}
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
-        {/* Marquee Container */}
         <div className="animate-marquee flex gap-8 md:gap-12 px-6">
           {scrollItems.map((platform, idx) => (
             <div 
               key={idx} 
-              className="px-8 py-4 bg-white rounded-2xl border border-slate-50 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all hover:scale-105 cursor-default flex items-center justify-center min-w-[180px] h-20 group"
-              aria-label={`Integrated with ${platform.name}`}
+              className="px-8 py-4 bg-white rounded-2xl border border-slate-50 shadow-sm hover:shadow-md hover:border-[#16A34A]/30 transition-all hover:scale-105 cursor-default flex items-center justify-center min-w-[180px] h-20 group"
             >
               <img 
                 src={platform.logo} 
                 alt={platform.name} 
                 className="h-8 w-auto max-w-[140px] object-contain transition-all duration-500 grayscale group-hover:grayscale-0" 
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = `https://logo.clearbit.com/${platform.name.toLowerCase().replace(/\s/g, '')}.com`;
-                }}
               />
             </div>
           ))}
