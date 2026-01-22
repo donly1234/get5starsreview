@@ -64,13 +64,6 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
               Agency Program
             </button>
           </div>
-
-          {/* Minimal Device Mockup Section - Pointer events none so it doesn't block buttons if it overlaps */}
-          <div className="pt-8 md:pt-12 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700 pointer-events-none opacity-40">
-            <div className="relative mx-auto max-w-4xl bg-[#0F172A] rounded-[32px] p-1 border border-white/10 overflow-hidden shadow-2xl">
-               <div className="bg-white rounded-[28px] overflow-hidden aspect-[16/5]"></div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
