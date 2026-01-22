@@ -96,6 +96,19 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const scrollToSection = (sectionId: string) => {
+    if (view !== 'landing') {
+      setView('landing');
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   if (view === 'loading' || !authReady) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
@@ -138,6 +151,7 @@ const App: React.FC = () => {
             onHomeClick={() => navigate('landing')}
             onBlogClick={() => navigate('blog')}
             onAboutClick={() => navigate('about')}
+            onScrollToSection={scrollToSection}
           />
           
           <main className="flex-grow">
@@ -179,9 +193,9 @@ const App: React.FC = () => {
                 <MapComparison />
                 <DashboardShowcase />
                 <HowItWorks onStart={() => navigate('signup-business')} />
-                <Services onAuditClick={() => navigate('app-selector')} />
+                <Services onAuditClick={() => navigate('app-selector')} onSignup={() => navigate('signup-business')} />
                 <TrustStack />
-                <Features />
+                <Features onSignup={() => navigate('signup-business')} onContact={() => scrollToSection('contact')} />
                 <VideoTestimonials />
                 <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
                 <FAQ />
@@ -199,6 +213,9 @@ const App: React.FC = () => {
             onPrivacyClick={() => navigate('privacy')}
             onTermsClick={() => navigate('terms')}
             onAboutClick={() => navigate('about')}
+            onScrollToSection={scrollToSection}
+            onAgencySignup={() => navigate('signup-agency')}
+            onToolsClick={() => navigate('app-selector')}
           />
         </>
       )}
