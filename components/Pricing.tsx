@@ -117,8 +117,8 @@ const Pricing: React.FC<PricingProps> = ({ onStartBusiness, onStartAgency }) => 
               </ul>
 
               <button 
-                onClick={() => tier.path === 'agency' ? onStartAgency() : onStartBusiness()}
-                className={`w-full py-4 md:py-5 rounded-[18px] md:rounded-[24px] font-black uppercase text-[10px] md:text-xs tracking-widest transition-all active:scale-95 shadow-xl ${
+                onClick={tier.path === 'agency' ? onStartAgency : onStartBusiness}
+                className={`w-full py-4 md:py-5 rounded-[18px] md:rounded-[24px] font-black uppercase text-[10px] md:text-xs tracking-widest transition-all active:scale-95 shadow-xl cursor-pointer ${
                   tier.path === 'agency'
                   ? 'bg-white text-black hover:bg-[#16A34A] hover:text-white'
                   : tier.popular 
