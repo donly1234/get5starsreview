@@ -8,7 +8,7 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspectorClick }) => {
   return (
-    <section className="relative pt-24 pb-12 md:pt-40 lg:pt-48 md:pb-16 overflow-hidden hero-gradient">
+    <section className="relative pt-24 pb-4 md:pt-40 lg:pt-48 md:pb-8 overflow-hidden hero-gradient">
       {/* Background Ambience - pointer-events-none is vital to prevent click blocking */}
       <div className="absolute top-[-10%] right-[-5%] w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-[#16A34A]/5 blur-[100px] md:blur-[160px] rounded-full pointer-events-none animate-pulse duration-[15s] -z-10"></div>
       
@@ -35,31 +35,40 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
             If you aren't in the Top 3, you're handing profit to your competition. We automate <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">Google Business Profile</span> and turn map searchers into <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">paying customers</span>.
           </p>
 
-          <div className="relative z-20 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+          <div className="relative z-50 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
             <button 
-              onClick={onStartBusiness}
-              className="w-full sm:w-auto px-8 lg:px-12 py-5 lg:py-6 bg-[#16A34A] text-white rounded-2xl md:rounded-[24px] font-black text-base lg:text-lg shadow-2xl shadow-[#16A34A]/30 hover:bg-[#0F172A] hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                onStartBusiness();
+              }}
+              className="w-full sm:w-auto px-8 lg:px-12 py-5 lg:py-6 bg-[#16A34A] text-white rounded-2xl md:rounded-[24px] font-black text-base lg:text-lg shadow-2xl shadow-green-600/30 hover:bg-[#0F172A] hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer"
             >
               Start Free Trial
             </button>
             <button 
-              onClick={onProspectorClick}
+              onClick={(e) => {
+                e.preventDefault();
+                if (onProspectorClick) onProspectorClick();
+              }}
               className="w-full sm:w-auto px-8 lg:px-12 py-5 lg:py-6 bg-[#0F172A] text-white rounded-2xl md:rounded-[24px] font-black text-base lg:text-lg shadow-2xl hover:bg-[#16A34A] hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer"
             >
               Analyze My Lost Profit
             </button>
             <button 
-              onClick={onStartAgency}
+              onClick={(e) => {
+                e.preventDefault();
+                onStartAgency();
+              }}
               className="w-full sm:w-auto px-8 lg:px-12 py-5 lg:py-6 bg-white text-[#0F172A] border-2 border-slate-100 rounded-2xl md:rounded-[24px] font-black text-base lg:text-lg shadow-xl hover:border-[#FACC15] hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer"
             >
               Agency Program
             </button>
           </div>
 
-          {/* Minimal Device Mockup Section to reduce visual clutter */}
-          <div className="pt-12 md:pt-16 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700 pointer-events-none opacity-40">
+          {/* Minimal Device Mockup Section - Pointer events none so it doesn't block buttons if it overlaps */}
+          <div className="pt-8 md:pt-12 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700 pointer-events-none opacity-40">
             <div className="relative mx-auto max-w-4xl bg-[#0F172A] rounded-[32px] p-1 border border-white/10 overflow-hidden shadow-2xl">
-               <div className="bg-white rounded-[28px] overflow-hidden aspect-[16/6]"></div>
+               <div className="bg-white rounded-[28px] overflow-hidden aspect-[16/5]"></div>
             </div>
           </div>
         </div>
