@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import SocialShareModal from './SocialShareModal';
@@ -61,12 +60,14 @@ const ReviewDetailView: React.FC<ReviewDetailViewProps> = ({ review, onBack, isM
         5. Keep it under 100 words.
       `;
       
+      // Added thinkingBudget alongside maxOutputTokens to ensure model has room to process response
       const result = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt,
         config: {
           temperature: tone === 'Witty' ? 0.9 : 0.6,
           maxOutputTokens: 300,
+          thinkingConfig: { thinkingBudget: 100 },
         }
       });
       
