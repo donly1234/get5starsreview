@@ -1,85 +1,102 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../supabaseClient.ts';
+import { supabase } from '../../supabaseClient';
 import Sidebar from './Sidebar';
-import TopBar from './TopBar.tsx';
-import MetricsBar from './MetricsBar.tsx';
-import ReviewFeed from './ReviewFeed.tsx';
-import PerformanceGraph from './PerformanceGraph.tsx';
-import RequestStatus from './RequestStatus.tsx';
-import PlatformBreakdown from './PlatformBreakdown.tsx';
-import RequestsManager from './Requests/RequestsManager.tsx';
-import MonitoringManager from './Monitoring/MonitoringManager.tsx';
-import MediaManager from './Media/MediaManager.tsx';
-import WidgetsManager from './Widgets/WidgetsManager.tsx';
-import AnalyticsManager from './Analytics/AnalyticsManager.tsx';
-import SettingsManager from './Settings/SettingsManager.tsx';
-import AIAssistantManager from './AI/AIAssistantManager.tsx';
-import AIStrategyManager from './AI/AIStrategyManager.tsx';
-import StrategyProgress from './AI/StrategyProgress.tsx';
-import AgencyManager from './Agency/AgencyManager.tsx';
-import GBPAuditTool from '../GBPAuditTool.tsx';
-import BottomNav from './BottomNav.tsx';
-import UpgradeModal from './Trial/UpgradeModal.tsx';
-import ExpiredOverlay from './Trial/ExpiredOverlay.tsx';
-import TrialChecklist from './Trial/TrialChecklist.tsx';
-import NotificationCenter from './Notifications/NotificationCenter.tsx';
-import { UserType } from '../../App.tsx';
+import TopBar from './TopBar';
+import MetricsBar from './MetricsBar';
+import ReviewFeed from './ReviewFeed';
+import PerformanceGraph from './PerformanceGraph';
+import RequestStatus from './RequestStatus';
+import PlatformBreakdown from './PlatformBreakdown';
+import RequestsManager from './Requests/RequestsManager';
+import MonitoringManager from './Monitoring/MonitoringManager';
+import MediaManager from './Media/MediaManager';
+import WidgetsManager from './Widgets/WidgetsManager';
+import AnalyticsManager from './Analytics/AnalyticsManager';
+import SettingsManager from './Settings/SettingsManager';
+import AIAssistantManager from './AI/AIAssistantManager';
+import AIStrategyManager from './AI/AIStrategyManager';
+import StrategyProgress from './AI/StrategyProgress';
+import AgencyManager from './Agency/AgencyManager';
+import GBPAuditTool from '../GBPAuditTool';
+import BottomNav from './BottomNav';
+import UpgradeModal from './Trial/UpgradeModal';
+import ExpiredOverlay from './Trial/ExpiredOverlay';
+import TrialChecklist from './Trial/TrialChecklist';
+import NotificationCenter from './Notifications/NotificationCenter';
+import { UserType } from '../../App';
 
 interface DashboardProps {
   onLogout: () => void;
   userType: UserType;
   user: any;
-  isTrial?: boolean;
   justUpgraded?: boolean;
-  onUpgradeComplete?: () => void;
   onUpgradeFlow?: () => void;
   onDismissUpgradeMessage?: () => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ 
   onLogout, 
-  userType,
+  userType: initialUserType,
   user,
   justUpgraded = false,
   onUpgradeFlow,
   onDismissUpgradeMessage 
 }) => {
-  const [activeTab, setActiveTab] = useState(userType === 'agency' ? 'Agency Panel' : 'Dashboard');
+  const [userType, setUserType] = useState<UserType>(initialUserType);
+  const [activeTab, setActiveTab] = useState(initialUserType === 'agency' ? 'Agency Panel' : 'Dashboard');
   const [impersonatedClient, setImpersonatedClient] = useState<string | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [trialDaysElapsed, setTrialDaysElapsed] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      
-      if (data) {
-        setProfile(data);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
         
-        // Calculate trial duration from creation date
-        const created = new Date(data.created_at || user.created_at);
-        const now = new Date();
-        const diffTime = Math.abs(now.getTime() - created.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        setTrialDaysElapsed(diffDays);
+        if (data) {
+          setProfile(data);
+          setUserType(data.user_type || initialUserType);
+          const created = new Date(data.created_at || user.created_at);
+          const now = new Date();
+          const diffTime = Math.abs(now.getTime() - created.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          setTrialDaysElapsed(diffDays);
+        }
+      } catch (e) {
+        console.error("Dashboard profile load error:", e);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchProfile();
-  }, [user]);
+  }, [user, initialUserType]);
+
+  const handleResendVerification = async () => {
+    if (!user?.email) return;
+    setResendingEmail(true);
+    await supabase.auth.resend({
+      type: 'signup',
+      email: user.email,
+      options: { emailRedirectTo: window.location.origin }
+    });
+    setResendingEmail(false);
+    alert("Verification email resent!");
+  };
 
   const isTrialAccount = profile?.status !== 'active';
   const isExpired = isTrialAccount && trialDaysElapsed > 14;
   const trialDaysLeft = Math.max(0, 14 - trialDaysElapsed);
+  const emailUnconfirmed = !user?.email_confirmed_at;
 
   const handleFeatureClick = (tab: string) => {
     if (userType === 'business' && isTrialAccount) {
@@ -158,14 +175,14 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <ReviewFeed isTrial={isTrialAccount} profileId={user?.id} />
               </div>
               <div className="space-y-8">
-                <RequestStatus requestsUsed={12} isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />
+                <RequestStatus requestsUsed={0} isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />
                 <PlatformBreakdown isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />
               </div>
             </div>
           </>
         );
       case 'Requests':
-        return <RequestsManager requestsUsed={12} isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />;
+        return <RequestsManager requestsUsed={0} isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />;
       case 'Monitoring':
       case 'All Reviews':
         return <MonitoringManager isTrial={isTrialAccount} />;
@@ -192,8 +209,9 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white">
+      <div className="flex h-screen items-center justify-center bg-white flex-col gap-4">
         <div className="w-12 h-12 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Syncing Identity Hub...</p>
       </div>
     );
   }
@@ -210,6 +228,19 @@ const Dashboard: React.FC<DashboardProps> = ({
       />
       
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        {emailUnconfirmed && (
+          <div className="bg-amber-50 text-white px-8 py-2.5 text-center text-xs font-black uppercase tracking-widest flex items-center justify-center gap-4 shrink-0 shadow-lg relative z-[70]">
+             <span>⚠️ Please confirm your email to fully unlock your account</span>
+             <button 
+              onClick={handleResendVerification} 
+              disabled={resendingEmail}
+              className="px-4 py-1 bg-white/20 hover:bg-white/30 rounded-lg transition-all"
+             >
+               {resendingEmail ? "Sending..." : "Resend Link"}
+             </button>
+          </div>
+        )}
+
         {justUpgraded && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-500">
              <div className="bg-white rounded-[40px] p-10 max-w-lg w-full text-center shadow-2xl border-4 border-green-500 animate-in zoom-in-95">
