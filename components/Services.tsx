@@ -1,8 +1,8 @@
-
 import React from 'react';
 
 interface ServicesProps {
   onAuditClick: () => void;
+  onSignup?: () => void;
 }
 
 const services = [
@@ -36,7 +36,7 @@ const services = [
   }
 ];
 
-const Services: React.FC<ServicesProps> = ({ onAuditClick }) => {
+const Services: React.FC<ServicesProps> = ({ onAuditClick, onSignup }) => {
   return (
     <section id="services" className="py-24 bg-slate-50 scroll-mt-32">
       <div className="container mx-auto px-4 md:px-6">
@@ -57,15 +57,20 @@ const Services: React.FC<ServicesProps> = ({ onAuditClick }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {services.map((s, i) => (
-            <div key={i} className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-green-600 transition-all group">
+            <button 
+              key={i} 
+              onClick={onSignup}
+              className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-2xl hover:border-green-600 transition-all group text-left w-full h-full flex flex-col"
+            >
               <div className="mb-6 group-hover:scale-110 transition-transform">
                 {s.icon}
               </div>
               <h4 className="text-xl font-black text-black mb-3 uppercase tracking-tighter">{s.title}</h4>
-              <p className="text-slate-500 text-sm font-medium leading-relaxed">
+              <p className="text-slate-500 text-sm font-medium leading-relaxed mb-6 flex-grow">
                 {s.description}
               </p>
-            </div>
+              <span className="text-[10px] font-black text-green-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Explore Feature →</span>
+            </button>
           ))}
         </div>
 
