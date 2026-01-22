@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from './supabaseClient.ts';
-import Header from './components/Header.tsx';
+import { supabase } from './supabaseClient';
+import Header from './components/Header';
 import Hero from './components/Hero';
 import Integrations from './components/Integrations.tsx';
 import AboutUs from './components/AboutUs.tsx';
