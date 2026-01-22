@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
 
@@ -53,9 +54,9 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 transition-all duration-700 pointer-events-none z-[200] ${isScrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
+      <header className={`fixed top-0 left-0 right-0 transition-all duration-700 z-[200] ${isScrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
         <div className="container mx-auto px-4 md:px-6">
-          <div className={`glass-panel rounded-[24px] md:rounded-[32px] px-3 md:px-6 py-2 md:py-3 flex items-center justify-between transition-all duration-500 pointer-events-auto ${isScrolled ? 'shadow-2xl border-slate-200 bg-white/95' : 'border-transparent bg-transparent shadow-none'}`}>
+          <div className={`glass-panel rounded-[24px] md:rounded-[32px] px-3 md:px-6 py-2 md:py-3 flex items-center justify-between transition-all duration-500 ${isScrolled ? 'shadow-2xl border-slate-200 bg-white/95' : 'border-transparent bg-transparent shadow-none'}`}>
             
             <div className="flex items-center gap-2 md:gap-8">
               <div className="cursor-pointer hover:scale-105 transition-transform" onClick={() => { onHomeClick(); window.scrollTo(0,0); }}>
