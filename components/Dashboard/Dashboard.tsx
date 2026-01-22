@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient.ts';
-import Sidebar from './Sidebar.tsx';
+import Sidebar from './Sidebar';
 import TopBar from './TopBar.tsx';
 import MetricsBar from './MetricsBar.tsx';
 import ReviewFeed from './ReviewFeed.tsx';
