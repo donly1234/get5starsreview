@@ -1,52 +1,117 @@
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 
+/**
+ * 🛠️ TROUBLESHOOTING "LONG LETTERS" IN GOOGLE LOGIN:
+ * The string "ujnvsgvsvkjleunqvlzt.supabase.co" appears because the 
+ * Google Cloud Project "OAuth Consent Screen" has not been configured.
+ * 
+ * FIX STEPS:
+ * 1. Go to https://console.cloud.google.com/
+ * 2. Select Project: "ujnvsgvsvkjleunqvlzt"
+ * 3. Search for "OAuth consent screen"
+ * 4. Change "App name" to "Get5StarsReview"
+ * 5. Add your logo and "get5starsreview.com" as an authorized domain.
+ */
+
 interface LoginProps {
   onCancel: () => void;
   onBusinessSignup: () => void;
   onAgencySignup: () => void;
   onLoginSuccess: (type?: 'business' | 'agency') => void;
+  initialMode?: 'login' | 'forgot' | 'reset';
 }
 
-const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSuccess }) => {
+const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSuccess, initialMode = 'login' }) => {
+  const [mode, setMode] = useState<'login' | 'forgot' | 'reset'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccessMsg(null);
 
-    const { error: loginError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    if (mode === 'login') {
+      const { error: loginError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (loginError) {
+        if (loginError.message.toLowerCase().includes('confirmed')) {
+          setError("Your email hasn't been confirmed yet.");
+        } else {
+          setError("Email or password is incorrect");
+        }
+        setLoading(false);
+      } else {
+        onLoginSuccess();
+      }
+    } else if (mode === 'forgot') {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}`,
+      });
+
+      if (resetError) {
+        setError(resetError.message);
+      } else {
+        setSuccessMsg("Password reset link sent! Please check your inbox.");
+      }
+      setLoading(false);
+    } else if (mode === 'reset') {
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (updateError) {
+        setError(updateError.message);
+      } else {
+        setSuccessMsg("Password updated successfully! You can now sign in.");
+        setTimeout(() => setMode('login'), 2000);
+      }
+      setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      setError("Please enter your email first.");
+      return;
+    }
+    setResending(true);
+    setError(null);
+    setSuccessMsg(null);
+    
+    const { error: resendError } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
+      options: {
+        emailRedirectTo: window.location.origin
+      }
     });
 
-    if (loginError) {
-      setError("Email or password is incorrect");
-      setLoading(false);
+    if (resendError) {
+      setError(resendError.message);
     } else {
-      onLoginSuccess();
+      setSuccessMsg("A new verification link has been sent to your inbox.");
     }
+    setResending(false);
   };
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    // Explicitly target the production domain for redirects
-    const redirectUrl = window.location.hostname === 'localhost' 
-      ? window.location.origin 
-      : 'https://get5starsreview.com';
-    
+    setError(null);
     const { error: googleError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: redirectUrl,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
+        redirectTo: window.location.origin,
       }
     });
 
@@ -75,42 +140,76 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
         <div className="bg-white rounded-[48px] shadow-2xl border border-slate-100 overflow-hidden relative">
           <div className="p-10 md:p-14">
             <h2 className="text-3xl font-black text-black mb-8">
-              Welcome back to <br/><span className="text-green-600">Get5StarsReview</span>
+              {mode === 'login' ? 'Welcome back to ' : mode === 'forgot' ? 'Reset your ' : 'Set your new '}
+              <br/><span className="text-green-600">{mode === 'reset' ? 'Password' : 'Get5StarsReview'}</span>
             </h2>
 
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-sm font-bold animate-in fade-in">
                 {error}
+                {error.includes('confirmed') && (
+                  <button 
+                    onClick={handleResendVerification}
+                    disabled={resending}
+                    className="block mt-2 underline text-xs uppercase tracking-widest text-red-700 hover:text-red-900 disabled:opacity-50"
+                  >
+                    {resending ? "Resending..." : "Click here to resend verification email"}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {successMsg && (
+              <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-2xl text-sm font-bold animate-in fade-in">
+                {successMsg}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              <label className="block space-y-2">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</span>
-                <input 
-                  type="email" 
-                  required 
-                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none font-bold transition-all" 
-                  placeholder="name@company.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                />
-              </label>
+              {mode !== 'reset' && (
+                <label className="block space-y-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</span>
+                  <input 
+                    type="email" 
+                    required 
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none font-bold transition-all" 
+                    placeholder="name@company.com"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                  />
+                </label>
+              )}
 
-              <label className="block space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</span>
-                  <button type="button" className="text-[10px] font-black text-green-600 uppercase tracking-tighter">Forgot Password?</button>
-                </div>
-                <input 
-                  type="password" 
-                  required
-                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none font-bold transition-all" 
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                />
-              </label>
+              {mode === 'login' && (
+                <label className="block space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</span>
+                    <button type="button" onClick={() => setMode('forgot')} className="text-[10px] font-black text-green-600 uppercase tracking-tighter">Forgot Password?</button>
+                  </div>
+                  <input 
+                    type="password" 
+                    required
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none font-bold transition-all" 
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                  />
+                </label>
+              )}
+
+              {mode === 'reset' && (
+                <label className="block space-y-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">New Password</span>
+                  <input 
+                    type="password" 
+                    required
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none font-bold transition-all" 
+                    placeholder="••••••••"
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                  />
+                </label>
+              )}
 
               <button 
                 type="submit"
@@ -120,36 +219,43 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
                 {loading ? (
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  'Sign In'
+                  mode === 'login' ? 'Sign In' : mode === 'forgot' ? 'Send Reset Link' : 'Update Password'
                 )}
               </button>
             </form>
 
-            <div className="mt-8 flex items-center gap-4">
-              <div className="flex-1 h-px bg-slate-100"></div>
-              <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">One-Click Access</span>
-              <div className="flex-1 h-px bg-slate-100"></div>
-            </div>
+            {mode !== 'reset' && (
+              <>
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="flex-1 h-px bg-slate-100"></div>
+                  <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">One-Click Access</span>
+                  <div className="flex-1 h-px bg-slate-100"></div>
+                </div>
 
-            <div className="mt-8">
-              <button 
-                onClick={handleGoogleLogin}
-                disabled={loading}
-                className="w-full py-4 border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 disabled:opacity-50 group"
-              >
-                <img src="https://www.vectorlogo.zone/logos/google/google-icon.svg" className="w-5 h-5 group-hover:scale-110 transition-transform" alt="Google" />
-                Sign in with Google
-              </button>
-            </div>
+                <div className="mt-8">
+                  <button 
+                    onClick={handleGoogleLogin}
+                    disabled={loading}
+                    className="w-full py-4 border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 disabled:opacity-50 group"
+                  >
+                    <img src="https://www.vectorlogo.zone/logos/google/google-icon.svg" className="w-5 h-5 group-hover:scale-110 transition-transform" alt="Google" />
+                    Sign in with Google
+                  </button>
+                </div>
+              </>
+            )}
 
             <div className="mt-12 pt-8 border-t border-slate-100 text-center">
-              <p className="text-sm text-slate-500 font-medium">Don't have an account? <button onClick={onBusinessSignup} className="text-green-600 font-bold hover:underline">Start 14-day free trial</button></p>
+              {mode === 'login' ? (
+                <p className="text-sm text-slate-500 font-medium">Don't have an account? <button onClick={onBusinessSignup} className="text-green-600 font-bold hover:underline">Start 14-day free trial</button></p>
+              ) : (
+                <button onClick={() => setMode('login')} className="text-green-600 font-bold hover:underline">Return to Sign In</button>
+              )}
             </div>
           </div>
           
-          <div className="bg-slate-50 p-6 flex items-center justify-center gap-6 opacity-30 grayscale">
-             <span className="text-[9px] font-black uppercase tracking-widest">SSL Secure</span>
-             <span className="text-[9px] font-black uppercase tracking-widest">256-bit Encrypted</span>
+          <div className="bg-slate-50 p-6 flex items-center justify-center gap-6 opacity-30 grayscale text-[10px] font-black uppercase tracking-[0.2em]">
+             <span>Google Secure Oauth 2.0 Integration</span>
           </div>
         </div>
       </div>
