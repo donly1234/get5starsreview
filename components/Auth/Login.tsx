@@ -1,19 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 
-/**
- * 🛠️ HOW TO FIX THE "LONG LETTERS" (ujnvsg...) ON GOOGLE LOGIN:
- * 1. Log in to https://console.cloud.google.com/
- * 2. Select your project (Project ID: ujnvsgvsvkjleunqvlzt)
- * 3. Go to "APIs & Services" > "OAuth consent screen"
- * 4. Click "EDIT APP"
- * 5. Set "App name" to: Get5StarsReview
- * 6. Set "User support email" and "Developer contact info"
- * 7. (Optional) Upload your Logo.
- * 8. Scroll to the bottom and click "SAVE AND CONTINUE"
- * 9. On the "Summary" page, ensure the status is "In production" or "Testing".
- */
-
 interface LoginProps {
   onCancel: () => void;
   onBusinessSignup: () => void;
@@ -122,10 +109,10 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-slate-50 flex flex-col overflow-y-auto">
-      <div className="max-w-xl mx-auto w-full px-6 py-12 md:py-24">
+    <div className="bg-slate-50 min-h-full flex flex-col py-12 md:py-24">
+      <div className="max-w-xl mx-auto w-full px-6">
         <div className="flex justify-between items-center mb-12">
-          <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 font-bold transition-all uppercase text-[10px] tracking-widest">
+          <button onClick={onCancel} className="flex items-center gap-2 text-slate-400 hover:text-slate-600 font-bold transition-all uppercase text-[10px] tracking-widest cursor-pointer">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"/></svg>
             Back to Home
           </button>
@@ -184,7 +171,7 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
                 <label className="block space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</span>
-                    <button type="button" onClick={() => setMode('forgot')} className="text-[10px] font-black text-green-600 uppercase tracking-tighter">Forgot Password?</button>
+                    <button type="button" onClick={() => setMode('forgot')} className="text-[10px] font-black text-green-600 uppercase tracking-tighter cursor-pointer hover:underline">Forgot Password?</button>
                   </div>
                   <input 
                     type="password" 
@@ -214,7 +201,7 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full py-5 rounded-2xl font-black text-lg shadow-xl transition-all flex items-center justify-center bg-slate-950 hover:bg-[#16A34A] text-white shadow-slate-950/20 active:scale-95 disabled:opacity-50"
+                className="w-full py-5 rounded-2xl font-black text-lg shadow-xl transition-all flex items-center justify-center bg-slate-950 hover:bg-[#16A34A] text-white shadow-slate-950/20 active:scale-95 disabled:opacity-50 cursor-pointer"
               >
                 {loading ? (
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -228,7 +215,7 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
               <>
                 <div className="mt-8 flex items-center gap-4">
                   <div className="flex-1 h-px bg-slate-100"></div>
-                  <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Secure One-Click Access</span>
+                  <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">Secure Access</span>
                   <div className="flex-1 h-px bg-slate-100"></div>
                 </div>
 
@@ -236,7 +223,7 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
                   <button 
                     onClick={handleGoogleLogin}
                     disabled={loading}
-                    className="w-full py-4 border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 disabled:opacity-50 group"
+                    className="w-full py-4 border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50 hover:border-slate-200 transition-all active:scale-95 disabled:opacity-50 group cursor-pointer"
                   >
                     <img src="https://www.vectorlogo.zone/logos/google/google-icon.svg" className="w-5 h-5 group-hover:scale-110 transition-transform" alt="Google" />
                     Sign in with Google
@@ -247,15 +234,11 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
 
             <div className="mt-12 pt-8 border-t border-slate-100 text-center">
               {mode === 'login' ? (
-                <p className="text-sm text-slate-500 font-medium">Don't have an account? <button onClick={onBusinessSignup} className="text-[#16A34A] font-bold hover:underline">Start 14-day free trial</button></p>
+                <p className="text-sm text-slate-500 font-medium">Don't have an account? <button onClick={onBusinessSignup} className="text-[#16A34A] font-bold hover:underline cursor-pointer">Start 14-day trial</button></p>
               ) : (
-                <button onClick={() => setMode('login')} className="text-[#16A34A] font-bold hover:underline">Return to Sign In</button>
+                <button onClick={() => setMode('login')} className="text-[#16A34A] font-bold hover:underline cursor-pointer">Return to Sign In</button>
               )}
             </div>
-          </div>
-          
-          <div className="bg-slate-50 p-6 flex items-center justify-center gap-6 opacity-30 grayscale text-[10px] font-black uppercase tracking-[0.2em]">
-             <span>Google OAuth 2.0 Integration</span>
           </div>
         </div>
       </div>
