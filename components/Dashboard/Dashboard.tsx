@@ -185,7 +185,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         return <RequestsManager requestsUsed={0} isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />;
       case 'Monitoring':
       case 'All Reviews':
-        return <MonitoringManager isTrial={isTrialAccount} />;
+        return <MonitoringManager isTrial={isTrialAccount} onShowUpgrade={() => setShowUpgradeModal('AI Assistant')} />;
       case 'SEO Auditor':
         return <GBPAuditTool onSignup={onUpgradeFlow || (() => {})} />;
       case 'GBP Media':
