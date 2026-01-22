@@ -1,122 +1,64 @@
-import React, { useState, useEffect } from 'react';
-import Logo from './Logo';
+import React from 'react';
 
-interface HeaderProps {
-  onLogin: () => void;
-  onToolsClick: () => void;
-  onBusinessSignup: () => void;
-  onAgencySignup: () => void;
-  onHomeClick: () => void;
-  onBlogClick: () => void;
-  onAboutClick?: () => void;
-  onScrollToSection?: (id: string) => void;
+interface HeroProps {
+  onStartBusiness: () => void;
+  onStartAgency: () => void;
+  onProspectorClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ 
-  onLogin, 
-  onToolsClick, 
-  onBusinessSignup, 
-  onAgencySignup, 
-  onHomeClick, 
-  onBlogClick, 
-  onAboutClick,
-  onScrollToSection
-}) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const navItems = [
-    { name: 'Services', section: 'services' },
-    { name: 'About', type: 'about' },
-    { name: 'Pricing', section: 'pricing' },
-    { name: 'Agency', section: 'agency-program' },
-    { name: 'Blog', type: 'blog' },
-  ];
-
-  const handleNav = (item: any) => {
-    setIsMobileMenuOpen(false);
-    if (item.type === 'about' && onAboutClick) {
-      onAboutClick();
-    } else if (item.type === 'blog') {
-      onBlogClick();
-    } else if (item.section && onScrollToSection) {
-      onScrollToSection(item.section);
-    }
-  };
-
+const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspectorClick }) => {
   return (
-    <>
-      <header className={`fixed top-0 left-0 right-0 z-[140] transition-all duration-700 ${isScrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
-        <div className="container mx-auto px-4 md:px-6">
-          <div className={`glass-panel rounded-[24px] md:rounded-[32px] px-3 md:px-6 py-2 md:py-3 flex items-center justify-between transition-all duration-500 ${isScrolled ? 'shadow-2xl border-slate-200 bg-white/95' : 'border-transparent bg-transparent shadow-none'}`}>
-            
-            <div className="flex items-center gap-2 md:gap-8">
-              <div className="cursor-pointer hover:scale-105 transition-transform pointer-events-auto" onClick={onHomeClick}>
-                 <Logo variant="full" className="scale-[0.5] md:scale-[0.7] origin-left" />
-              </div>
-              
-              <nav className="hidden lg:flex items-center gap-2 xl:gap-6 relative z-[150]">
-                {navItems.map(item => (
-                  <button 
-                    key={item.name}
-                    onClick={() => handleNav(item)}
-                    className="text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-all uppercase tracking-[0.15em] xl:tracking-[0.2em] cursor-pointer pointer-events-auto p-3 hover:scale-110"
-                  >
-                    {item.name}
-                  </button>
-                ))}
-              </nav>
-            </div>
+    <section className="relative pt-24 pb-0 md:pt-40 lg:pt-48 md:pb-0 overflow-hidden hero-gradient">
+      {/* Background Ambience - pointer-events-none is vital to prevent click blocking */}
+      <div className="absolute top-[-10%] right-[-5%] w-[400px] md:w-[800px] h-[400px] md:h-[800px] bg-[#16A34A]/5 blur-[100px] md:blur-[160px] rounded-full pointer-events-none animate-pulse duration-[15s] -z-10"></div>
+      
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="max-w-6xl mx-auto text-center space-y-8 md:space-y-12 lg:space-y-12">
+          
+          <div className="inline-flex items-center gap-2 md:gap-3 px-4 md:px-6 py-2 md:py-2.5 bg-white/60 glass-panel rounded-full shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            <span className="relative flex h-2 md:h-3 w-2 md:w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#16A34A] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 md:h-3 w-2 md:w-3 bg-[#16A34A]"></span>
+            </span>
+            <span className="text-[8px] md:text-[10px] lg:text-[12px] font-[900] text-slate-800 uppercase tracking-[0.2em] italic">
+              Stop Losing Local Sales To Competitors • AI Sales Engine Active
+            </span>
+          </div>
 
-            <div className="flex items-center gap-1 md:gap-4 relative z-[150]">
-              <button 
-                onClick={onLogin}
-                className="hidden md:block text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-all uppercase tracking-[0.15em] xl:tracking-[0.2em] px-4 py-2 cursor-pointer pointer-events-auto hover:scale-110"
-              >
-                Login
-              </button>
-              <button 
-                onClick={onBusinessSignup}
-                className="px-3 md:px-6 xl:px-8 py-2.5 md:py-4 bg-[#0F172A] text-white rounded-[14px] md:rounded-[18px] text-[8px] md:text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-[#16A34A] transition-all active:scale-95 whitespace-nowrap cursor-pointer pointer-events-auto"
-              >
-                Start Ranking
-              </button>
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-900 cursor-pointer pointer-events-auto" aria-label="Toggle Mobile Menu">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16m-7 6h7"/></svg>
-              </button>
-            </div>
+          <h1 className="text-4xl md:text-5xl lg:text-[72px] font-[900] text-[#0F172A] leading-[1.1] md:leading-[1] lg:leading-[0.85] tracking-[-0.05em] uppercase italic animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+            Rank #1 on <br className="hidden md:block" />
+            <span className="text-[#16A34A]">Google Maps</span> <br className="hidden md:block" />
+            & Increase Sales.
+          </h1>
+          
+          <p className="text-slate-500 text-base md:text-xl lg:text-2xl font-semibold max-w-4xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-400">
+            If you aren't in the Top 3, you're handing profit to your competition. We automate <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">Google Business Profile</span> and turn map searchers into <span className="text-[#16A34A] font-black underline decoration-[#FACC15]">paying customers</span>.
+          </p>
+
+          <div className="relative z-50 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500 pb-16 md:pb-24">
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                onStartBusiness();
+              }}
+              className="w-full sm:w-auto px-8 lg:px-12 py-5 lg:py-6 bg-[#16A34A] text-white rounded-2xl md:rounded-[24px] font-black text-base lg:text-lg shadow-2xl shadow-green-600/30 hover:bg-[#0F172A] hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer"
+            >
+              Start Free Trial
+            </button>
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                if (onProspectorClick) onProspectorClick();
+              }}
+              className="w-full sm:w-auto px-8 lg:px-12 py-5 lg:py-6 bg-[#0F172A] text-white rounded-2xl md:rounded-[24px] font-black text-base lg:text-lg shadow-2xl hover:bg-[#16A34A] hover:scale-[1.05] active:scale-95 transition-all uppercase tracking-widest cursor-pointer"
+            >
+              Analyze My Lost Profit
+            </button>
           </div>
         </div>
-      </header>
-
-      {/* Mobile Menu */}
-      <div className={`fixed inset-0 z-[200] bg-white transition-all duration-500 ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
-        <div className="p-6 md:p-8 flex justify-between items-center">
-            <div onClick={() => { onHomeClick(); setIsMobileMenuOpen(false); }} className="cursor-pointer">
-              <Logo variant="full" className="scale-75 origin-left" />
-            </div>
-            <button onClick={() => setIsMobileMenuOpen(false)} className="p-3 bg-slate-50 rounded-full cursor-pointer" aria-label="Close Menu">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <div className="pt-6 px-8 space-y-6">
-           {navItems.map(item => (
-             <button key={item.name} onClick={() => handleNav(item)} className="block w-full text-left text-3xl md:text-4xl font-black uppercase italic text-[#0F172A] border-b-4 border-transparent hover:border-[#16A34A] transition-all cursor-pointer">{item.name}</button>
-           ))}
-           <div className="pt-8 space-y-4">
-             <button onClick={() => { onLogin(); setIsMobileMenuOpen(false); }} className="w-full py-4 bg-slate-100 rounded-2xl font-black uppercase tracking-widest text-sm cursor-pointer">Login</button>
-             <button onClick={() => { onBusinessSignup(); setIsMobileMenuOpen(false); }} className="w-full py-4 bg-[#16A34A] text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl cursor-pointer">Get Started</button>
-           </div>
-        </div>
       </div>
-    </>
+    </section>
   );
 };
 
-export default Header;
+export default Hero;
