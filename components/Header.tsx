@@ -36,23 +36,23 @@ const Header: React.FC<HeaderProps> = ({
     { name: 'About', type: 'about' },
     { name: 'Pricing', section: 'pricing' },
     { name: 'Agency', section: 'agency-program' },
-    { name: 'Blog', type: 'view' },
+    { name: 'Blog', type: 'blog' },
   ];
 
   const handleNav = (item: any) => {
     setIsMobileMenuOpen(false);
-    if (item.type === 'about') {
-      if (onAboutClick) onAboutClick();
-    } else if (item.type === 'view') {
+    if (item.type === 'about' && onAboutClick) {
+      onAboutClick();
+    } else if (item.type === 'blog') {
       onBlogClick();
-    } else if (item.section) {
-      if (onScrollToSection) onScrollToSection(item.section);
+    } else if (item.section && onScrollToSection) {
+      onScrollToSection(item.section);
     }
   };
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 z-[120] transition-all duration-700 ${isScrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
+      <header className={`fixed top-0 left-0 right-0 z-[140] transition-all duration-700 ${isScrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
         <div className="container mx-auto px-4 md:px-6">
           <div className={`glass-panel rounded-[24px] md:rounded-[32px] px-3 md:px-6 py-2 md:py-3 flex items-center justify-between transition-all duration-500 ${isScrolled ? 'shadow-2xl border-slate-200 bg-white/95' : 'border-transparent bg-transparent shadow-none'}`}>
             
@@ -61,12 +61,12 @@ const Header: React.FC<HeaderProps> = ({
                  <Logo variant="full" className="scale-[0.5] md:scale-[0.7] origin-left" />
               </div>
               
-              <nav className="hidden lg:flex items-center gap-4 xl:gap-8 relative z-[130]">
+              <nav className="hidden lg:flex items-center gap-2 xl:gap-6 relative z-[150]">
                 {navItems.map(item => (
                   <button 
                     key={item.name}
-                    onClick={(e) => { e.preventDefault(); handleNav(item); }}
-                    className="text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-colors uppercase tracking-[0.15em] xl:tracking-[0.2em] cursor-pointer pointer-events-auto p-2"
+                    onClick={() => handleNav(item)}
+                    className="text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-all uppercase tracking-[0.15em] xl:tracking-[0.2em] cursor-pointer pointer-events-auto p-3 hover:scale-110"
                   >
                     {item.name}
                   </button>
@@ -74,15 +74,15 @@ const Header: React.FC<HeaderProps> = ({
               </nav>
             </div>
 
-            <div className="flex items-center gap-1 md:gap-4 relative z-[130]">
+            <div className="flex items-center gap-1 md:gap-4 relative z-[150]">
               <button 
-                onClick={(e) => { e.preventDefault(); onLogin(); }}
-                className="hidden md:block text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-colors uppercase tracking-[0.15em] xl:tracking-[0.2em] px-2 xl:px-4 cursor-pointer pointer-events-auto"
+                onClick={onLogin}
+                className="hidden md:block text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-all uppercase tracking-[0.15em] xl:tracking-[0.2em] px-4 py-2 cursor-pointer pointer-events-auto hover:scale-110"
               >
                 Login
               </button>
               <button 
-                onClick={(e) => { e.preventDefault(); onBusinessSignup(); }}
+                onClick={onBusinessSignup}
                 className="px-3 md:px-6 xl:px-8 py-2.5 md:py-4 bg-[#0F172A] text-white rounded-[14px] md:rounded-[18px] text-[8px] md:text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-[#16A34A] transition-all active:scale-95 whitespace-nowrap cursor-pointer pointer-events-auto"
               >
                 Start Ranking
@@ -98,7 +98,9 @@ const Header: React.FC<HeaderProps> = ({
       {/* Mobile Menu */}
       <div className={`fixed inset-0 z-[200] bg-white transition-all duration-500 ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
         <div className="p-6 md:p-8 flex justify-between items-center">
-            <Logo variant="full" className="scale-75 origin-left" />
+            <div onClick={() => { onHomeClick(); setIsMobileMenuOpen(false); }} className="cursor-pointer">
+              <Logo variant="full" className="scale-75 origin-left" />
+            </div>
             <button onClick={() => setIsMobileMenuOpen(false)} className="p-3 bg-slate-50 rounded-full cursor-pointer" aria-label="Close Menu">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
