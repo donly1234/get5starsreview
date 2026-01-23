@@ -66,11 +66,11 @@ const Dashboard: React.FC<DashboardProps> = ({
           setProfile(data);
           setUserType(data.user_type || initialUserType);
           
-          // STRICT TRIAL LOGIC
+          // TRIAL LOGIC: 14 days from profile creation
           const created = new Date(data.created_at || user.created_at);
           const now = new Date();
-          const diffTime = Math.abs(now.getTime() - created.getTime());
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          const diffTime = Math.max(0, now.getTime() - created.getTime());
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
           setTrialDaysElapsed(diffDays);
         }
       } catch (e) {
@@ -96,22 +96,22 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const isTrialAccount = profile?.status !== 'paid';
-  // TRIAL EXPIRES ON DAY 15
-  const isExpired = isTrialAccount && trialDaysElapsed > 14;
+  // TRIAL EXPIRES AFTER 14 DAYS
+  const isExpired = isTrialAccount && trialDaysElapsed >= 14;
   const trialDaysLeft = Math.max(0, 14 - trialDaysElapsed);
   const emailUnconfirmed = !user?.email_confirmed_at;
 
   const handleFeatureClick = (tab: string) => {
+    if (isExpired) {
+      setShowUpgradeModal('Expired');
+      return;
+    }
     if (userType === 'business' && isTrialAccount) {
       const proFeatures = ['AI Assistant', 'Analytics', 'GBP Media'];
       if (proFeatures.includes(tab)) {
         setShowUpgradeModal(tab);
         return;
       }
-    }
-    if (isExpired) {
-      setShowUpgradeModal('Expired');
-      return;
     }
     setActiveTab(tab);
   };
@@ -133,7 +133,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     {impersonatedClient ? `${impersonatedClient} Portal` : profile?.business_name || profile?.agency_name || 'My Business Hub'}
                   </h1>
                   <p className="text-slate-500 text-sm font-bold flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full animate-pulse ${isTrialAccount ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+                    <span className={`w-2 h-2 rounded-full animate-pulse ${isTrialAccount ? 'bg-[#FACC15]' : 'bg-[#16A34A]'}`}></span>
                     {isTrialAccount ? `Free Trial (${trialDaysLeft} days left)` : 'Professional Account'}
                   </p>
                 </div>
@@ -156,7 +156,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               </div>
             </div>
 
-            {isTrialAccount && trialDaysLeft <= 3 && !justUpgraded && (
+            {isTrialAccount && trialDaysLeft <= 3 && trialDaysLeft > 0 && !justUpgraded && (
               <div className="bg-[#0F172A] p-6 rounded-[32px] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl border-b-4 border-[#16A34A] animate-in slide-in-from-top-4 duration-700">
                 <div className="flex items-center gap-6">
                   <div className="w-16 h-16 bg-green-600/20 rounded-[20px] flex items-center justify-center text-3xl shrink-0 animate-pulse">🎁</div>
@@ -174,7 +174,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <StrategyProgress />
                 {isTrialAccount && <TrialChecklist />}
                 <MetricsBar isTrial={isTrialAccount} profileId={user?.id} />
-                <PerformanceGraph isTrial={isTrialAccount} />
+                <PerformanceGraph isTrial={isTrialAccount} profileId={user?.id} />
                 <ReviewFeed isTrial={isTrialAccount} profileId={user?.id} />
               </div>
               <div className="space-y-8">
