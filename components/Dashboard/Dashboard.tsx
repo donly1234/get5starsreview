@@ -175,7 +175,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {isTrialAccount && <TrialChecklist />}
                 <MetricsBar isTrial={isTrialAccount} profileId={user?.id} />
                 <PerformanceGraph isTrial={isTrialAccount} profileId={user?.id} />
-                <ReviewFeed isTrial={isTrialAccount} profileId={user?.id} />
+                <ReviewFeed 
+                  isTrial={isTrialAccount} 
+                  profileId={user?.id} 
+                  onConnectClick={() => setActiveTab('Settings')}
+                />
               </div>
               <div className="space-y-8">
                 <RequestStatus requestsUsed={0} isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />
