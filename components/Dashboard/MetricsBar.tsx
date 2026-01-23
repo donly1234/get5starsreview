@@ -57,8 +57,8 @@ const MetricsBar: React.FC<MetricsBarProps> = ({ isTrial = false, profileId }) =
   const displayMetrics = [
     { 
       label: "Profile Authority", 
-      value: metrics.loading ? "..." : !metrics.hasConnected ? "Setup" : metrics.reviewCount.toLocaleString(), 
-      trend: metrics.hasConnected ? "G-Sync" : "Disconnected", 
+      value: metrics.loading ? "..." : !metrics.hasConnected ? "0" : metrics.reviewCount.toLocaleString(), 
+      trend: metrics.hasConnected ? "G-Sync" : "No Sync", 
       icon: "🏢"
     },
     { 
@@ -89,7 +89,7 @@ const MetricsBar: React.FC<MetricsBarProps> = ({ isTrial = false, profileId }) =
         <div key={idx} className="bg-white p-6 rounded-[32px] border border-slate-200 shadow-sm relative overflow-hidden group hover:border-[#16A34A] transition-all">
           <div className="flex items-start justify-between mb-4">
             <span className="text-2xl">{m.icon}</span>
-            <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${m.trend === 'Disconnected' ? 'bg-rose-50 text-rose-500' : m.label === 'Response Health' && isTrial ? 'bg-[#0F172A] text-white' : 'bg-slate-50 text-slate-400'}`}>
+            <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${!metrics.hasConnected && m.trend !== 'Active' ? 'bg-rose-50 text-rose-500' : m.label === 'Response Health' && isTrial ? 'bg-[#0F172A] text-white' : 'bg-slate-50 text-slate-400'}`}>
               {m.trend}
             </span>
           </div>
