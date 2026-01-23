@@ -65,6 +65,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         if (data) {
           setProfile(data);
           setUserType(data.user_type || initialUserType);
+          
+          // STRICT TRIAL LOGIC
           const created = new Date(data.created_at || user.created_at);
           const now = new Date();
           const diffTime = Math.abs(now.getTime() - created.getTime());
@@ -93,7 +95,8 @@ const Dashboard: React.FC<DashboardProps> = ({
     alert("Verification email resent!");
   };
 
-  const isTrialAccount = profile?.status !== 'active';
+  const isTrialAccount = profile?.status !== 'paid';
+  // TRIAL EXPIRES ON DAY 15
   const isExpired = isTrialAccount && trialDaysElapsed > 14;
   const trialDaysLeft = Math.max(0, 14 - trialDaysElapsed);
   const emailUnconfirmed = !user?.email_confirmed_at;
@@ -130,39 +133,39 @@ const Dashboard: React.FC<DashboardProps> = ({
                     {impersonatedClient ? `${impersonatedClient} Portal` : profile?.business_name || profile?.agency_name || 'My Business Hub'}
                   </h1>
                   <p className="text-slate-500 text-sm font-bold flex items-center gap-2">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    Account Status: {isTrialAccount ? `Trial (${trialDaysLeft} days left)` : 'Professional'}
+                    <span className={`w-2 h-2 rounded-full animate-pulse ${isTrialAccount ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+                    {isTrialAccount ? `Free Trial (${trialDaysLeft} days left)` : 'Professional Account'}
                   </p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <button 
                   onClick={() => handleFeatureClick('SEO Auditor')}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-[#16A34A] text-white rounded-xl font-bold hover:bg-black transition-colors shadow-lg shadow-green-500/10"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-[#16A34A] text-white rounded-xl font-bold hover:bg-[#0F172A] transition-all shadow-lg shadow-green-500/10 active:scale-95"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                   SEO Audit
                 </button>
                 <button 
                   onClick={() => handleFeatureClick('Requests')}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-black text-white rounded-xl font-bold hover:bg-[#16A34A] transition-colors shadow-lg"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-[#0F172A] text-white rounded-xl font-bold hover:bg-[#16A34A] transition-all shadow-lg active:scale-95"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                  Request Reviews
+                  Collect Reviews
                 </button>
               </div>
             </div>
 
             {isTrialAccount && trialDaysLeft <= 3 && !justUpgraded && (
-              <div className="bg-black p-6 rounded-[32px] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl border-b-4 border-[#16A34A] animate-in slide-in-from-top-4 duration-700">
+              <div className="bg-[#0F172A] p-6 rounded-[32px] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl border-b-4 border-[#16A34A] animate-in slide-in-from-top-4 duration-700">
                 <div className="flex items-center gap-6">
                   <div className="w-16 h-16 bg-green-600/20 rounded-[20px] flex items-center justify-center text-3xl shrink-0 animate-pulse">🎁</div>
                   <div>
-                    <h4 className="text-xl font-black uppercase tracking-tight">Last Chance: 20% OFF Professional!</h4>
-                    <p className="text-slate-400 text-sm font-medium">Your trial ends in {trialDaysLeft} days. Upgrade now to keep your ranking momentum.</p>
+                    <h4 className="text-xl font-black uppercase tracking-tight">Claim 20% Discount Before Expiry!</h4>
+                    <p className="text-slate-400 text-sm font-medium">Your trial ends in {trialDaysLeft} days. Upgrade now to keep your 5-star momentum.</p>
                   </div>
                 </div>
-                <button onClick={onUpgradeFlow} className="bg-[#16A34A] text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-green-700 transition-all shadow-xl">Claim Discount</button>
+                <button onClick={onUpgradeFlow} className="bg-[#16A34A] text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-white hover:text-black transition-all shadow-xl">Upgrade & Save</button>
               </div>
             )}
 
@@ -229,7 +232,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {emailUnconfirmed && (
-          <div className="bg-amber-50 text-white px-8 py-2.5 text-center text-xs font-black uppercase tracking-widest flex items-center justify-center gap-4 shrink-0 shadow-lg relative z-[70]">
+          <div className="bg-[#FACC15] text-[#0F172A] px-8 py-2.5 text-center text-xs font-black uppercase tracking-widest flex items-center justify-center gap-4 shrink-0 shadow-lg relative z-[70]">
              <span>⚠️ Please confirm your email to fully unlock your account</span>
              <button 
               onClick={handleResendVerification} 
@@ -243,11 +246,11 @@ const Dashboard: React.FC<DashboardProps> = ({
 
         {justUpgraded && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-500">
-             <div className="bg-white rounded-[40px] p-10 max-w-lg w-full text-center shadow-2xl border-4 border-green-500 animate-in zoom-in-95">
+             <div className="bg-white rounded-[40px] p-10 max-w-lg w-full text-center shadow-2xl border-4 border-[#16A34A] animate-in zoom-in-95">
                 <div className="text-6xl mb-6">🚀</div>
                 <h2 className="text-3xl font-black text-slate-900 mb-4">Welcome to Professional!</h2>
                 <p className="text-slate-500 mb-8 leading-relaxed">Your trial limitations have been removed. AI Response, Unlimited SMS, and Advanced Analytics are now fully unlocked.</p>
-                <button onClick={onDismissUpgradeMessage} className="w-full bg-black text-white py-5 rounded-[24px] font-black text-lg shadow-xl hover:bg-green-600 transition-all">Let's Go!</button>
+                <button onClick={onDismissUpgradeMessage} className="w-full bg-[#0F172A] text-white py-5 rounded-[24px] font-black text-lg shadow-xl hover:bg-[#16A34A] transition-all">Let's Go!</button>
              </div>
           </div>
         )}
@@ -261,8 +264,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         
         <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 space-y-8 scroll-smooth">
           {impersonatedClient && (
-            <div className="bg-black text-white px-6 py-2 text-center text-xs font-black uppercase tracking-[0.2em] rounded-xl border border-green-600/30">
-              Viewing as client: <span className="text-green-500">{impersonatedClient}</span>
+            <div className="bg-[#0F172A] text-white px-6 py-2 text-center text-xs font-black uppercase tracking-[0.2em] rounded-xl border border-green-600/30">
+              Viewing as client: <span className="text-[#16A34A]">{impersonatedClient}</span>
             </div>
           )}
           {renderContent()}
