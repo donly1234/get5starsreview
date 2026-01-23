@@ -4,9 +4,10 @@ import { supabase } from '../../supabaseClient';
 interface ReviewFeedProps {
   isTrial?: boolean;
   profileId?: string;
+  onConnectClick?: () => void;
 }
 
-const ReviewFeed: React.FC<ReviewFeedProps> = ({ isTrial = false, profileId }) => {
+const ReviewFeed: React.FC<ReviewFeedProps> = ({ isTrial = false, profileId, onConnectClick }) => {
   const [filter, setFilter] = useState('All');
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +15,8 @@ const ReviewFeed: React.FC<ReviewFeedProps> = ({ isTrial = false, profileId }) =
   useEffect(() => {
     const fetchReviews = async () => {
       if (!profileId) {
-        setLoading(false);
+        // Simulate a delay even if no profileId to show the system state
+        setTimeout(() => setLoading(false), 800);
         return;
       }
       setLoading(true);
@@ -70,20 +72,46 @@ const ReviewFeed: React.FC<ReviewFeedProps> = ({ isTrial = false, profileId }) =
         </div>
       </div>
 
-      <div className="divide-y divide-slate-100 min-h-[300px] flex flex-col">
+      <div className="divide-y divide-slate-100 min-h-[400px] flex flex-col">
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center p-12 md:p-20">
-            <div className="w-8 h-8 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scanning Channels...</p>
+            <div className="w-10 h-10 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Scanning Data Channels...</p>
           </div>
         ) : reviews.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-12 md:p-24 text-center space-y-8">
-            <div className="w-20 h-20 md:w-24 md:h-24 bg-slate-50 rounded-[32px] md:rounded-[40px] flex items-center justify-center text-4xl shadow-inner border border-slate-100">📡</div>
-            <div className="space-y-3">
-               <h4 className="text-xl font-black text-slate-900 uppercase italic tracking-tight">System Ready. Data Pending.</h4>
-               <p className="text-sm text-slate-500 font-medium max-w-sm mx-auto leading-relaxed">Connect your Google Business Profile to begin analyzing customer sentiment and automating responses.</p>
+          <div className="flex-1 flex flex-col items-center justify-center p-12 md:p-24 text-center space-y-10 animate-in fade-in zoom-in-95 duration-700">
+            <div className="relative">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-slate-50 rounded-[40px] md:rounded-[56px] flex items-center justify-center text-5xl shadow-inner border border-slate-100 relative z-10">
+                📡
+              </div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-green-500/5 rounded-full blur-3xl -z-0 animate-pulse"></div>
             </div>
-            <button className="bg-[#16A34A] text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-green-500/20 hover:bg-[#0F172A] transition-all transform active:scale-95">Connect Google Maps</button>
+            <div className="space-y-4 max-w-md mx-auto">
+               <h4 className="text-2xl font-[900] text-slate-900 uppercase italic tracking-tighter">Connect Your Profile</h4>
+               <p className="text-slate-500 font-semibold leading-relaxed">
+                 We haven't detected any active review streams yet. To begin automating your reputation, you must link your <span className="text-[#16A34A]">Google Business Profile</span>.
+               </p>
+            </div>
+            <div className="flex flex-col gap-4 w-full max-w-xs mx-auto">
+              <button 
+                onClick={onConnectClick}
+                className="bg-[#16A34A] text-white px-8 py-5 rounded-[20px] font-black uppercase tracking-widest text-xs shadow-[0_20px_40px_rgba(22,163,74,0.2)] hover:bg-[#0F172A] transition-all transform active:scale-95 flex items-center justify-center gap-3 group"
+              >
+                <img src="https://www.vectorlogo.zone/logos/google/google-icon.svg" className="w-4 h-4 brightness-0 invert" alt="G" />
+                Connect Google Maps
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </button>
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Takes less than 60 seconds</p>
+            </div>
+          </div>
+        ) : filteredReviews.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-12 md:p-24 text-center space-y-6">
+            <div className="text-4xl">🔍</div>
+            <div>
+              <h4 className="text-lg font-black text-slate-900 uppercase italic">No {filter} Reviews</h4>
+              <p className="text-sm text-slate-500 font-medium">None of your current reviews match this filter.</p>
+            </div>
+            <button onClick={() => setFilter('All')} className="text-emerald-600 font-black uppercase text-[10px] tracking-widest hover:underline">Clear All Filters</button>
           </div>
         ) : (
           filteredReviews.map((review) => (
