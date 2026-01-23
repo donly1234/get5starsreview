@@ -24,6 +24,7 @@ interface ProspectReport {
 const ProspectingTool: React.FC = () => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [report, setReport] = useState<ProspectReport | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -33,7 +34,10 @@ const ProspectingTool: React.FC = () => {
     setReport(null);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const apiKey = process.env.API_KEY;
+      if (!apiKey) throw new Error("API Key is missing. Please check your environment variables.");
+
+      const ai = new GoogleGenAI({ apiKey });
       const prompt = `Generate a high-authority local SEO and reputation prospect report for: "${query}". 
       1. Use Google Search grounding to find the ACTUAL Google rating and review count.
       2. Identify the top 2 local competitors for their niche in that specific city.
@@ -81,38 +85,43 @@ const ProspectingTool: React.FC = () => {
 
       const result = JSON.parse(response.text);
       setReport(result);
-    } catch (e) {
-      console.error(e);
-      alert("Analysis failed. Please include both business name and city.");
+    } catch (e: any) {
+      console.error("Prospect Report Error:", e);
+      alert(e.message || "Analysis failed. Please include both business name and city.");
     } finally {
       setLoading(false);
     }
   };
 
   const downloadAsImage = async () => {
-    if (!reportRef.current) return;
+    if (!reportRef.current || exporting) return;
     
-    setLoading(true);
+    setExporting(true);
     try {
-      // Ensure element is fully rendered and not clipped
+      // Calculate full scroll height of the report to prevent clipping
+      const originalHeight = reportRef.current.offsetHeight;
+      const fullHeight = reportRef.current.scrollHeight;
+      
       const dataUrl = await htmlToImage.toPng(reportRef.current, {
         quality: 1.0,
         backgroundColor: '#F8FAFC',
         pixelRatio: 2,
-        cacheBust: true,
-        // Force the canvas to be the size of the full content, not just the viewport
-        height: reportRef.current.scrollHeight,
+        height: fullHeight, // Set to full height of content
         width: reportRef.current.scrollWidth,
         style: {
           transform: 'scale(1)',
           borderRadius: '0',
           margin: '0',
-          padding: '40px'
+          padding: '40px',
+          overflow: 'visible',
+          height: 'auto'
         },
+        // Filter out cross-origin link tags that cause the cssRules error
         filter: (node: any) => {
-          // Hide buttons and other non-report UI
-          const exclusionClasses = ['print-hide'];
-          if (node.classList && exclusionClasses.some(cls => node.classList.contains(cls))) {
+          if (node.tagName === 'LINK' && node.href && !node.href.includes(window.location.host)) {
+            return false;
+          }
+          if (node.classList && node.classList.contains('print-hide')) {
             return false;
           }
           return true;
@@ -122,22 +131,25 @@ const ProspectingTool: React.FC = () => {
       const link = document.createElement('a');
       link.download = `GSR-Report-${report?.businessName.replace(/\s+/g, '-')}.png`;
       link.href = dataUrl;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err) {
-      console.error('Error generating image:', err);
-      alert("Export failed. Try 'Download PDF' as a high-quality alternative.");
+      console.error('Image capture failed:', err);
+      alert("Image export failed due to security restrictions. Please use 'Download PDF Report' as it is more reliable for long documents.");
     } finally {
-      setLoading(false);
+      setExporting(false);
     }
   };
 
   const handlePrint = () => {
+    // Explicit trigger for browser print to ensure it handles the @media print CSS correctly
     window.print();
   };
 
   return (
     <div className="space-y-8 pb-24">
-      <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-200 shadow-sm print:hidden">
+      <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-200 shadow-sm print-hide">
         <div className="max-w-2xl mb-8">
           <h2 className="text-3xl font-black text-[#0F172A] uppercase italic leading-tight">Sales <span className="text-[#16A34A]">Intelligence Generator</span></h2>
           <p className="text-slate-500 font-bold mt-2">Find a prospective client and generate their audit instantly to close the sale.</p>
@@ -164,7 +176,7 @@ const ProspectingTool: React.FC = () => {
 
       {report && (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-          <div className="flex justify-center gap-4 print:hidden">
+          <div className="flex justify-center gap-4 print-hide">
             <button 
               onClick={handlePrint} 
               className="bg-[#0F172A] text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-[#16A34A] transition-all flex items-center gap-2 shadow-xl"
@@ -174,15 +186,15 @@ const ProspectingTool: React.FC = () => {
             </button>
             <button 
               onClick={downloadAsImage} 
-              disabled={loading}
+              disabled={exporting}
               className="bg-white text-[#0F172A] border-2 border-slate-100 px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-              {loading ? 'Capturing Full Page...' : 'Export as Image'}
+              {exporting ? 'Capturing Full...' : 'Export as Image'}
             </button>
           </div>
 
-          <div ref={reportRef} className="report-container bg-slate-50 max-w-4xl mx-auto rounded-[32px] overflow-hidden border border-slate-200 shadow-2xl p-10 md:p-16 print:p-0 print:shadow-none print:border-none print:bg-white">
+          <div ref={reportRef} id="ranking-report-card" className="report-container bg-slate-50 max-w-4xl mx-auto rounded-[32px] overflow-hidden border border-slate-200 shadow-2xl p-10 md:p-16 print:p-0 print:shadow-none print:border-none print:bg-white">
             <div className="flex flex-col md:flex-row justify-between items-start mb-16 gap-8">
                <div className="space-y-12">
                   <Logo variant="full" className="scale-110 origin-left" />
