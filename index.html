@@ -8,6 +8,13 @@
     <meta name="keywords" content="Google Maps SEO, Local Search Ranking, Automated Reviews, Get5StarsReview, Google Business Profile Management, AI Reputation Management, Rank #1 Local Search, GBP Optimization">
     <link rel="canonical" href="https://get5starsreview.com/" />
     
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://get5starsreview.com/">
+    <meta property="og:title" content="Get5StarsReview | Rank #1 on Google Maps">
+    <meta property="og:description" content="Automate your 5-star reputation and dominate local search results with our AI-powered SEO tools.">
+    <meta property="og:image" content="https://get5starsreview.com/og-image.jpg">
+
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
 
@@ -44,66 +51,34 @@
             -webkit-font-smoothing: antialiased;
             color: var(--deep-slate);
         }
-        .hero-gradient {
-            background: radial-gradient(circle at top right, rgba(22, 163, 74, 0.05), transparent 40%),
-                        radial-gradient(circle at bottom left, rgba(250, 204, 21, 0.03), transparent 40%);
-        }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(15, 23, 42, 0.08);
-        }
+        
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .gradient-text {
-            background: linear-gradient(135deg, #16A34A 0%, #15803d 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-            display: flex;
-            width: max-content;
-            animation: marquee 40s linear infinite;
-        }
-
-        .reveal {
-          opacity: 0;
-          transform: translateY(30px);
-          transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
-        }
-        .reveal.active {
-          opacity: 1;
-          transform: translateY(0);
-        }
 
         @media print {
-            .print-hide, aside, header, footer, .fixed, .absolute, button, .no-print { 
+            body, html, #root {
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .print-hide, aside, header, footer, .fixed, .absolute.top-12, button { 
                 display: none !important; 
             }
-            body { 
-                background: white !important; 
-                margin: 0 !important; 
-                padding: 0 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
             main {
+                display: block !important;
+                overflow: visible !important;
                 padding: 0 !important;
                 margin: 0 !important;
                 width: 100% !important;
+                height: auto !important;
             }
             .report-container { 
                 box-shadow: none !important; 
                 border: none !important; 
                 width: 100% !important; 
-                max-width: 100% !important;
+                max-width: none !important;
                 margin: 0 !important;
                 padding: 20mm !important;
                 position: relative !important;
@@ -111,14 +86,12 @@
                 overflow: visible !important;
                 display: block !important;
                 page-break-after: always;
-            }
-            #root {
-                overflow: visible !important;
-                height: auto !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             @page {
                 size: A4;
-                margin: 0mm;
+                margin: 0;
             }
         }
     </style>
@@ -132,7 +105,8 @@
     "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.91.0",
     "vite": "https://esm.sh/vite@^7.3.1",
     "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "html-to-image": "https://esm.sh/html-to-image@^1.11.13"
+    "html-to-image": "https://esm.sh/html-to-image@^1.11.13",
+    "jspdf": "https://esm.sh/jspdf@^2.5.1"
   }
 }
 </script>
