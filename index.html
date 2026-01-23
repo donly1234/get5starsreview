@@ -84,29 +84,34 @@
         }
 
         @media print {
-            .print-hide { display: none !important; }
+            .print-hide, aside, header, .fixed, .absolute.top-12.left-8 { display: none !important; }
             .print-only { display: block !important; }
             body { 
-              background: white !important; 
-              padding: 0 !important;
-              color: #0F172A !important;
-              -webkit-print-color-adjust: exact !important; 
-              print-color-adjust: exact !important;
+                background: white !important; 
+                padding: 0 !important; 
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            #root, main { 
+                padding: 0 !important; 
+                margin: 0 !important;
+                width: 100% !important;
             }
             .report-container { 
                 box-shadow: none !important; 
                 border: none !important; 
                 width: 100% !important; 
-                max-width: none !important;
+                max-width: 100% !important;
                 margin: 0 !important;
-                padding: 1in !important;
+                padding: 40px !important;
                 position: relative !important;
                 height: auto !important;
                 overflow: visible !important;
             }
             @page {
                 size: auto;
-                margin: 0mm;
+                margin: 10mm;
             }
         }
     </style>
