@@ -92,22 +92,25 @@ const ProspectingTool: React.FC = () => {
   const downloadAsImage = async () => {
     if (!reportRef.current) return;
     
-    // Ensure styles are applied and container is fully expanded before capture
-    const filter = (node: HTMLElement) => {
-      const exclusionClasses = ['print-hide'];
-      return !exclusionClasses.some(cls => node.classList?.contains(cls));
-    };
-
+    setLoading(true);
     try {
-      setLoading(true);
+      // To fix "Failed to read cssRules" we skip iterating cross-origin sheets if they don't have CORS
+      // html-to-image handles most cases, but we ensure the container is captured fully.
       const dataUrl = await htmlToImage.toPng(reportRef.current, {
         quality: 1.0,
         backgroundColor: '#F8FAFC',
         pixelRatio: 2,
-        filter: filter as any,
-        // Force rendering the full scroll height
-        height: reportRef.current.scrollHeight,
+        height: reportRef.current.scrollHeight, // Fix for cutting off content
         width: reportRef.current.scrollWidth,
+        style: {
+          transform: 'scale(1)',
+          borderRadius: '0'
+        },
+        // Filtering problematic external styles to prevent rule access errors
+        filter: (node: any) => {
+          if (node.tagName === 'LINK' && node.rel === 'stylesheet') return false;
+          return true;
+        }
       });
       
       const link = document.createElement('a');
@@ -116,7 +119,7 @@ const ProspectingTool: React.FC = () => {
       link.click();
     } catch (err) {
       console.error('Error generating image:', err);
-      alert("Failed to export image. Please try the 'Download PDF' option.");
+      alert("Image export failed due to security restrictions. Please use 'Download PDF Report' as a high-quality alternative.");
     } finally {
       setLoading(false);
     }
@@ -151,7 +154,7 @@ const ProspectingTool: React.FC = () => {
 
       {report && (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-          <div className="flex justify-center gap-4 print-hide">
+          <div className="flex justify-center gap-4 print:hidden">
             <button 
               onClick={() => window.print()} 
               className="bg-[#0F172A] text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-[#16A34A] transition-all flex items-center gap-2 shadow-xl"
