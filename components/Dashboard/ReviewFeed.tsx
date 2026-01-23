@@ -13,7 +13,10 @@ const ReviewFeed: React.FC<ReviewFeedProps> = ({ isTrial = false, profileId }) =
 
   useEffect(() => {
     const fetchReviews = async () => {
-      if (!profileId) return;
+      if (!profileId) {
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       
       const { data, error } = await supabase
@@ -56,7 +59,8 @@ const ReviewFeed: React.FC<ReviewFeedProps> = ({ isTrial = false, profileId }) =
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`flex-1 sm:flex-none px-4 py-2 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg transition-all whitespace-nowrap ${
+              disabled={reviews.length === 0}
+              className={`flex-1 sm:flex-none px-4 py-2 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-lg transition-all whitespace-nowrap disabled:opacity-30 ${
                 filter === f ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
@@ -69,17 +73,17 @@ const ReviewFeed: React.FC<ReviewFeedProps> = ({ isTrial = false, profileId }) =
       <div className="divide-y divide-slate-100 min-h-[300px] flex flex-col">
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center p-12 md:p-20">
-            <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <div className="w-8 h-8 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin mb-4"></div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scanning Channels...</p>
           </div>
-        ) : filteredReviews.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-12 md:p-20 text-center space-y-6">
-            <div className="w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-[28px] md:rounded-[32px] flex items-center justify-center text-3xl md:text-4xl grayscale opacity-50">📡</div>
-            <div className="space-y-2">
-               <h4 className="text-base md:text-lg font-black text-slate-900 uppercase">No Data Detected</h4>
-               <p className="text-xs md:text-sm text-slate-400 font-medium max-w-xs mx-auto">Connect your Google Business Profile to start importing your customer feedback.</p>
+        ) : reviews.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-12 md:p-24 text-center space-y-8">
+            <div className="w-20 h-20 md:w-24 md:h-24 bg-slate-50 rounded-[32px] md:rounded-[40px] flex items-center justify-center text-4xl shadow-inner border border-slate-100">📡</div>
+            <div className="space-y-3">
+               <h4 className="text-xl font-black text-slate-900 uppercase italic tracking-tight">System Ready. Data Pending.</h4>
+               <p className="text-sm text-slate-500 font-medium max-w-sm mx-auto leading-relaxed">Connect your Google Business Profile to begin analyzing customer sentiment and automating responses.</p>
             </div>
-            <button className="bg-emerald-600 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[9px] md:text-[10px] shadow-lg hover:bg-black transition-all">Connect Google Maps</button>
+            <button className="bg-[#16A34A] text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-green-500/20 hover:bg-[#0F172A] transition-all transform active:scale-95">Connect Google Maps</button>
           </div>
         ) : (
           filteredReviews.map((review) => (
