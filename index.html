@@ -8,11 +8,30 @@
     <meta name="keywords" content="Google Maps SEO, Local Search Ranking, Automated Reviews, Get5StarsReview, Google Business Profile Management, AI Reputation Management, Rank #1 Local Search, GBP Optimization">
     <link rel="canonical" href="https://get5starsreview.com/" />
     
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                green: '#16A34A',
+                yellow: '#FACC15',
+                slate: '#0F172A',
+              }
+            }
+          }
+        }
+      }
+    </script>
+
     <style>
         :root {
             --brand-green: #16A34A;
@@ -54,10 +73,15 @@
             animation: marquee 40s linear infinite;
         }
 
-        /* Strict UI consistency overrides */
-        .accent-yellow { color: var(--brand-yellow); }
-        .bg-brand-green { background-color: var(--brand-green); }
-        .border-brand-green { border-color: var(--brand-green); }
+        .reveal {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+        .reveal.active {
+          opacity: 1;
+          transform: translateY(0);
+        }
 
         @media print {
             .print-hide { display: none !important; }
