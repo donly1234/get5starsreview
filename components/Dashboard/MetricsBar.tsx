@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 
@@ -47,12 +48,24 @@ const MetricsBar: React.FC<MetricsBarProps> = ({ isTrial = false, profileId }) =
           hasConnected: true
         });
       } else {
-        setMetrics(prev => ({ ...prev, loading: false, hasConnected: false }));
+        // Use demo data if strictly in trial mode with no real data yet
+        if (isTrial) {
+            setMetrics({
+                reviewCount: 12,
+                avgRating: 4.8,
+                responseRate: 0,
+                newThisWeek: 2,
+                loading: false,
+                hasConnected: true
+            });
+        } else {
+            setMetrics(prev => ({ ...prev, loading: false, hasConnected: false }));
+        }
       }
     };
 
     fetchRealData();
-  }, [profileId]);
+  }, [profileId, isTrial]);
 
   const displayMetrics = [
     { 
@@ -70,8 +83,8 @@ const MetricsBar: React.FC<MetricsBarProps> = ({ isTrial = false, profileId }) =
     },
     { 
       label: "Response Health", 
-      value: isTrial ? "Locked" : metrics.loading ? "..." : !metrics.hasConnected ? "0%" : `${metrics.responseRate}%`, 
-      trend: isTrial ? "Pro" : "Active", 
+      value: isTrial ? "Manual" : metrics.loading ? "..." : !metrics.hasConnected ? "0%" : `${metrics.responseRate}%`, 
+      trend: isTrial ? "Pro Only" : "Active", 
       icon: "✉️",
       locked: isTrial
     },
