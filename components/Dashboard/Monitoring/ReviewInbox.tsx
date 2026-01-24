@@ -1,64 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import ReviewDetailView from './ReviewDetailView';
 import ReviewCard from './ReviewCard';
-
-const mockReviews = [
-  {
-    id: 'rev-1',
-    author: "James Wilson",
-    platform: "Google",
-    rating: 5,
-    date: "2 hours ago",
-    comment: "Excellent service! The bread was fresh and the staff was very welcoming. My new favorite spot in the neighborhood.",
-    responded: false,
-    sentiment: 'positive',
-    avatar: "JW"
-  },
-  {
-    id: 'rev-2',
-    author: "Robert Brown",
-    platform: "Yelp",
-    rating: 2,
-    date: "3 days ago",
-    comment: "It was too crowded and I had to wait 20 minutes for a simple croissant. Needs better queue management.",
-    responded: false,
-    sentiment: 'negative',
-    avatar: "RB"
-  },
-  {
-    id: 'rev-3',
-    author: "Aria Stone",
-    platform: "Facebook",
-    rating: 4,
-    date: "Yesterday",
-    comment: "Loved the atmosphere. The coffee was a bit cold but they replaced it immediately without any hassle.",
-    responded: true,
-    sentiment: 'positive',
-    avatar: "AS"
-  },
-  {
-    id: 'rev-4',
-    author: "Sarah J.",
-    platform: "Trustpilot",
-    rating: 3,
-    date: "5 days ago",
-    comment: "Decent products but the online ordering system is a bit clunky. Took me three tries to check out.",
-    responded: false,
-    sentiment: 'neutral',
-    avatar: "SJ"
-  },
-  {
-    id: 'rev-5',
-    author: "Michael T.",
-    platform: "Google",
-    rating: 5,
-    date: "1 week ago",
-    comment: "Been a customer for 5 years and they never disappoint. Consistent quality.",
-    responded: true,
-    sentiment: 'positive',
-    avatar: "MT"
-  }
-];
 
 interface ReviewInboxProps {
   isTrial?: boolean;
@@ -71,10 +14,11 @@ const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false, onShowUpgrad
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [reviews, setReviews] = useState<any[]>([]); // Starting with empty data
 
-  const selectedReview = mockReviews.find(r => r.id === selectedReviewId);
+  const selectedReview = reviews.find(r => r.id === selectedReviewId);
 
-  const filteredReviews = mockReviews.filter(r => {
+  const filteredReviews = reviews.filter(r => {
     if (filterRating === 'All' || filterRating === 'All Ratings') return true;
     if (filterRating === 'Negative') return r.rating <= 2;
     if (filterRating === 'Positive') return r.rating >= 4;
@@ -125,45 +69,27 @@ const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false, onShowUpgrad
           </div>
         </div>
 
-        <div className="px-4 py-2 md:hidden flex items-center justify-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          <svg className="w-3 h-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
-          Swipe left to mark read
-        </div>
-
-        <div 
-          className="flex-1 overflow-y-auto px-4 md:px-0 space-y-3 pb-20 scroll-smooth"
-          onScroll={(e) => {
-            const target = e.currentTarget;
-            if (target.scrollTop < -50 && !isRefreshing) handleRefresh();
-          }}
-        >
-          {isRefreshing && (
-             <div className="flex justify-center py-4">
-                <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-             </div>
-          )}
-
-          {filteredReviews.map((rev) => (
-            <ReviewCard 
-              key={rev.id} 
-              review={rev} 
-              isSelected={selectedReviewId === rev.id}
-              isBulkMode={isBulkMode}
-              isBulkSelected={selectedIds.has(rev.id)}
-              onSelect={() => isBulkMode ? toggleSelect(rev.id) : setSelectedReviewId(rev.id)}
-            />
-          ))}
-        </div>
-
-        {isBulkMode && selectedIds.size > 0 && (
-          <div className="fixed bottom-20 left-4 right-4 bg-slate-900 text-white p-4 rounded-2xl flex items-center justify-between shadow-2xl animate-in slide-in-from-bottom-4 z-[100]">
-            <span className="text-sm font-bold">{selectedIds.size} Selected</span>
-            <div className="flex gap-2">
-              <button className="bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-xs font-bold">Mark Read</button>
-              <button className="bg-rose-600 hover:bg-rose-700 px-3 py-1.5 rounded-lg text-xs font-bold">Delete</button>
+        <div className="flex-1 overflow-y-auto px-4 md:px-0 space-y-3 pb-20 scroll-smooth flex flex-col items-center justify-center text-center">
+          {reviews.length === 0 ? (
+            <div className="animate-in fade-in zoom-in-95 duration-700 max-w-sm px-6">
+              <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">📭</div>
+              <h3 className="text-xl font-black text-slate-900 uppercase italic mb-2">Inbox is Empty</h3>
+              <p className="text-slate-400 text-sm font-medium">Connect your Google Business Profile to begin monitoring real-time customer feedback.</p>
+              <button className="mt-8 px-8 py-3 bg-[#16A34A] text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg">Link Profile</button>
             </div>
-          </div>
-        )}
+          ) : (
+            filteredReviews.map((rev) => (
+              <ReviewCard 
+                key={rev.id} 
+                review={rev} 
+                isSelected={selectedReviewId === rev.id}
+                isBulkMode={isBulkMode}
+                isBulkSelected={selectedIds.has(rev.id)}
+                onSelect={() => isBulkMode ? toggleSelect(rev.id) : setSelectedReviewId(rev.id)}
+              />
+            ))
+          )}
+        </div>
       </div>
 
       {selectedReviewId && (
@@ -178,15 +104,6 @@ const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false, onShowUpgrad
             />
           </div>
         </div>
-      )}
-
-      {!selectedReviewId && (
-        <button 
-          className="md:hidden fixed bottom-24 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center z-40 animate-bounce transition-transform active:scale-95"
-          onClick={() => {}}
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
-        </button>
       )}
     </div>
   );
