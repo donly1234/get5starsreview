@@ -19,6 +19,7 @@ import AIStrategyManager from './AI/AIStrategyManager';
 import StrategyProgress from './AI/StrategyProgress';
 import AgencyManager from './Agency/AgencyManager';
 import GBPAuditTool from '../GBPAuditTool';
+import HeatmapTool from '../HeatmapTool';
 import BottomNav from './BottomNav';
 import UpgradeModal from './Trial/UpgradeModal';
 import ExpiredOverlay from './Trial/ExpiredOverlay';
@@ -106,7 +107,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       return;
     }
     if (userType === 'business' && isTrialAccount) {
-      const proFeatures = ['AI Assistant', 'Analytics', 'GBP Media'];
+      const proFeatures = ['AI Assistant', 'Analytics', 'GBP Media', 'Ranking Heatmap'];
       if (proFeatures.includes(tab)) {
         setShowUpgradeModal(tab);
         return;
@@ -180,6 +181,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         return <MonitoringManager isTrial={isTrialAccount} onShowUpgrade={() => setShowUpgradeModal('AI Assistant')} />;
       case 'SEO Auditor':
         return <GBPAuditTool onSignup={onUpgradeFlow || (() => {})} />;
+      case 'Ranking Heatmap':
+        return <HeatmapTool onSignup={onUpgradeFlow || (() => {})} />;
       case 'GBP Media':
         return <MediaManager />;
       case 'Widgets':
