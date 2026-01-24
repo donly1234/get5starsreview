@@ -7,12 +7,7 @@ const MediaManager: React.FC = () => {
   const [publishStatus, setPublishStatus] = useState<string | null>(null);
   const [selectedMedia, setSelectedMedia] = useState<any | null>(null);
   const [caption, setCaption] = useState('');
-
-  const [mediaItems, setMediaItems] = useState([
-    { id: 'm1', type: 'image', url: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=400', status: 'Published', date: 'Oct 12, 2024' },
-    { id: 'm2', type: 'image', url: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&q=80&w=400', status: 'Published', date: 'Oct 10, 2024' },
-    { id: 'm3', type: 'video', url: 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?auto=format&fit=crop&q=80&w=400', status: 'Draft', date: 'Oct 14, 2024' },
-  ]);
+  const [mediaItems, setMediaItems] = useState<any[]>([]); // Start with no media
 
   const handleUpload = () => {
     setIsUploading(true);
@@ -81,7 +76,6 @@ const MediaManager: React.FC = () => {
                   className={`relative group aspect-square rounded-[32px] overflow-hidden border-4 transition-all cursor-pointer ${selectedMedia?.id === item.id ? 'border-[#16A34A] scale-95' : 'border-white shadow-sm hover:shadow-xl'}`}
                 >
                   <img src={item.url} alt="media" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-all"></div>
                   <div className="absolute top-4 left-4">
                     <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${item.status === 'Published' ? 'bg-emerald-500 text-white' : 'bg-white text-slate-900 shadow-lg'}`}>
                       {item.status}
@@ -129,7 +123,7 @@ const MediaManager: React.FC = () => {
               ) : (
                 <div className="text-center py-12 space-y-6">
                   <div className="w-20 h-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[32px] flex items-center justify-center mx-auto text-3xl">🖼️</div>
-                  <p className="text-slate-400 text-sm font-bold mt-2">Select media to publish to Google Business Profile.</p>
+                  <p className="text-slate-400 text-sm font-bold mt-2">Upload or select media to publish directly to your Google Business Profile.</p>
                 </div>
               )}
             </div>
