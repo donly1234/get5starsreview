@@ -1,20 +1,19 @@
-
 import React, { useRef } from 'react';
 
 export const blogPostsData = [
   {
     id: 'p1',
-    title: "How to Rank #1 on Google Maps in 2025",
+    title: "How to Rank #1 on Google Maps",
     category: "SEO Strategy",
-    date: "Aug 12, 2025",
+    date: "August 12",
     image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800",
     excerpt: "Discover the latest local SEO ranking factors that Get5StarsReview automates for your business."
   },
   {
-    id: 'p2',
+    id: 'p10',
     title: "The Impact of AI Search on Local Businesses",
     category: "AI Trends",
-    date: "Aug 10, 2025",
+    date: "August 10",
     image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800",
     excerpt: "Why traditional SEO isn't enough anymore and how AI-driven responses boost visibility."
   },
@@ -22,7 +21,7 @@ export const blogPostsData = [
     id: 'p3',
     title: "5 Tips for Managing Negative Reviews Gracefully",
     category: "Reputation",
-    date: "Aug 05, 2025",
+    date: "August 05",
     image: "https://images.unsplash.com/photo-1552581234-26160f608093?auto=format&fit=crop&q=80&w=800",
     excerpt: "Turn unhappy customers into brand advocates using Get5StarsReview's smart empathy engine."
   },
@@ -30,17 +29,17 @@ export const blogPostsData = [
     id: 'p4',
     title: "Why Local Citations are the Backbone of Map Ranking",
     category: "Authority",
-    date: "Aug 01, 2025",
+    date: "August 01",
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
     excerpt: "Consistency is key. Learn how we sync your data across 50+ directories instantly."
   },
   {
-    id: 'p5',
-    title: "The Shift from Clicks to Actions in Local Search",
-    category: "UX Design",
-    date: "July 28, 2025",
+    id: 'p14',
+    title: "Why Your Business Isn't Showing in the Map Pack",
+    category: "Troubleshooting",
+    date: "July 28",
     image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800",
-    excerpt: "How to optimize your GBP profile to drive more calls and directions, not just impressions."
+    excerpt: "Troubleshoot the most common reasons for low local visibility and learn how to fix your rankings."
   }
 ];
 
@@ -50,41 +49,57 @@ export const extendedBlogPosts = [
     id: 'p6',
     title: "Review Velocity: The Secret Local Ranking Factor",
     category: "Algorithm",
-    date: "July 20, 2025",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
+    date: "July 20",
+    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=800",
     excerpt: "Google tracks how often you get new reviews. Learn how automation maintains your ranking velocity."
   },
   {
     id: 'p7',
     title: "Social Proof Automation: From 0 to 500 Reviews",
     category: "Growth",
-    date: "July 15, 2025",
-    image: "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&q=80&w=800",
+    date: "July 15",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800",
     excerpt: "A step-by-step guide to scaling your reputation without lifting a finger using Get5StarsReview."
   },
   {
     id: 'p8',
-    title: "Why SMS Requests Convert 3x Better Than Email",
+    title: "Why SMS Requests Convert Better Than Email",
     category: "Data",
-    date: "July 10, 2025",
+    date: "July 10",
     image: "https://images.unsplash.com/photo-1512428559087-560fa5ceab42?auto=format&fit=crop&q=80&w=800",
     excerpt: "Our internal metrics show SMS is the superior channel for capturing customer feedback."
   },
   {
     id: 'p9',
-    title: "Google Business Profile Optimization Checklist 2025",
+    title: "The Ultimate Local SEO Checklist for Business Owners",
     category: "Checklist",
-    date: "July 05, 2025",
+    date: "July 05",
     image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=800",
     excerpt: "Don't miss these 12 critical settings that tell Google you are a high-authority local business."
   },
   {
-    id: 'p10',
+    id: 'p10-future',
     title: "The Future of Local Search: ChatGPT & AI Agents",
     category: "Future Tech",
-    date: "June 28, 2025",
+    date: "June 28",
     image: "https://images.unsplash.com/photo-1675271591211-126ad94e495d?auto=format&fit=crop&q=80&w=800",
     excerpt: "How to ensure AI agents recommend your business when customers ask for local help."
+  },
+  {
+    id: 'p11',
+    title: "Local Link Building Strategy for Rankings",
+    category: "Backlinks",
+    date: "June 20",
+    image: "https://images.unsplash.com/photo-1557833131-ad6e63bb8b91?auto=format&fit=crop&q=80&w=800",
+    excerpt: "Learn how to build local authority through community backlinks and digital PR."
+  },
+  {
+    id: 'p12',
+    title: "Video Content: The Secret Weapon for GBP Engagement",
+    category: "Visuals",
+    date: "June 15",
+    image: "https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&q=80&w=800",
+    excerpt: "How to use short-form video on your Google Business Profile to boost click-through rates."
   }
 ];
 
@@ -132,7 +147,7 @@ const Blog: React.FC<BlogProps> = ({ onPostClick, onViewAll }) => {
               className="min-w-[320px] md:min-w-[400px] group cursor-pointer snap-start"
             >
               <div className="relative aspect-[16/10] rounded-[32px] overflow-hidden mb-6 border border-slate-100 shadow-sm transition-all group-hover:shadow-2xl group-hover:scale-[1.01]">
-                <img src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <img src={post.image} alt={post.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute top-4 left-4">
                   <span className="bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-slate-900">{post.category}</span>
                 </div>
@@ -141,7 +156,7 @@ const Blog: React.FC<BlogProps> = ({ onPostClick, onViewAll }) => {
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">{post.date}</p>
                 <h4 className="text-xl font-black text-slate-900 group-hover:text-[#16A34A] transition-colors leading-tight mb-4">{post.title}</h4>
                 <p className="text-slate-500 text-sm mb-6 line-clamp-2 leading-relaxed">{post.excerpt}</p>
-                <button className="text-xs font-black uppercase tracking-widest text-slate-900 border-b-2 border-slate-900 group-hover:border-[#16A34A] group-hover:text-[#16A34A] transition-all pb-1">Read Article</button>
+                <button className="text-xs font-black uppercase tracking-widest text-slate-950 border-b-2 border-slate-900 group-hover:border-[#16A34A] group-hover:text-[#16A34A] transition-all pb-1">Read Article</button>
               </div>
             </div>
           ))}
