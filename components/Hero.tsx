@@ -75,11 +75,15 @@ const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspecto
             </button>
           </div>
 
-          <div className="pt-8 md:pt-16 flex flex-col items-center gap-4 opacity-50 group hover:opacity-100 transition-opacity">
-             <div className="flex gap-1">
-                {[1,2,3,4,5].map(i => <span key={i} className="text-[#FACC15] text-lg">★</span>)}
+          {/* Social Proof Footer Section */}
+          <div className="pt-8 md:pt-16 flex flex-col items-center gap-2 opacity-60 group hover:opacity-100 transition-opacity">
+             <div className="flex items-center gap-3">
+                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-900">Trustpilot: 4.8/5 Stars</span>
+                <div className="flex gap-0.5">
+                   {[1,2,3,4,5].map(i => <span key={i} className="text-[#16A34A] text-lg">★</span>)}
+                </div>
              </div>
-             <p className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.3em] text-slate-500">The Gold Standard for 2,000+ Local Businesses</p>
+             <p className="text-[9px] md:text-[11px] font-bold uppercase tracking-[0.3em] text-slate-500">Join 2,000+ Local Businesses</p>
           </div>
         </div>
       </div>
