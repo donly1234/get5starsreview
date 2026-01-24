@@ -1,7 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
 
 interface HeaderProps {
+  user?: any;
+  onLogout?: () => void;
   onLogin: () => void;
   onToolsClick: () => void;
   onBusinessSignup: () => void;
@@ -13,6 +16,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ 
+  user,
+  onLogout,
   onLogin, 
   onToolsClick, 
   onBusinessSignup, 
@@ -76,18 +81,32 @@ const Header: React.FC<HeaderProps> = ({
             </div>
 
             <div className="flex items-center gap-1 md:gap-4">
-              <button 
-                onClick={onLogin}
-                className="hidden md:block text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-all uppercase tracking-[0.15em] xl:tracking-[0.2em] px-4 py-2 cursor-pointer hover:scale-110 active:scale-95"
-              >
-                Login
-              </button>
-              <button 
-                onClick={onBusinessSignup}
-                className="px-3 md:px-6 xl:px-8 py-2.5 md:py-4 bg-[#0F172A] text-white rounded-[14px] md:rounded-[18px] text-[8px] md:text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-[#16A34A] transition-all active:scale-95 whitespace-nowrap cursor-pointer"
-              >
-                Start Ranking
-              </button>
+              {user ? (
+                <div className="flex items-center gap-3">
+                  <div className="hidden md:flex flex-col items-end">
+                    <p className="text-[10px] font-black text-slate-900 uppercase truncate max-w-[120px]">{user.user_metadata?.full_name || user.email}</p>
+                    <button onClick={onLogout} className="text-[8px] font-black text-rose-500 hover:text-rose-600 uppercase tracking-widest transition-colors">Logout</button>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-[#16A34A] border-2 border-white shadow-md flex items-center justify-center text-white font-black text-xs">
+                    {user.user_metadata?.full_name?.[0] || user.email?.[0]?.toUpperCase()}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <button 
+                    onClick={onLogin}
+                    className="hidden md:block text-[10px] xl:text-[11px] font-black text-slate-500 hover:text-[#16A34A] transition-all uppercase tracking-[0.15em] xl:tracking-[0.2em] px-4 py-2 cursor-pointer hover:scale-110 active:scale-95"
+                  >
+                    Login
+                  </button>
+                  <button 
+                    onClick={onBusinessSignup}
+                    className="px-3 md:px-6 xl:px-8 py-2.5 md:py-4 bg-[#0F172A] text-white rounded-[14px] md:rounded-[18px] text-[8px] md:text-[11px] font-black uppercase tracking-widest shadow-xl hover:bg-[#16A34A] transition-all active:scale-95 whitespace-nowrap cursor-pointer"
+                  >
+                    Start Ranking
+                  </button>
+                </>
+              )}
               <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-900 cursor-pointer" aria-label="Toggle Mobile Menu">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16m-7 6h7"/></svg>
               </button>
@@ -111,8 +130,14 @@ const Header: React.FC<HeaderProps> = ({
              <button key={item.name} onClick={() => handleNav(item)} className="block w-full text-left text-3xl md:text-4xl font-black uppercase italic text-[#0F172A] border-b-4 border-transparent hover:border-[#16A34A] transition-all cursor-pointer">{item.name}</button>
            ))}
            <div className="pt-8 space-y-4">
-             <button onClick={() => { onLogin(); setIsMobileMenuOpen(false); }} className="w-full py-4 bg-slate-100 rounded-2xl font-black uppercase tracking-widest text-sm cursor-pointer">Login</button>
-             <button onClick={() => { onBusinessSignup(); setIsMobileMenuOpen(false); }} className="w-full py-4 bg-[#16A34A] text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl cursor-pointer">Get Started</button>
+             {user ? (
+               <button onClick={onLogout} className="w-full py-4 bg-rose-50 text-rose-600 rounded-2xl font-black uppercase tracking-widest text-sm cursor-pointer">Logout Account</button>
+             ) : (
+               <>
+                 <button onClick={() => { onLogin(); setIsMobileMenuOpen(false); }} className="w-full py-4 bg-slate-100 rounded-2xl font-black uppercase tracking-widest text-sm cursor-pointer">Login</button>
+                 <button onClick={() => { onBusinessSignup(); setIsMobileMenuOpen(false); }} className="w-full py-4 bg-[#16A34A] text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl cursor-pointer">Get Started</button>
+               </>
+             )}
            </div>
         </div>
       </div>
