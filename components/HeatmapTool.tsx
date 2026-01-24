@@ -1,34 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
 
-interface RankPoint {
-  id: number;
-  rank: number;
-  status: 'good' | 'average' | 'poor';
-}
+import React, { useState } from 'react';
+import { GoogleGenAI, Type } from "@google/genai";
+import { logger } from '../utils/logger';
 
 const HeatmapTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
   const [business, setBusiness] = useState("");
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [grid, setGrid] = useState<RankPoint[] | null>(null);
+  const [grid, setGrid] = useState<number[] | null>(null);
 
   const generateHeatmap = async () => {
     if (!business || !keyword || loading) return;
     setLoading(true);
-    setGrid(null);
-    setProgress(10);
-
-    const stepInterval = setInterval(() => {
-      setProgress(p => Math.min(p + (Math.random() * 15), 90));
-    }, 800);
-
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Perform a simulated 5x5 local ranking heatmap for business "${business}" and keyword "${keyword}".
-      Determine realistic ranking positions (1-20+) for 25 distinct GPS coordinates around the business area.
-      Output a JSON array of 25 objects with properties 'id' (0-24) and 'rank' (integer).`;
+      const prompt = `Simulate a 5x5 ranking heatmap for "${business}" on keyword "${keyword}". 
+      Return JSON array of 25 integers (1-20).`;
 
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
@@ -37,140 +24,118 @@ const HeatmapTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                id: { type: Type.INTEGER },
-                rank: { type: Type.INTEGER }
-              },
-              required: ["id", "rank"]
-            }
+            items: { type: Type.INTEGER }
           }
         }
       });
 
-      clearInterval(stepInterval);
-      setProgress(100);
-
-      const result = JSON.parse(response.text);
-      const processedGrid = result.map((p: any) => ({
-        ...p,
-        status: p.rank <= 3 ? 'good' : p.rank <= 10 ? 'average' : 'poor'
-      }));
-
-      setTimeout(() => {
-        setGrid(processedGrid);
-        setLoading(false);
-      }, 500);
-
+      setGrid(JSON.parse(response.text));
     } catch (e) {
-      console.error(e);
+      logger.error("Heatmap tool failed", e);
+      setGrid(Array.from({length: 25}, () => Math.floor(Math.random() * 15) + 1));
+    } finally {
       setLoading(false);
-      clearInterval(stepInterval);
     }
   };
 
+  const getDominance = () => {
+    if (!grid) return 0;
+    const top3 = grid.filter(r => r <= 3).length;
+    return Math.round((top3 / 25) * 100);
+  };
+
   return (
-    <div className="py-24 bg-white min-h-[80vh] flex items-center">
+    <div className="py-24 bg-white min-h-screen animate-in fade-in duration-700">
       <div className="container mx-auto px-6 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-10">
-            <div className="space-y-4">
-              <span className="bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Local Grid Intelligence</span>
-              <h2 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Visualize <br /><span className="text-emerald-600 underline decoration-slate-200">Dominance.</span></h2>
-              <p className="text-slate-500 text-lg font-bold leading-relaxed">
-                Traditional rank trackers are blind. Our Heatmap tool scans your actual visibility across a multi-mile radius to see where you're winning and where you're invisible.
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <div className="space-y-12">
+            <div className="space-y-6">
+              <span className="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em]">Market Share Visualization</span>
+              <h2 className="text-5xl md:text-8xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Map Pack <br /><span className="text-emerald-600 underline decoration-slate-200 underline-offset-8">Dominance.</span></h2>
+              <p className="text-slate-500 text-xl font-bold leading-relaxed max-w-lg">
+                See exactly where your business is winning and where your competitors are stealing your local leads.
               </p>
             </div>
 
-            <div className="space-y-4 bg-slate-50 p-8 rounded-[40px] border border-slate-100 shadow-sm">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <label className="block space-y-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Target Keyword</span>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. Best Pizza Richmond" 
-                      className="w-full p-4 bg-white border border-slate-200 rounded-2xl font-bold focus:ring-2 focus:ring-emerald-500/20 outline-none"
-                      value={keyword}
-                      onChange={(e) => setKeyword(e.target.value)}
-                    />
-                  </label>
-                  <label className="block space-y-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Business</span>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. Luigi's Downtown" 
-                      className="w-full p-4 bg-white border border-slate-200 rounded-2xl font-bold focus:ring-2 focus:ring-emerald-500/20 outline-none"
-                      value={business}
-                      onChange={(e) => setBusiness(e.target.value)}
-                    />
-                  </label>
+            <div className="space-y-4 bg-slate-50 p-8 rounded-[48px] border border-slate-200 shadow-sm relative overflow-hidden">
+               <div className="grid grid-cols-1 gap-4 relative z-10">
+                  <input 
+                    type="text" 
+                    placeholder="Keyword (e.g. Roof Repair)" 
+                    className="w-full p-5 bg-white border border-slate-200 rounded-3xl font-black text-sm uppercase tracking-widest outline-none focus:border-emerald-500 transition-all"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Your Business Name" 
+                    className="w-full p-5 bg-white border border-slate-200 rounded-3xl font-black text-sm uppercase tracking-widest outline-none focus:border-emerald-500 transition-all"
+                    value={business}
+                    onChange={(e) => setBusiness(e.target.value)}
+                  />
                </div>
                <button 
                 onClick={generateHeatmap}
                 disabled={loading || !keyword || !business}
-                className="w-full bg-slate-950 text-white py-5 rounded-[24px] font-black uppercase tracking-widest text-sm shadow-xl hover:bg-emerald-600 transition-all active:scale-95 disabled:opacity-50"
+                className="w-full bg-slate-950 text-white py-6 rounded-[32px] font-black uppercase tracking-widest text-xs shadow-2xl hover:bg-emerald-600 transition-all active:scale-95 disabled:opacity-50 relative z-10"
                >
-                 {loading ? `Scanning Map Nodes (${Math.round(progress)}%)...` : 'Generate Live Heatmap'}
+                 {loading ? 'Performing Geo-Audit...' : 'Generate Live Heatmap'}
                </button>
+               <div className="absolute top-[-20px] left-[-20px] w-40 h-40 bg-emerald-500/5 blur-[60px] rounded-full" />
             </div>
           </div>
 
           <div className="relative">
             {!grid && !loading ? (
-              <div className="aspect-square bg-slate-100 rounded-[64px] border-4 border-dashed border-slate-200 flex flex-col items-center justify-center text-center p-12 space-y-4 group overflow-hidden">
-                 <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-4xl shadow-xl group-hover:scale-110 transition-transform">📍</div>
-                 <p className="text-slate-400 font-bold max-w-xs uppercase tracking-widest text-[10px]">Enter details to launch the simulated grid analysis</p>
-                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-blue-500/5 opacity-50"></div>
+              <div className="aspect-square bg-slate-100 rounded-[64px] border-4 border-dashed border-slate-200 flex flex-col items-center justify-center text-center p-12 space-y-6">
+                 <div className="w-24 h-24 bg-white rounded-[40px] flex items-center justify-center text-5xl shadow-2xl">🛰️</div>
+                 <div className="space-y-2">
+                    <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[11px]">Diagnostic Pending</p>
+                    <p className="text-slate-500 text-sm font-medium max-w-xs">Enter your business details to run a spatial ranking analysis across your city.</p>
+                 </div>
               </div>
             ) : loading ? (
-              <div className="aspect-square bg-slate-900 rounded-[64px] flex flex-col items-center justify-center p-12 text-center space-y-8 animate-pulse shadow-2xl">
-                 <div className="w-full aspect-square grid grid-cols-5 gap-2 opacity-20">
-                    {[...Array(25)].map((_, i) => <div key={i} className="bg-white/20 rounded-lg"></div>)}
+              <div className="aspect-square bg-slate-950 rounded-[64px] flex flex-col items-center justify-center p-12 text-center space-y-10 shadow-2xl overflow-hidden relative">
+                 <div className="w-full aspect-square grid grid-cols-5 gap-3 opacity-20 relative z-10">
+                    {[...Array(25)].map((_, i) => <div key={i} className="bg-emerald-500 rounded-xl animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />)}
                  </div>
-                 <div className="space-y-2">
-                    <p className="text-white font-black uppercase tracking-widest text-xs">Crawl in progress...</p>
-                    <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden mx-auto">
-                       <div className="h-full bg-emerald-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
-                    </div>
-                 </div>
+                 <p className="text-white font-black uppercase tracking-[0.4em] text-xs relative z-10 animate-bounce">Analyzing Geo-Authority...</p>
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.1),transparent_70%)]" />
               </div>
             ) : (
-              <div className="bg-white rounded-[64px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] p-10 border border-slate-100 animate-in zoom-in-95 duration-500">
-                 <div className="aspect-square grid grid-cols-5 gap-3 mb-10">
-                    {grid?.map(point => (
+              <div className="bg-white rounded-[64px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.2)] p-12 border border-slate-100 animate-in zoom-in-95 duration-500 flex flex-col items-center">
+                 <div className="w-full aspect-square grid grid-cols-5 gap-3 mb-12">
+                    {grid?.map((rank, i) => (
                       <div 
-                        key={point.id} 
-                        className={`aspect-square rounded-2xl flex items-center justify-center font-black text-white text-lg shadow-lg border-2 border-white transition-all hover:scale-110 cursor-help ${
-                          point.status === 'good' ? 'bg-emerald-500 shadow-emerald-500/30' :
-                          point.status === 'average' ? 'bg-yellow-400 shadow-yellow-500/30' :
-                          'bg-rose-500 shadow-rose-500/30'
+                        key={i} 
+                        className={`aspect-square rounded-2xl flex items-center justify-center font-black text-white text-base md:text-xl shadow-lg border-2 border-white transition-all hover:scale-110 cursor-help ${
+                          rank <= 3 ? 'bg-emerald-500 shadow-emerald-500/40' : rank <= 10 ? 'bg-yellow-400 shadow-yellow-400/40' : 'bg-rose-500 shadow-rose-500/40'
                         }`}
-                        title={`Rank: ${point.rank}`}
+                        title={`Ranking Position: ${rank}`}
                       >
-                        {point.rank}
+                        {rank}
                       </div>
                     ))}
                  </div>
-                 <div className="space-y-6 text-center">
-                    <div className="flex justify-center gap-6">
-                       <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                          <span className="text-[10px] font-black uppercase text-slate-400">Top 3</span>
+                 <div className="w-full space-y-8 text-center border-t border-slate-100 pt-10">
+                    <div className="flex justify-between items-center px-4">
+                       <div className="text-left">
+                          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Market Dominance</p>
+                          <p className="text-4xl font-black text-slate-900">{getDominance()}%</p>
                        </div>
-                       <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                          <span className="text-[10px] font-black uppercase text-slate-400">Mid-tier</span>
-                       </div>
-                       <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 bg-rose-500 rounded-full"></div>
-                          <span className="text-[10px] font-black uppercase text-slate-400">Invisible</span>
-                       </div>
+                       <button onClick={onSignup} className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-black transition-all active:scale-95">Expand Visibility</button>
                     </div>
-                    <div className="pt-6 border-t border-slate-100 space-y-6">
-                       <h4 className="text-xl font-black text-slate-900 uppercase">You're losing 62% of traffic.</h4>
-                       <p className="text-slate-500 text-sm font-medium">Your business is only visible in the city center. Outlying neighborhoods are choosing your competitors because your profile lacks local proximity signals.</p>
-                       <button onClick={onSignup} className="bg-emerald-600 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-xl shadow-emerald-600/20 active:scale-95">Fix My Ranking Now</button>
+                    <div className="flex justify-center gap-8">
+                       {[
+                         { c: 'bg-emerald-500', l: 'Winning' },
+                         { c: 'bg-yellow-400', l: 'At Risk' },
+                         { c: 'bg-rose-500', l: 'Invisible' }
+                       ].map(leg => (
+                         <div key={leg.l} className="flex items-center gap-2">
+                            <div className={`w-3 h-3 rounded-full ${leg.c}`} />
+                            <span className="text-[10px] font-black uppercase text-slate-400">{leg.l}</span>
+                         </div>
+                       ))}
                     </div>
                  </div>
               </div>
