@@ -101,7 +101,9 @@ const App: React.FC = () => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
-        setView(prev => ['login', 'signup-business', 'signup-agency', 'landing', 'loading'].includes(prev) ? 'dashboard' : prev);
+        if (['login', 'signup-business', 'signup-agency', 'landing', 'loading'].includes(view)) {
+           setView('dashboard');
+        }
       } else {
         setUser(null);
         setUserType(null);
@@ -109,7 +111,7 @@ const App: React.FC = () => {
       }
     });
 
-    const consent = localStorage.getItem('g5sr_cookies');
+    const consent = localStorage.getItem('g5sr_cookies_accepted');
     if (!consent) setShowCookieConsent(true);
 
     return () => {
@@ -121,6 +123,8 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     setAuthReady(false);
     await supabase.auth.signOut();
+    setUser(null);
+    setUserType(null);
     setView('landing');
     setAuthReady(true);
   };
@@ -201,6 +205,8 @@ const App: React.FC = () => {
 
       {!isAuthView && (
         <Header 
+          user={user}
+          onLogout={handleLogout}
           onLogin={() => navigate('login')} 
           onToolsClick={() => navigate('app-selector')}
           onBusinessSignup={() => navigate('signup-business')} 
@@ -291,7 +297,15 @@ const App: React.FC = () => {
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7 7"/></svg>
       </button>
 
-      {showCookieConsent && <CookieConsent onClose={() => { localStorage.setItem('g5sr_cookies', 'true'); setShowCookieConsent(false); }} />}
+      {showCookieConsent && (
+        <CookieConsent 
+          onClose={() => { 
+            localStorage.setItem('g5sr_cookies_accepted', 'true'); 
+            setShowCookieConsent(false); 
+          }} 
+          onViewPrivacy={() => navigate('privacy')}
+        />
+      )}
     </div>
   );
 };
@@ -313,14 +327,14 @@ const SystemStatus = () => (
   </div>
 );
 
-const CookieConsent = ({ onClose }: { onClose: () => void }) => (
+const CookieConsent = ({ onClose, onViewPrivacy }: { onClose: () => void; onViewPrivacy: () => void }) => (
   <div className="fixed bottom-0 inset-x-0 z-[500] p-6 animate-in slide-in-from-bottom-full duration-500">
      <div className="max-w-4xl mx-auto bg-white rounded-3xl p-6 shadow-[0_-20px_50px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex gap-4">
            <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl shrink-0">🍪</div>
            <div>
               <p className="text-sm font-bold text-slate-900 leading-tight">We value your privacy.</p>
-              <p className="text-xs text-slate-500 mt-1">We use cookies to enhance your experience and optimize our local ranking algorithms.</p>
+              <p className="text-xs text-slate-500 mt-1">We use cookies to enhance your experience and optimize our local ranking algorithms. View our <button onClick={onViewPrivacy} className="underline text-[#16A34A] font-bold">Privacy Policy</button>.</p>
            </div>
         </div>
         <div className="flex gap-3 shrink-0">
