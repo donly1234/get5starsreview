@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import TrialSuccessScreen from '../Dashboard/Trial/TrialSuccessScreen';
@@ -21,6 +22,7 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [verificationRequired, setVerificationRequired] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     email: '', password: '', businessName: '', fullName: '', phone: '',
     industry: 'Food & Beverage', website: '', address: '', platforms: [] as string[]
@@ -28,12 +30,30 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
 
   const updateForm = (updates: Partial<typeof formData>) => setFormData(prev => ({ ...prev, ...updates }));
 
+  const validateStep1 = () => {
+    const errors: Record<string, string> = {};
+    if (!formData.fullName) errors.fullName = "Name is required";
+    if (!formData.businessName) errors.businessName = "Business name is required";
+    if (!formData.email) errors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Invalid format";
+    if (!formData.password) errors.password = "Password is required";
+    else if (formData.password.length < 8) errors.password = "Min 8 characters required";
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const errors: Record<string, string> = {};
+    if (!formData.website) errors.website = "Website URL is required";
+    else if (!/^https?:\/\//.test(formData.website)) errors.website = "Must start with http:// or https://";
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSignupComplete = async () => {
-    if (!formData.email || !formData.password || !formData.fullName || !formData.businessName) {
-      setStep(1);
-      setError("Please ensure Name, Business, Email, and Password are filled out.");
-      return;
-    }
+    if (!validateStep2()) return;
 
     setLoading(true);
     setError(null);
@@ -184,20 +204,29 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label className="block space-y-2">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Full Name</span>
-                <input type="text" value={formData.fullName} onChange={e => updateForm({fullName: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold" placeholder="John Doe" />
-              </label>
-              <label className="block space-y-2">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Business Name</span>
-                <input type="text" value={formData.businessName} onChange={e => updateForm({businessName: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold" placeholder="The Downtown Bakery" />
-              </label>
+              <div className="space-y-2">
+                <label className="block space-y-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Full Name</span>
+                  <input type="text" value={formData.fullName} onChange={e => updateForm({fullName: e.target.value})} className={`w-full p-4 bg-slate-50 border ${fieldErrors.fullName ? 'border-rose-500' : 'border-slate-200'} rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold`} placeholder="John Doe" />
+                </label>
+                {fieldErrors.fullName && <p className="text-[9px] font-black text-rose-500 uppercase px-2">{fieldErrors.fullName}</p>}
+              </div>
+              <div className="space-y-2">
+                <label className="block space-y-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Business Name</span>
+                  <input type="text" value={formData.businessName} onChange={e => updateForm({businessName: e.target.value})} className={`w-full p-4 bg-slate-50 border ${fieldErrors.businessName ? 'border-rose-500' : 'border-slate-200'} rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold`} placeholder="The Downtown Bakery" />
+                </label>
+                {fieldErrors.businessName && <p className="text-[9px] font-black text-rose-500 uppercase px-2">{fieldErrors.businessName}</p>}
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
                <label className="block space-y-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</span>
-                <input type="email" value={formData.email} onChange={e => updateForm({email: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold" placeholder="john@example.com" />
+                <input type="email" value={formData.email} onChange={e => updateForm({email: e.target.value})} className={`w-full p-4 bg-slate-50 border ${fieldErrors.email ? 'border-rose-500' : 'border-slate-200'} rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold`} placeholder="john@example.com" />
               </label>
+              {fieldErrors.email && <p className="text-[9px] font-black text-rose-500 uppercase px-2">{fieldErrors.email}</p>}
+              </div>
               <label className="block space-y-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Phone (Optional)</span>
                 <input type="tel" value={formData.phone} onChange={e => updateForm({phone: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold" placeholder="+1..." />
@@ -206,13 +235,16 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
             <div className="space-y-2">
               <label className="block space-y-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</span>
-                <input type="password" value={formData.password} onChange={e => updateForm({password: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold" placeholder="••••••••" />
+                <input type="password" value={formData.password} onChange={e => updateForm({password: e.target.value})} className={`w-full p-4 bg-slate-50 border ${fieldErrors.password ? 'border-rose-500' : 'border-slate-200'} rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold`} placeholder="••••••••" />
               </label>
+              {fieldErrors.password && <p className="text-[9px] font-black text-rose-500 uppercase px-2">{fieldErrors.password}</p>}
             </div>
             <button 
               onClick={() => {
-                setError(null);
-                setStep(2);
+                if (validateStep1()) {
+                  setError(null);
+                  setStep(2);
+                }
               }}
               className="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-green-500/20 hover:bg-green-700 transition-all active:scale-[0.98] uppercase tracking-widest cursor-pointer"
             >
@@ -238,10 +270,13 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
                   {industries.map(i => <option key={i} value={i}>{i}</option>)}
                 </select>
               </label>
-              <label className="block space-y-2">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Website URL</span>
-                <input type="url" value={formData.website} onChange={e => updateForm({website: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold" placeholder="https://..." />
-              </label>
+              <div className="space-y-2">
+                <label className="block space-y-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Website URL</span>
+                  <input type="url" value={formData.website} onChange={e => updateForm({website: e.target.value})} className={`w-full p-4 bg-slate-50 border ${fieldErrors.website ? 'border-rose-500' : 'border-slate-200'} rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold`} placeholder="https://..." />
+                </label>
+                {fieldErrors.website && <p className="text-[9px] font-black text-rose-500 uppercase px-2">{fieldErrors.website}</p>}
+              </div>
             </div>
             <div className="flex gap-4">
               <button 
