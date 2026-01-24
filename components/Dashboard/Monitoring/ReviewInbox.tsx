@@ -11,7 +11,7 @@ interface ReviewInboxProps {
 const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false, onShowUpgrade }) => {
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [filterRating, setFilterRating] = useState<string>('All');
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [reviews, setReviews] = useState<any[]>([]); // Starting with empty data
@@ -25,9 +25,14 @@ const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false, onShowUpgrad
     return true;
   });
 
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1000);
+  const handleConnectProfile = () => {
+    setIsConnecting(true);
+    // Simulate OAuth Redirect/Success
+    setTimeout(() => {
+      setIsConnecting(false);
+      // In a real app, this would refresh the data from Supabase/Google API
+      alert("Opening Google Business Profile Authentication window...");
+    }, 1500);
   };
 
   const toggleSelect = (id: string) => {
@@ -72,10 +77,26 @@ const ReviewInbox: React.FC<ReviewInboxProps> = ({ isTrial = false, onShowUpgrad
         <div className="flex-1 overflow-y-auto px-4 md:px-0 space-y-3 pb-20 scroll-smooth flex flex-col items-center justify-center text-center">
           {reviews.length === 0 ? (
             <div className="animate-in fade-in zoom-in-95 duration-700 max-w-sm px-6">
-              <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">📭</div>
-              <h3 className="text-xl font-black text-slate-900 uppercase italic mb-2">Inbox is Empty</h3>
-              <p className="text-slate-400 text-sm font-medium">Connect your Google Business Profile to begin monitoring real-time customer feedback.</p>
-              <button className="mt-8 px-8 py-3 bg-[#16A34A] text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg">Link Profile</button>
+              <div className="relative mb-8">
+                 <div className="w-24 h-24 bg-slate-100 rounded-[40px] flex items-center justify-center text-4xl mx-auto shadow-inner border border-slate-200 relative z-10">📡</div>
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 uppercase italic mb-3 tracking-tighter">Awaiting Sync</h3>
+              <p className="text-slate-500 text-sm font-bold leading-relaxed">Connect your Google Business Profile to activate the real-time AI response engine and monitoring dashboard.</p>
+              <button 
+                onClick={handleConnectProfile}
+                disabled={isConnecting}
+                className="mt-8 w-full py-4 bg-[#16A34A] text-white rounded-[20px] font-black uppercase tracking-widest text-[11px] shadow-[0_20px_40px_rgba(22,163,74,0.3)] hover:bg-black transition-all active:scale-95 flex items-center justify-center gap-3"
+              >
+                {isConnecting ? (
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <img src="https://www.vectorlogo.zone/logos/google/google-icon.svg" className="w-4 h-4 brightness-0 invert" alt="G" />
+                    Link Google Account
+                  </>
+                )}
+              </button>
             </div>
           ) : (
             filteredReviews.map((rev) => (
