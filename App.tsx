@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -14,6 +15,7 @@ import DashboardShowcase from './components/DashboardShowcase';
 import HowItWorks from './components/HowItWorks';
 import Services from './components/Services';
 import Features from './components/Features';
+import ComparisonTable from './components/ComparisonTable';
 import VideoTestimonials from './components/VideoTestimonials';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
@@ -55,7 +57,6 @@ const App: React.FC = () => {
         setUserType(session.user.user_metadata?.user_type || 'business');
         setView('dashboard');
       } else {
-        // Handle deep-linking via query params
         const params = new URLSearchParams(window.location.search);
         const p = params.get('p') as AppView;
         const id = params.get('id');
@@ -93,7 +94,6 @@ const App: React.FC = () => {
 
     if (view === 'landing') setTimeout(setupAnimations, 100);
 
-    // Scroll Handler
     const handleScroll = () => setShowScrollTop(window.scrollY > 800);
     window.addEventListener('scroll', handleScroll);
 
@@ -254,6 +254,7 @@ const App: React.FC = () => {
             <ROICalculator onStart={() => navigate('signup-business')} />
             <MapComparison />
             <DashboardShowcase />
+            <ComparisonTable onBusinessClick={() => navigate('signup-business')} onAgencyClick={() => navigate('signup-agency')} />
             <HowItWorks onStart={() => navigate('signup-business')} />
             <Services onAuditClick={() => navigate('app-selector')} onSignup={() => navigate('signup-business')} />
             <TrustStack />
