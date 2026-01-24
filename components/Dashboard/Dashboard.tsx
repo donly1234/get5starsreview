@@ -1,6 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
+import { logger } from '../../utils/logger';
+import { isFeatureEnabled } from '../../config/featureFlags';
+
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import MetricsBar from './MetricsBar';
@@ -31,18 +34,125 @@ interface DashboardProps {
   onLogout: () => void;
   userType: UserType;
   user: any;
-  justUpgraded?: boolean;
   onUpgradeFlow?: () => void;
-  onDismissUpgradeMessage?: () => void;
 }
+
+const DashboardHeader: React.FC<{ 
+  profile: any, 
+  isTrial: boolean, 
+  trialDaysLeft: number, 
+  impersonatedClient: string | null,
+  onFeatureClick: (tab: string) => void
+}> = ({ profile, isTrial, trialDaysLeft, impersonatedClient, onFeatureClick }) => (
+  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="flex items-center gap-4">
+      <div className="w-14 h-14 rounded-[24px] bg-white shadow-sm flex items-center justify-center text-3xl border border-slate-100">🏢</div>
+      <div>
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic leading-none">
+          {impersonatedClient ? `${impersonatedClient} Portal` : profile?.business_name || profile?.agency_name || 'My Business Hub'}
+        </h1>
+        <p className="text-slate-500 text-xs font-bold flex items-center gap-2 mt-1 uppercase tracking-widest">
+          <span className={`w-2 h-2 rounded-full animate-pulse ${isTrial ? 'bg-[#FACC15]' : 'bg-[#16A34A]'}`}></span>
+          {isTrial ? `Free Trial • ${trialDaysLeft} days left` : 'Professional Enterprise Account'}
+        </p>
+      </div>
+    </div>
+    <div className="flex gap-3">
+      <button 
+        onClick={() => onFeatureClick('SEO Auditor')}
+        className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-100 text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:border-emerald-500 hover:text-emerald-600 transition-all shadow-sm"
+      >
+        SEO Audit
+      </button>
+      <button 
+        onClick={() => onFeatureClick('Requests')}
+        className="flex items-center gap-2 px-8 py-3 bg-[#16A34A] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-black transition-all shadow-xl"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"/></svg>
+        Collect Reviews
+      </button>
+    </div>
+  </div>
+);
+
+const DashboardContentRouter: React.FC<{
+  activeTab: string;
+  isTrial: boolean;
+  userType: UserType;
+  user: any;
+  profile: any;
+  trialDaysLeft: number;
+  impersonatedClient: string | null;
+  onFeatureClick: (tab: string) => void;
+  onUpgradeFlow?: () => void;
+  onShowUpgrade: (feat: string) => void;
+  onSetActiveTab: (tab: string) => void;
+  onSwitchClient: (name: string) => void;
+}> = ({ activeTab, isTrial, userType, user, profile, trialDaysLeft, impersonatedClient, onFeatureClick, onUpgradeFlow, onShowUpgrade, onSetActiveTab, onSwitchClient }) => {
+  
+  switch (activeTab) {
+    case 'Dashboard':
+      return (
+        <>
+          <DashboardHeader 
+            profile={profile} 
+            isTrial={isTrial} 
+            trialDaysLeft={trialDaysLeft} 
+            impersonatedClient={impersonatedClient} 
+            onFeatureClick={onFeatureClick} 
+          />
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className="xl:col-span-2 space-y-8">
+              {isFeatureEnabled('AI_STRATEGY') && <StrategyProgress onLaunchStrategy={() => onSetActiveTab('AI Strategy')} />}
+              {isTrial && <TrialChecklist />}
+              <MetricsBar isTrial={isTrial} profileId={user?.id} />
+              <PerformanceGraph isTrial={isTrial} profileId={user?.id} />
+              <ReviewFeed 
+                isTrial={isTrial} 
+                profileId={user?.id} 
+                onConnectClick={() => onSetActiveTab('Settings')}
+              />
+            </div>
+            <div className="space-y-8">
+              <RequestStatus requestsUsed={0} isTrial={isTrial} onUpgrade={onUpgradeFlow} />
+              <PlatformBreakdown isTrial={isTrial} onUpgrade={() => onSetActiveTab('Settings')} />
+            </div>
+          </div>
+        </>
+      );
+    case 'Requests':
+      return <RequestsManager requestsUsed={0} isTrial={isTrial} onUpgrade={onUpgradeFlow} />;
+    case 'Monitoring':
+    case 'All Reviews':
+      return <MonitoringManager isTrial={isTrial} onShowUpgrade={() => onShowUpgrade('AI Assistant')} />;
+    case 'SEO Auditor':
+      return <GBPAuditTool onSignup={onUpgradeFlow || (() => {})} />;
+    case 'Ranking Heatmap':
+      return isFeatureEnabled('HEATMAP_TOOL') ? <HeatmapTool onSignup={onUpgradeFlow || (() => {})} /> : <div>Feature Disabled</div>;
+    case 'GBP Media':
+      return <MediaManager />;
+    case 'Widgets':
+      return <WidgetsManager />;
+    case 'Analytics':
+      return <AnalyticsManager />;
+    case 'AI Assistant':
+      return <AIAssistantManager />;
+    case 'AI Strategy':
+      return isFeatureEnabled('AI_STRATEGY') ? <AIStrategyManager profile={profile} /> : <div>Feature Disabled</div>;
+    case 'Agency Panel':
+      return <AgencyManager onSwitchClient={onSwitchClient} />;
+    case 'Settings':
+      return <SettingsManager isTrial={isTrial} />;
+    default:
+      return null;
+  }
+};
 
 const Dashboard: React.FC<DashboardProps> = ({ 
   onLogout, 
   userType: initialUserType,
   user,
-  justUpgraded = false,
-  onUpgradeFlow,
-  onDismissUpgradeMessage 
+  onUpgradeFlow
 }) => {
   const [userType, setUserType] = useState<UserType>(initialUserType);
   const [activeTab, setActiveTab] = useState(initialUserType === 'agency' ? 'Agency Panel' : 'Dashboard');
@@ -52,7 +162,6 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [trialDaysElapsed, setTrialDaysElapsed] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [resendingEmail, setResendingEmail] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -64,42 +173,27 @@ const Dashboard: React.FC<DashboardProps> = ({
           .eq('id', user.id)
           .single();
         
+        if (error) throw error;
+
         if (data) {
           setProfile(data);
           setUserType(data.user_type || initialUserType);
-          
           const created = new Date(data.created_at || user.created_at);
-          const now = new Date();
-          const diffTime = Math.max(0, now.getTime() - created.getTime());
-          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-          setTrialDaysElapsed(diffDays);
+          const diffDays = Math.floor((new Date().getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+          setTrialDaysElapsed(Math.max(0, diffDays));
         }
       } catch (e) {
-        console.error("Dashboard profile load error:", e);
+        logger.error("Failed to load dashboard profile", e);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProfile();
   }, [user, initialUserType]);
-
-  const handleResendVerification = async () => {
-    if (!user?.email) return;
-    setResendingEmail(true);
-    await supabase.auth.resend({
-      type: 'signup',
-      email: user.email,
-      options: { emailRedirectTo: window.location.origin }
-    });
-    setResendingEmail(false);
-    alert("Verification email resent!");
-  };
 
   const isTrialAccount = profile?.status !== 'paid';
   const isExpired = isTrialAccount && trialDaysElapsed >= 14;
   const trialDaysLeft = Math.max(0, 14 - trialDaysElapsed);
-  const emailUnconfirmed = !user?.email_confirmed_at;
 
   const handleFeatureClick = (tab: string) => {
     if (isExpired) {
@@ -114,92 +208,6 @@ const Dashboard: React.FC<DashboardProps> = ({
       }
     }
     setActiveTab(tab);
-  };
-
-  const renderContent = () => {
-    if (isExpired) {
-      return <ExpiredOverlay onUpgrade={onUpgradeFlow || (() => {})} />;
-    }
-
-    switch (activeTab) {
-      case 'Dashboard':
-        return (
-          <>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-[24px] bg-white shadow-sm flex items-center justify-center text-3xl border border-slate-100">🏢</div>
-                <div>
-                  <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic leading-none">
-                    {impersonatedClient ? `${impersonatedClient} Portal` : profile?.business_name || profile?.agency_name || 'My Business Hub'}
-                  </h1>
-                  <p className="text-slate-500 text-xs font-bold flex items-center gap-2 mt-1 uppercase tracking-widest">
-                    <span className={`w-2 h-2 rounded-full animate-pulse ${isTrialAccount ? 'bg-[#FACC15]' : 'bg-[#16A34A]'}`}></span>
-                    {isTrialAccount ? `Free Trial • ${trialDaysLeft} days left` : 'Professional Enterprise Account'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button 
-                  onClick={() => handleFeatureClick('SEO Auditor')}
-                  className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-100 text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:border-emerald-500 hover:text-emerald-600 transition-all shadow-sm active:scale-95"
-                >
-                  SEO Audit
-                </button>
-                <button 
-                  onClick={() => handleFeatureClick('Requests')}
-                  className="flex items-center gap-2 px-8 py-3 bg-[#16A34A] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-black transition-all shadow-xl active:scale-95"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"/></svg>
-                  Collect Reviews
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-              <div className="xl:col-span-2 space-y-8">
-                <StrategyProgress onLaunchStrategy={() => setActiveTab('AI Strategy')} />
-                {isTrialAccount && <TrialChecklist />}
-                <MetricsBar isTrial={isTrialAccount} profileId={user?.id} />
-                <PerformanceGraph isTrial={isTrialAccount} profileId={user?.id} />
-                <ReviewFeed 
-                  isTrial={isTrialAccount} 
-                  profileId={user?.id} 
-                  onConnectClick={() => setActiveTab('Settings')}
-                />
-              </div>
-              <div className="space-y-8">
-                <RequestStatus requestsUsed={0} isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />
-                <PlatformBreakdown isTrial={isTrialAccount} onUpgrade={() => setActiveTab('Settings')} />
-              </div>
-            </div>
-          </>
-        );
-      case 'Requests':
-        return <RequestsManager requestsUsed={0} isTrial={isTrialAccount} onUpgrade={onUpgradeFlow} />;
-      case 'Monitoring':
-      case 'All Reviews':
-        return <MonitoringManager isTrial={isTrialAccount} onShowUpgrade={() => setShowUpgradeModal('AI Assistant')} />;
-      case 'SEO Auditor':
-        return <GBPAuditTool onSignup={onUpgradeFlow || (() => {})} />;
-      case 'Ranking Heatmap':
-        return <HeatmapTool onSignup={onUpgradeFlow || (() => {})} />;
-      case 'GBP Media':
-        return <MediaManager />;
-      case 'Widgets':
-        return <WidgetsManager />;
-      case 'Analytics':
-        return <AnalyticsManager />;
-      case 'AI Assistant':
-        return <AIAssistantManager />;
-      case 'AI Strategy':
-        return <AIStrategyManager profile={profile} />;
-      case 'Agency Panel':
-        return <AgencyManager onSwitchClient={(name) => { setImpersonatedClient(name); setActiveTab('Dashboard'); }} />;
-      case 'Settings':
-        return <SettingsManager isTrial={isTrialAccount} />;
-      default:
-        return null;
-    }
   };
 
   if (loading) {
@@ -223,19 +231,6 @@ const Dashboard: React.FC<DashboardProps> = ({
       />
       
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        {emailUnconfirmed && (
-          <div className="bg-[#FACC15] text-[#0F172A] px-8 py-2.5 text-center text-xs font-black uppercase tracking-widest flex items-center justify-center gap-4 shrink-0 shadow-lg relative z-[70]">
-             <span>⚠️ ACCOUNT UNVERIFIED: Please confirm your email to fully unlock GSR capabilities</span>
-             <button 
-              onClick={handleResendVerification} 
-              disabled={resendingEmail}
-              className="px-4 py-1 bg-white/30 hover:bg-white/50 rounded-lg transition-all text-[10px]"
-             >
-               {resendingEmail ? "SENDING..." : "RESEND LINK"}
-             </button>
-          </div>
-        )}
-
         <TopBar 
           activeTab={activeTab} 
           onToggleNotifications={() => setShowNotifications(!showNotifications)} 
@@ -245,11 +240,29 @@ const Dashboard: React.FC<DashboardProps> = ({
         
         <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 space-y-8 scroll-smooth">
           {impersonatedClient && (
-            <div className="bg-[#0F172A] text-white px-6 py-2.5 text-center text-[10px] font-black uppercase tracking-[0.3em] rounded-xl border-b-4 border-emerald-500 animate-in slide-in-from-top-4">
-              ACTIVE IMPERSONATION: <span className="text-[#16A34A] underline">{impersonatedClient}</span> • <button onClick={() => setImpersonatedClient(null)} className="ml-4 text-slate-400 hover:text-white uppercase tracking-widest">[ EXIT SESSION ]</button>
+            <div className="bg-[#0F172A] text-white px-6 py-2.5 text-center text-[10px] font-black uppercase tracking-[0.3em] rounded-xl border-b-4 border-emerald-500">
+              ACTIVE IMPERSONATION: <span className="text-[#16A34A] underline">{impersonatedClient}</span> • <button onClick={() => setImpersonatedClient(null)} className="ml-4 text-slate-400 hover:text-white uppercase">[ EXIT ]</button>
             </div>
           )}
-          {renderContent()}
+          
+          {isExpired ? (
+            <ExpiredOverlay onUpgrade={onUpgradeFlow || (() => {})} />
+          ) : (
+            <DashboardContentRouter 
+              activeTab={activeTab}
+              isTrial={isTrialAccount}
+              userType={userType}
+              user={user}
+              profile={profile}
+              trialDaysLeft={trialDaysLeft}
+              impersonatedClient={impersonatedClient}
+              onFeatureClick={handleFeatureClick}
+              onUpgradeFlow={onUpgradeFlow}
+              onShowUpgrade={setShowUpgradeModal}
+              onSetActiveTab={setActiveTab}
+              onSwitchClient={(name) => { setImpersonatedClient(name); setActiveTab('Dashboard'); }}
+            />
+          )}
         </main>
         <BottomNav activeTab={activeTab} setActiveTab={handleFeatureClick} />
       </div>
