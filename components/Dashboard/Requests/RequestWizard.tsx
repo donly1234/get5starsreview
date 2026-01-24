@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 
 interface RequestWizardProps {
   onClose: () => void;
+  onLaunch?: () => void;
 }
 
 const templates = [
@@ -11,7 +12,7 @@ const templates = [
   { id: 3, name: 'Quick Star Request', text: "Hi {{name}}! Loved having you at {{business_name}} today. Give us a star rating? It helps us grow! {{link}}" },
 ];
 
-const RequestWizard: React.FC<RequestWizardProps> = ({ onClose }) => {
+const RequestWizard: React.FC<RequestWizardProps> = ({ onClose, onLaunch }) => {
   const [step, setStep] = useState(1);
   const [method, setMethod] = useState<'single' | 'bulk'>('single');
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0]);
@@ -58,7 +59,7 @@ const RequestWizard: React.FC<RequestWizardProps> = ({ onClose }) => {
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-8">
           {step === 1 && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <button 
                   onClick={() => setMethod('single')}
@@ -126,7 +127,7 @@ const RequestWizard: React.FC<RequestWizardProps> = ({ onClose }) => {
           )}
 
           {step === 2 && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <h3 className="font-bold text-slate-900">Select Template</h3>
@@ -172,7 +173,7 @@ const RequestWizard: React.FC<RequestWizardProps> = ({ onClose }) => {
           )}
 
           {step === 3 && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+            <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-slate-50 p-6 rounded-2xl space-y-6">
                   <h3 className="font-bold text-slate-900 flex items-center gap-2">
@@ -276,7 +277,7 @@ const RequestWizard: React.FC<RequestWizardProps> = ({ onClose }) => {
               Cancel
             </button>
             <button 
-              onClick={step === 4 ? onClose : nextStep}
+              onClick={step === 4 ? (onLaunch || onClose) : nextStep}
               className="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
             >
               {step === 4 ? 'Confirm & Send' : 'Continue'}
