@@ -3,8 +3,8 @@ import React from 'react';
 
 const team = [
   {
-    name: "Donly Parker",
-    role: "Founder & CEO",
+    name: "DONLY PARKER",
+    role: "FOUNDER & CEO",
     bio: "Visionary leader with 15 years in local SEO and SaaS engineering, dedicated to empowering local economies.",
     avatar: "https://drive.google.com/uc?export=view&id=1tYCld3VR-Tgnqd_fYwSCVk0YkK1WLtnl"
   },
