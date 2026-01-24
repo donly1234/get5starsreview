@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 
@@ -18,11 +19,28 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{email?: string; password?: string}>({});
+
+  const validate = () => {
+    const errors: {email?: string; password?: string} = {};
+    if (!email) errors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Invalid email format";
+    
+    if (mode === 'login' && !password) errors.password = "Password is required";
+    if (mode === 'reset' && !newPassword) errors.password = "New password is required";
+    else if (mode === 'reset' && newPassword.length < 8) errors.password = "Password must be at least 8 chars";
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
+    
     setLoading(true);
     setError(null);
+    setFieldErrors({});
     setSuccessMsg(null);
 
     if (mode === 'login') {
@@ -69,7 +87,7 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
 
   const handleResendVerification = async () => {
     if (!email) {
-      setError("Please enter your email first.");
+      setFieldErrors({email: "Please enter your email first."});
       return;
     }
     setResending(true);
@@ -154,48 +172,54 @@ const Login: React.FC<LoginProps> = ({ onCancel, onBusinessSignup, onLoginSucces
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {mode !== 'reset' && (
-                <label className="block space-y-2">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</span>
-                  <input 
-                    type="email" 
-                    required 
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none font-bold transition-all" 
-                    placeholder="name@company.com"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                  />
-                </label>
+                <div className="space-y-2">
+                  <label className="block space-y-2">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</span>
+                    <input 
+                      type="email" 
+                      className={`w-full p-4 bg-slate-50 border ${fieldErrors.email ? 'border-rose-500 focus:border-rose-600' : 'border-slate-200 focus:border-green-600'} rounded-2xl focus:ring-2 focus:ring-green-500/20 outline-none font-bold transition-all`} 
+                      placeholder="name@company.com"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                    />
+                  </label>
+                  {fieldErrors.email && <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest px-2">{fieldErrors.email}</p>}
+                </div>
               )}
 
               {mode === 'login' && (
-                <label className="block space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</span>
-                    <button type="button" onClick={() => setMode('forgot')} className="text-[10px] font-black text-green-600 uppercase tracking-tighter cursor-pointer hover:underline">Forgot Password?</button>
-                  </div>
-                  <input 
-                    type="password" 
-                    required
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none font-bold transition-all" 
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                  />
-                </label>
+                <div className="space-y-2">
+                  <label className="block space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</span>
+                      <button type="button" onClick={() => setMode('forgot')} className="text-[10px] font-black text-green-600 uppercase tracking-tighter cursor-pointer hover:underline">Forgot Password?</button>
+                    </div>
+                    <input 
+                      type="password" 
+                      className={`w-full p-4 bg-slate-50 border ${fieldErrors.password ? 'border-rose-500 focus:border-rose-600' : 'border-slate-200 focus:border-green-600'} rounded-2xl focus:ring-2 focus:ring-green-500/20 outline-none font-bold transition-all`} 
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                    />
+                  </label>
+                  {fieldErrors.password && <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest px-2">{fieldErrors.password}</p>}
+                </div>
               )}
 
               {mode === 'reset' && (
-                <label className="block space-y-2">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">New Password</span>
-                  <input 
-                    type="password" 
-                    required
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none font-bold transition-all" 
-                    placeholder="••••••••"
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                  />
-                </label>
+                <div className="space-y-2">
+                  <label className="block space-y-2">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">New Password</span>
+                    <input 
+                      type="password" 
+                      className={`w-full p-4 bg-slate-50 border ${fieldErrors.password ? 'border-rose-500 focus:border-rose-600' : 'border-slate-200 focus:border-green-600'} rounded-2xl focus:ring-2 focus:ring-green-500/20 outline-none font-bold transition-all`} 
+                      placeholder="••••••••"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                    />
+                  </label>
+                  {fieldErrors.password && <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest px-2">{fieldErrors.password}</p>}
+                </div>
               )}
 
               <button 
