@@ -6,7 +6,7 @@ const team = [
     name: "Donly Parker",
     role: "Founder & CEO",
     bio: "Visionary leader with 15 years in local SEO and SaaS engineering, dedicated to empowering local economies.",
-    avatar: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&q=80&w=800"
+    avatar: "https://drive.google.com/uc?export=view&id=1tYCld3VR-Tgnqd_fYwSCVk0YkK1WLtnl"
   },
   {
     name: "Elena Rodriguez",
