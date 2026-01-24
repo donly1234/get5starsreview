@@ -3,10 +3,10 @@ import React from 'react';
 
 const team = [
   {
-    name: "Marcus Aurelius",
-    role: "Founding Partner & CEO",
-    bio: "Visionary leader with 15 years in local SEO and SaaS engineering.",
-    avatar: "https://i.pravatar.cc/150?u=marcus"
+    name: "Donly Parker",
+    role: "Founder & CEO",
+    bio: "Visionary leader with 15 years in local SEO and SaaS engineering, dedicated to empowering local economies.",
+    avatar: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&q=80&w=800"
   },
   {
     name: "Elena Rodriguez",
