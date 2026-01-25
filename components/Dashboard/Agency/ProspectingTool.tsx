@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import * as htmlToImage from 'html-to-image';
@@ -22,7 +23,12 @@ interface ProspectReport {
   }>;
 }
 
-const ProspectingTool: React.FC = () => {
+interface ProspectingToolProps {
+  onSignup?: () => void;
+  onHome?: () => void;
+}
+
+const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -108,14 +114,13 @@ const ProspectingTool: React.FC = () => {
     
     setExporting(true);
     try {
-      // 1. Capture the element as a high-quality PNG
       const fullHeight = el.scrollHeight;
       const fullWidth = el.scrollWidth;
 
       const dataUrl = await htmlToImage.toPng(el, {
         quality: 1.0,
         backgroundColor: '#FFFFFF',
-        pixelRatio: 3, // High DPI for PDF
+        pixelRatio: 3,
         height: fullHeight,
         width: fullWidth,
         style: {
@@ -132,7 +137,6 @@ const ProspectingTool: React.FC = () => {
         }
       });
 
-      // 2. Create jsPDF instance
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -141,26 +145,19 @@ const ProspectingTool: React.FC = () => {
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      // Calculate aspect ratio to fit image on page
       const imgWidth = pdfWidth;
       const imgHeight = (fullHeight * pdfWidth) / fullWidth;
 
-      // 3. Add the captured image to PDF
       pdf.addImage(dataUrl, 'PNG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
 
-      // 4. Add the Clickable Link at the bottom (overriding the visual link with a functional one)
-      // Position is roughly at the bottom center of the report
-      pdf.setTextColor(22, 163, 74); // Match brand green
+      pdf.setTextColor(22, 163, 74);
       pdf.setFontSize(8);
       const linkText = "CERTIFIED RANKING REPORT • GET5STARSREVIEW.COM";
       const textWidth = pdf.getTextWidth(linkText);
       const xPos = (pdfWidth - textWidth) / 2;
-      const yPos = imgHeight - 15; // 15mm from bottom of image
+      const yPos = imgHeight - 15;
 
-      pdf.link(xPos, yPos - 5, textWidth, 10, { url: 'https://get5starsreview.com' });
-
-      // 5. Save the file
+      pdf.link(xPos, yPos - 5, textWidth, 10, { url: window.location.origin });
       pdf.save(`Ranking-Report-${report?.businessName.replace(/\s+/g, '-')}.pdf`);
 
     } catch (err) {
@@ -193,11 +190,6 @@ const ProspectingTool: React.FC = () => {
           padding: '40px',
           height: 'auto',
           overflow: 'visible'
-        },
-        filter: (node: any) => {
-          if (node.tagName === 'LINK' && node.href && !node.href.includes(window.location.host)) return false;
-          if (node.classList && node.classList.contains('print-hide')) return false;
-          return true;
         }
       });
       
@@ -218,7 +210,7 @@ const ProspectingTool: React.FC = () => {
   return (
     <div className="space-y-8 pb-24">
       <div className="bg-white p-8 md:p-12 rounded-[48px] border border-slate-200 shadow-sm print-hide">
-        <div className="max-w-2xl mb-8">
+        <div className="max-w-2xl mb-8 text-left">
           <h2 className="text-3xl font-black text-[#0F172A] uppercase italic leading-tight">Sales <span className="text-[#16A34A]">Intelligence Generator</span></h2>
           <p className="text-slate-500 font-bold mt-2">Find a prospective client and generate their audit instantly to close the sale.</p>
         </div>
@@ -263,7 +255,7 @@ const ProspectingTool: React.FC = () => {
             </button>
           </div>
 
-          <div ref={reportRef} className="report-container bg-slate-50 max-w-4xl mx-auto rounded-[32px] overflow-hidden border border-slate-200 shadow-2xl p-10 md:p-16 print:p-0 print:shadow-none print:border-none print:bg-white">
+          <div ref={reportRef} className="report-container bg-slate-50 max-w-4xl mx-auto rounded-[32px] overflow-hidden border border-slate-200 shadow-2xl p-10 md:p-16 print:p-0 print:shadow-none print:border-none print:bg-white text-left">
             <div className="flex flex-col md:flex-row justify-between items-start mb-16 gap-8">
                <div className="space-y-12">
                   <Logo variant="full" className="scale-110 origin-left" />
@@ -347,21 +339,50 @@ const ProspectingTool: React.FC = () => {
                   <h3 className="text-3xl font-black text-[#0F172A] uppercase italic">The Solution</h3>
                   <p className="text-slate-500 font-bold leading-relaxed">By automating review collection and response handling, you can match the "Market Leader" score within 90 days. Every 0.1 increase in star rating typically results in a 1.2% lift in direction requests.</p>
                </div>
-               <div className="bg-[#FACC15] p-8 rounded-[40px] border-2 border-[#0F172A] flex flex-col justify-center text-center space-y-6 shadow-xl print:shadow-none print:border-slate-800">
+               <div className="bg-[#FACC15] p-8 rounded-[40px] border-2 border-[#0F172A] flex flex-col justify-center text-center space-y-4 shadow-xl print:shadow-none print:border-slate-800">
                   <p className="text-[10px] font-black text-[#0F172A] uppercase tracking-widest leading-none">Next Action Required</p>
                   <h4 className="text-2xl font-black text-[#0F172A] uppercase italic tracking-tighter">Fix Your Ranking</h4>
-                  <a 
-                    href="https://www.get5starsreview.com" 
-                    className="bg-[#0F172A] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-[#16A34A] transition-all print:hidden"
-                  >
-                    Launch Free Automation Trial
-                  </a>
+                  
+                  <div className="flex flex-col gap-3">
+                    {onSignup ? (
+                      <button 
+                        onClick={onSignup}
+                        className="bg-[#0F172A] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-[#16A34A] transition-all print:hidden"
+                      >
+                        Launch Free Automation Trial
+                      </button>
+                    ) : (
+                      <a 
+                        href="/" 
+                        className="bg-[#0F172A] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-[#16A34A] transition-all print:hidden text-center"
+                      >
+                        Launch Free Automation Trial
+                      </a>
+                    )}
+                    
+                    {onHome ? (
+                      <button 
+                        onClick={onHome} 
+                        className="text-[10px] font-black text-[#0F172A] uppercase tracking-widest underline hover:opacity-70 transition-opacity print:hidden"
+                      >
+                        Return to Homepage
+                      </button>
+                    ) : (
+                      <a 
+                        href="/" 
+                        className="text-[10px] font-black text-[#0F172A] uppercase tracking-widest underline hover:opacity-70 transition-opacity print:hidden text-center"
+                      >
+                        Return to Homepage
+                      </a>
+                    )}
+                  </div>
+                  
                   <p className="hidden print:block text-[10px] font-bold text-slate-800 uppercase tracking-[0.2em]">Visit Get5StarsReview.com to begin</p>
                </div>
             </div>
             
             <div className="mt-16 text-center text-[9px] font-black text-slate-300 uppercase tracking-[0.5em]">
-              CERTIFIED RANKING REPORT • <a href="https://get5starsreview.com" className="hover:text-emerald-600 transition-colors">GET5STARSREVIEW.COM</a>
+              CERTIFIED RANKING REPORT • <a href="/" className="hover:text-emerald-600 transition-colors">GET5STARSREVIEW.COM</a>
             </div>
           </div>
         </div>
