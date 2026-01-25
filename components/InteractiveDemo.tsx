@@ -1,11 +1,27 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
 const InteractiveDemo: React.FC = () => {
-  const [review, setReview] = useState("We visited for my daughter's birthday. The food was delicious, but the music was a bit too loud for conversation. Overall 4 stars!");
+  // Initialize state from localStorage if available
+  const [review, setReview] = useState(() => 
+    localStorage.getItem('g5sr_demo_review') || 
+    "We visited for my daughter's birthday. The food was delicious, but the music was a bit too loud for conversation. Overall 4 stars!"
+  );
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [tone, setTone] = useState("Professional");
+  const [tone, setTone] = useState(() => 
+    localStorage.getItem('g5sr_demo_tone') || "Professional"
+  );
+
+  // Auto-save settings to localStorage
+  useEffect(() => {
+    localStorage.setItem('g5sr_demo_tone', tone);
+  }, [tone]);
+
+  useEffect(() => {
+    localStorage.setItem('g5sr_demo_review', review);
+  }, [review]);
 
   const generateAIResponse = async () => {
     if (isLoading || !review) return;
@@ -14,9 +30,10 @@ const InteractiveDemo: React.FC = () => {
 
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Act as a helpful customer success manager. Write a short, ${tone.toLowerCase()}, and empathetic response to this 4-star review: "${review}". Acknowledge their specific point about the music and thank them for celebrating with us.`;
+      const prompt = `Act as a helpful customer success manager. Write a short, ${tone.toLowerCase()}, and helpful response to this review: "${review}". 
+      Ensure the response matches the selected tone precisely. 
+      Thank them for their feedback and address any specific concerns mentioned.`;
       
-      // Added thinkingBudget alongside maxOutputTokens to ensure model has room to process response
       const result = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt,
@@ -27,15 +44,17 @@ const InteractiveDemo: React.FC = () => {
         }
       });
 
-      setResponse(result.text || "Thank you so much for your feedback! We're thrilled you enjoyed the food and we'll certainly look into the music volume to ensure a better conversation environment next time.");
+      setResponse(result.text || "Thank you so much for your feedback! We appreciate your business.");
     } catch (error) {
       console.error("AI Demo Generation failed:", error);
-      // Fallback for demo continuity
-      setResponse(`Hi there! Thank you so much for celebrating your daughter's birthday with us. We're glad the food was a hit! We appreciate the feedback on the music volume and will definitely look into adjusting it for a more comfortable atmosphere. Hope to see you again soon!`);
+      // High-quality fallback for UX continuity
+      setResponse(`Hi! Thank you so much for sharing your experience. We are thrilled to hear you enjoyed the food! We truly appreciate your feedback regarding the music volume; we're always looking for ways to improve our atmosphere for all our guests. We hope to see you back soon!`);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const tones = ['Professional', 'Friendly', 'Empathetic', 'Witty'];
 
   return (
     <section className="py-24 bg-slate-50 relative overflow-hidden">
@@ -84,20 +103,31 @@ const InteractiveDemo: React.FC = () => {
                     className="w-full bg-slate-800 border border-slate-700 rounded-3xl p-6 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all h-32 resize-none shadow-inner"
                     value={review}
                     onChange={(e) => setReview(e.target.value)}
+                    placeholder="Enter a review to test..."
                   />
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                   <span className="text-[10px] font-black text-slate-500 uppercase mr-2 tracking-widest">Select Tone:</span>
-                   {['Professional', 'Friendly', 'Empathetic', 'Witty'].map(t => (
-                     <button 
-                      key={t}
-                      onClick={() => setTone(t)}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${tone === t ? 'bg-green-600 text-white shadow-lg' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
-                     >
-                       {t}
-                     </button>
-                   ))}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Select AI Response Tone</span>
+                    <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter italic">Settings Auto-Saved</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                     {tones.map(t => (
+                       <button 
+                        key={t}
+                        onClick={() => setTone(t)}
+                        aria-pressed={tone === t}
+                        className={`flex-1 min-w-[100px] px-4 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border-2 ${
+                          tone === t 
+                          ? 'bg-green-600 border-green-600 text-white shadow-lg shadow-green-500/20 scale-[1.02]' 
+                          : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-600'
+                        }`}
+                       >
+                         {t}
+                       </button>
+                     ))}
+                  </div>
                 </div>
 
                 <button 
@@ -108,7 +138,7 @@ const InteractiveDemo: React.FC = () => {
                   {isLoading ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                      Analyzing Feedback...
+                      Generating {tone} Response...
                     </>
                   ) : "Draft AI Response"}
                 </button>
@@ -118,7 +148,7 @@ const InteractiveDemo: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                        <label className="text-slate-400 text-[10px] font-black uppercase tracking-widest">AI Draft Suggestion</label>
+                        <label className="text-slate-400 text-[10px] font-black uppercase tracking-widest">AI {tone} Suggestion</label>
                       </div>
                     </div>
                     <p className="text-slate-200 text-sm leading-relaxed italic font-medium">"{response}"</p>
