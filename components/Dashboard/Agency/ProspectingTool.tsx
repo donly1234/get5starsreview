@@ -344,45 +344,27 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
                   <h4 className="text-2xl font-black text-[#0F172A] uppercase italic tracking-tighter">Fix Your Ranking</h4>
                   
                   <div className="flex flex-col gap-3">
-                    {onSignup ? (
-                      <button 
-                        onClick={onSignup}
-                        className="bg-[#0F172A] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-[#16A34A] transition-all print:hidden"
-                      >
-                        Launch Free Automation Trial
-                      </button>
-                    ) : (
-                      <a 
-                        href="/" 
-                        className="bg-[#0F172A] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-[#16A34A] transition-all print:hidden text-center"
-                      >
-                        Launch Free Automation Trial
-                      </a>
-                    )}
+                    <button 
+                      onClick={(e) => { e.preventDefault(); onSignup?.(); }}
+                      className="bg-[#0F172A] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-[#16A34A] transition-all print:hidden"
+                    >
+                      Launch Free Automation Trial
+                    </button>
                     
-                    {onHome ? (
-                      <button 
-                        onClick={onHome} 
-                        className="text-[10px] font-black text-[#0F172A] uppercase tracking-widest underline hover:opacity-70 transition-opacity print:hidden"
-                      >
-                        Return to Homepage
-                      </button>
-                    ) : (
-                      <a 
-                        href="/" 
-                        className="text-[10px] font-black text-[#0F172A] uppercase tracking-widest underline hover:opacity-70 transition-opacity print:hidden text-center"
-                      >
-                        Return to Homepage
-                      </a>
-                    )}
+                    <button 
+                      onClick={(e) => { e.preventDefault(); onHome?.(); }}
+                      className="text-[11px] font-black text-[#0F172A] uppercase tracking-widest underline hover:opacity-70 transition-opacity print:hidden cursor-pointer"
+                    >
+                      Return to Homepage
+                    </button>
                   </div>
                   
-                  <p className="hidden print:block text-[10px] font-bold text-slate-800 uppercase tracking-[0.2em]">Visit Get5StarsReview.com to begin</p>
+                  <p className="hidden print:block text-[10px] font-bold text-slate-800 uppercase tracking-[0.2em]">Visit our portal to begin</p>
                </div>
             </div>
             
             <div className="mt-16 text-center text-[9px] font-black text-slate-300 uppercase tracking-[0.5em]">
-              CERTIFIED RANKING REPORT • <a href="/" className="hover:text-emerald-600 transition-colors">GET5STARSREVIEW.COM</a>
+              CERTIFIED RANKING REPORT • <button onClick={(e) => { e.preventDefault(); onHome?.(); }} className="hover:text-emerald-600 transition-colors uppercase cursor-pointer">Local Authority Engine</button>
             </div>
           </div>
         </div>
