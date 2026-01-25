@@ -115,30 +115,54 @@ const Header: React.FC<HeaderProps> = ({
         </div>
       </header>
 
-      {/* Mobile Menu */}
-      <div className={`fixed inset-0 z-[300] bg-white transition-all duration-500 ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
-        <div className="p-6 md:p-8 flex justify-between items-center">
+      {/* Mobile Menu Overlay */}
+      <div 
+        className={`fixed inset-0 z-[300] bg-white transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          isMobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="p-6 md:p-8 flex justify-between items-center border-b border-slate-50">
             <div onClick={() => { onHomeClick(); setIsMobileMenuOpen(false); window.scrollTo(0,0); }} className="cursor-pointer">
               <Logo variant="full" className="scale-75 origin-left" />
             </div>
-            <button onClick={() => setIsMobileMenuOpen(false)} className="p-3 bg-slate-50 rounded-full cursor-pointer" aria-label="Close Menu">
+            <button onClick={() => setIsMobileMenuOpen(false)} className="p-3 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors cursor-pointer" aria-label="Close Menu">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
-        <div className="pt-6 px-8 space-y-6">
-           {navItems.map(item => (
-             <button key={item.name} onClick={() => handleNav(item)} className="block w-full text-left text-3xl md:text-4xl font-black uppercase italic text-[#0F172A] border-b-4 border-transparent hover:border-[#16A34A] transition-all cursor-pointer">{item.name}</button>
+        
+        <div className="pt-12 px-8 space-y-6">
+           {navItems.map((item, idx) => (
+             <button 
+              key={item.name} 
+              onClick={() => handleNav(item)} 
+              style={{ transitionDelay: `${idx * 100}ms` }}
+              className={`block w-full text-left text-4xl font-black uppercase italic text-[#0F172A] border-b-4 border-transparent hover:border-[#16A34A] transition-all transform cursor-pointer ${
+                isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+              }`}
+             >
+               {item.name}
+             </button>
            ))}
-           <div className="pt-8 space-y-4">
+           
+           <div 
+            className={`pt-12 space-y-4 transition-all duration-700 delay-500 transform ${
+              isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+            }`}
+           >
              {user ? (
-               <button onClick={onLogout} className="w-full py-4 bg-rose-50 text-rose-600 rounded-2xl font-black uppercase tracking-widest text-sm cursor-pointer">Logout Account</button>
+               <button onClick={onLogout} className="w-full py-5 bg-rose-50 text-rose-600 rounded-[24px] font-black uppercase tracking-widest text-sm cursor-pointer hover:bg-rose-100 transition-colors">Logout Account</button>
              ) : (
                <>
-                 <button onClick={() => { onLogin(); setIsMobileMenuOpen(false); }} className="w-full py-4 bg-slate-100 rounded-2xl font-black uppercase tracking-widest text-sm cursor-pointer">Login</button>
-                 <button onClick={() => { onBusinessSignup(); setIsMobileMenuOpen(false); }} className="w-full py-4 bg-[#16A34A] text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl cursor-pointer">Get Started</button>
+                 <button onClick={() => { onLogin(); setIsMobileMenuOpen(false); }} className="w-full py-5 bg-slate-100 text-slate-900 rounded-[24px] font-black uppercase tracking-widest text-sm cursor-pointer hover:bg-slate-200 transition-colors">Login</button>
+                 <button onClick={() => { onBusinessSignup(); setIsMobileMenuOpen(false); }} className="w-full py-5 bg-[#16A34A] text-white rounded-[24px] font-black uppercase tracking-widest text-sm shadow-xl cursor-pointer hover:bg-[#0F172A] transition-all">Get Started Free</button>
                </>
              )}
            </div>
+        </div>
+        
+        {/* Mobile Menu Footer Decoration */}
+        <div className="absolute bottom-12 left-8 right-8 text-center opacity-30 pointer-events-none">
+           <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">#1 Google Maps Automation</p>
         </div>
       </div>
     </>
