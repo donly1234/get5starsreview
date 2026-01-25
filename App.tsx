@@ -234,7 +234,7 @@ const App: React.FC = () => {
         {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
-        {view === 'prospector' && <div className="pt-20 container mx-auto px-6"><ProspectingTool /></div>}
+        {view === 'prospector' && <div className="pt-20 container mx-auto px-6"><ProspectingTool onSignup={() => navigate('signup-business')} onHome={() => navigate('landing')} /></div>}
         {(view === 'privacy' || view === 'terms') && <LegalView type={view} onBack={() => navigate('landing')} />}
         {view === 'about' && <AboutView onBack={() => navigate('landing')} onStart={() => navigate('signup-business')} />}
         
@@ -253,7 +253,7 @@ const App: React.FC = () => {
                 <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] uppercase italic">Get Your <span className="text-[#16A34A]">Ranking Report</span></h2>
               </div>
               <div className="container mx-auto px-6">
-                <ProspectingTool />
+                <ProspectingTool onSignup={() => navigate('signup-business')} onHome={() => navigate('landing')} />
               </div>
             </section>
             <InteractiveDemo />
@@ -294,7 +294,7 @@ const App: React.FC = () => {
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         className={`fixed bottom-8 right-8 z-[150] w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:bg-[#16A34A] hover:scale-110 active:scale-95 ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7 7"/></svg>
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7-7"/></svg>
       </button>
 
       {showCookieConsent && (
