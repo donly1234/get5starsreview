@@ -6,7 +6,7 @@ const team = [
     name: "DONLY PARKER",
     role: "FOUNDER & CEO",
     bio: "Visionary leader with 15 years in local SEO and SaaS engineering, dedicated to empowering local economies.",
-    avatar: "https://drive.google.com/uc?export=view&id=1tYCld3VR-Tgnqd_fYwSCVk0YkK1WLtnl"
+    avatar: "https://drive.google.com/uc?id=1tYCld3VR-Tgnqd_fYwSCVk0YkK1WLtnl"
   },
   {
     name: "Elena Rodriguez",
@@ -93,6 +93,7 @@ const AboutUs: React.FC = () => {
                   <img 
                     src={member.avatar} 
                     alt={member.name} 
+                    loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
