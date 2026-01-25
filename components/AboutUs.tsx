@@ -90,7 +90,15 @@ const AboutUs: React.FC = () => {
             {team.map((member) => (
               <div key={member.name} className="group p-8 rounded-[40px] bg-slate-50 border border-slate-100 hover:bg-white hover:border-green-600 hover:shadow-2xl transition-all duration-500">
                 <div className="relative mb-8 overflow-hidden rounded-[32px] aspect-square">
-                  <img src={member.avatar} alt={member.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <img 
+                    src={member.avatar} 
+                    alt={member.name} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=16A34A&color=fff&size=512`;
+                    }}
+                  />
                   <div className="absolute inset-0 bg-green-600/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
                 <div className="space-y-4">
