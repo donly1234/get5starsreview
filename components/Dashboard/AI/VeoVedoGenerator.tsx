@@ -22,8 +22,11 @@ const VeoVideoGenerator: React.FC<{ onSignup: () => void }> = ({ onSignup }) => 
 
   const handleLinkKey = async () => {
     // @ts-ignore
-    await window.aistudio.openSelectKey();
-    setHasKey(true);
+    if (window.aistudio?.openSelectKey) {
+      // @ts-ignore
+      await window.aistudio.openSelectKey();
+      setHasKey(true);
+    }
   };
 
   const generateVideo = async () => {
