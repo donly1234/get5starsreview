@@ -36,9 +36,9 @@ import SocialNudge from './components/SocialNudge';
 import Newsletter from './components/Newsletter';
 
 // AI Suite Components
-import VeoVideoGenerator from './components/Dashboard/AI/VeoVideoGenerator';
-import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant';
-import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool';
+import VeoVideoGenerator from './components/Dashboard/AI/VeoVideoGenerator.tsx';
+import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant.tsx';
+import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool.tsx';
 
 export type UserType = 'business' | 'agency';
 export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'video-gen' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
