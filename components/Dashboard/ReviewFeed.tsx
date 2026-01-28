@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
-import { logger } from '../../utils/logger';
+import { logger } from '../logger';
 
 interface ReviewFeedProps {
   isTrial?: boolean;
