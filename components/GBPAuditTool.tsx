@@ -27,6 +27,7 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<AuditData | null>(null);
+  const [sources, setSources] = useState<any[]>([]);
   const [step, setStep] = useState(0);
 
   const steps = ["Mapping Entity...", "Scanning Metadata...", "Analyzing Reviews...", "Benchmarking Leaders..."];
@@ -44,13 +45,14 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
   const runAudit = async () => {
     if (!query || loading) return;
     setLoading(true);
+    setSources([]);
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const prompt = `Perform a technical Local SEO audit for "${query}". 
       Return JSON with: businessName, address, authorityScore (1-100), 
       diagnostics (array of {category, score, status, recommendation}), 
       competitors (array of {name, rank, gap}). 
-      Be specific about GBP optimization.`;
+      Be specific about GBP optimization. Use real-time search data.`;
 
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
@@ -92,6 +94,10 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
         }
       });
 
+      const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      const extractedSources = chunks.filter((c: any) => c.web).map((c: any) => c.web);
+      
+      setSources(extractedSources);
       setData(JSON.parse(response.text));
     } catch (e) {
       logger.error("Audit tool failed", e);
@@ -189,17 +195,24 @@ const GBPAuditTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
                       ))}
                     </div>
                   </div>
-
-                  <div className="bg-emerald-600 rounded-[48px] p-10 text-white shadow-2xl relative overflow-hidden group">
-                     <h4 className="text-2xl font-black uppercase italic leading-none mb-4 relative z-10">Generate Full <br /> White-Label PDF</h4>
-                     <p className="text-emerald-100 text-sm font-medium mb-8 relative z-10">Export this diagnostic as a professional ranking report to share with your team or clients.</p>
-                     <button onClick={() => window.print()} className="bg-white text-emerald-600 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all relative z-10 shadow-xl">Download Report</button>
-                     <div className="absolute -bottom-10 -right-10 text-9xl opacity-10 group-hover:scale-110 transition-transform">📄</div>
-                  </div>
                </div>
             </div>
+
+            {sources.length > 0 && (
+              <div className="pt-8 border-t border-slate-100 space-y-4">
+                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Verified Data Sources</h4>
+                 <div className="flex flex-wrap gap-4">
+                    {sources.map((s, idx) => (
+                      <a key={idx} href={s.uri} target="_blank" rel="noopener noreferrer" className="text-[10px] text-emerald-600 hover:underline font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 truncate max-w-xs">
+                        {s.title || s.uri}
+                      </a>
+                    ))}
+                 </div>
+              </div>
+            )}
+
             <div className="text-center">
-               <button onClick={() => setData(null)} className="text-slate-400 font-black uppercase tracking-widest text-[10px] hover:text-slate-900">Start New Diagnostic Scan</button>
+               <button onClick={() => { setData(null); setSources([]); }} className="text-slate-400 font-black uppercase tracking-widest text-[10px] hover:text-slate-900">Start New Diagnostic Scan</button>
             </div>
           </div>
         )}
