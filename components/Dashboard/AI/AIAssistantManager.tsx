@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../logger';
 
 const AIAssistantManager: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
@@ -125,7 +125,7 @@ const AIAssistantManager: React.FC = () => {
                <div className="w-12 h-12 bg-rose-500/20 text-rose-500 rounded-2xl flex items-center justify-center text-2xl border border-rose-500/20">🛡️</div>
                <h3 className="text-xl font-black uppercase italic tracking-tighter">Reputation Safety Net</h3>
             </div>
-            <p className="text-slate-400 text-sm font-medium">Any review containing these keywords will bypass automation and be sent to your manual review inbox immediately.</p>
+            <p className="text-slate-400 text-sm font-medium max-w-lg leading-relaxed">Any review containing these keywords will bypass automation and be sent to your manual review inbox immediately.</p>
             <div className="space-y-4">
                <input 
                 type="text"
