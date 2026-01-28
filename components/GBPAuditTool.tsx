@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
-import { logger } from '../utils/logger';
+import { logger } from './logger';
 import Logo from './Logo';
 
 interface DiagnosticItem {
