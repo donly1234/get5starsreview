@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
-import { logger } from '../../utils/logger';
-import { isFeatureEnabled } from '../../config/featureFlags';
+import { logger } from '../logger';
+import { isFeatureEnabled } from '../featureFlags';
 
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
