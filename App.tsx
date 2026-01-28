@@ -35,13 +35,12 @@ import LegalView from './components/LegalView';
 import SocialNudge from './components/SocialNudge';
 import Newsletter from './components/Newsletter';
 
-// AI Suite Components
-import VeoVideoGenerator from './components/Dashboard/AI/VeoVideoGenerator';
+// AI Suite Components (Extensions removed for standard Vite resolution)
 import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant';
 import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool';
 
 export type UserType = 'business' | 'agency';
-export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'video-gen' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
+export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>('loading');
@@ -212,7 +211,6 @@ const App: React.FC = () => {
         {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
-        {view === 'video-gen' && <div className="pt-20"><VeoVideoGenerator onSignup={() => navigate('signup-business')} /></div>}
         {view === 'voice-assistant' && <div className="pt-20"><LiveVoiceAssistant onSignup={() => navigate('signup-business')} /></div>}
         {view === 'image-clean' && <div className="pt-20"><ImageOptimizationTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'prospector' && <div className="pt-20 container mx-auto px-6"><ProspectingTool onSignup={() => navigate('signup-business')} onHome={() => navigate('landing')} /></div>}
