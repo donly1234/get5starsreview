@@ -2,7 +2,7 @@
 import React from 'react';
 import { UserType } from '../../App';
 import Logo from '../Logo';
-import { isFeatureEnabled } from '../../config/featureFlags';
+import { isFeatureEnabled } from '../featureFlags';
 
 interface SidebarProps {
   activeTab: string;
