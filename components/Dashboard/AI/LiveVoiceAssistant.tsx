@@ -3,19 +3,6 @@ import { GoogleGenAI, Modality } from '@google/genai';
 
 const LiveVoiceAssistant: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
   const [isActive, setIsActive] = useState(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
-
-  const startSession = async () => {
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      setIsActive(true);
-      // Voice assistant session logic implementation...
-    } catch (e) {
-      console.error(e);
-      alert("Microphone access is required for the Voice Assistant.");
-    }
-  };
 
   return (
     <div className="p-8 bg-slate-950 text-white rounded-[40px] text-center space-y-8 shadow-2xl relative overflow-hidden">
