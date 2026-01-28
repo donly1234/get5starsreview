@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import RequestWizard from './RequestWizard';
-import { logger } from '../../../utils/logger';
-import { isFeatureEnabled } from '../../../config/featureFlags';
+import { logger } from '../../logger';
+import { isFeatureEnabled } from '../../featureFlags';
 
 interface RequestsManagerProps {
   requestsUsed: number;
