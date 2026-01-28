@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 
 interface AppSelectorProps {
@@ -22,12 +21,6 @@ const apps = [
     name: 'Ranking Report Tool',
     desc: 'Generate a professional ranking report with verified grounding sources.',
     icon: <div className="w-12 h-10 bg-slate-950 rounded-lg flex items-center justify-center text-emerald-500 font-black text-xs italic">REPORT</div>
-  },
-  {
-    id: 'video-ad-gen',
-    name: 'Veo Video Generator',
-    desc: 'Generate 1080p cinematic AI video ads for your Google Business Profile.',
-    icon: <div className="text-2xl">🎬</div>
   },
   {
     id: 'voice-ai',
