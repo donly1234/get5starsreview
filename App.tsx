@@ -36,10 +36,10 @@ import LegalView from './components/LegalView';
 import SocialNudge from './components/SocialNudge';
 import Newsletter from './components/Newsletter';
 
-// AI Suite Components (Explicit paths)
-import VeoVideoGenerator from './components/Dashboard/AI/VeoVideoGenerator.tsx';
-import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant.tsx';
-import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool.tsx';
+// AI Suite Components
+import VeoVideoGenerator from './components/Dashboard/AI/VeoVideoGenerator';
+import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant';
+import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool';
 
 export type UserType = 'business' | 'agency';
 export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'video-gen' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
@@ -62,6 +62,13 @@ const App: React.FC = () => {
     } else {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('g5sr_theme', 'light');
+    }
+    
+    // Track theme changes
+    if ((window as any).gtag) {
+      (window as any).gtag('event', 'theme_toggle', {
+        theme: isDarkMode ? 'dark' : 'light'
+      });
     }
   }, [isDarkMode]);
 
@@ -193,7 +200,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950">
         <div className="w-12 h-12 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Synchronizing Protocols...</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Establishing Secure Uplink...</p>
       </div>
     );
   }
