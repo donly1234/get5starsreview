@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { blogContent } from '../constants/blogContent';
+import { blogContent } from './blogContent';
 import { extendedBlogPosts } from './Blog';
 import { GoogleGenAI, Type } from "@google/genai";
 
