@@ -1,5 +1,6 @@
+
 import React, { useEffect } from 'react';
-import { blogContent } from '../constants/blogContent';
+import { blogContent } from './blogContent';
 import { extendedBlogPosts } from './Blog';
 
 interface BlogPostViewProps {
