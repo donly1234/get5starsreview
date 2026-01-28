@@ -51,8 +51,28 @@ const App: React.FC = () => {
   const [showCookieConsent, setShowCookieConsent] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('g5sr_theme') === 'dark');
 
   useEffect(() => {
+    // Theme logic
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('g5sr_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('g5sr_theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  useEffect(() => {
+    // Analytics Page Tracking
+    if ((window as any).gtag) {
+      (window as any).gtag('event', 'page_view', {
+        page_path: view === 'landing' ? '/' : `/${view}`,
+        page_title: document.title,
+      });
+    }
+
     // Auth Session Check
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -173,7 +193,7 @@ const App: React.FC = () => {
 
   if (view === 'loading' || !authReady) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950">
         <div className="w-12 h-12 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin mb-4"></div>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Establishing Secure Uplink...</p>
       </div>
@@ -194,14 +214,14 @@ const App: React.FC = () => {
   const isAuthView = ['login', 'signup-business', 'signup-agency', 'reset-password'].includes(view);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white overflow-x-hidden relative">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 overflow-x-hidden relative">
       {!isAuthView && <SystemStatus />}
       {!isAuthView && (
         <div className="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-emerald-500 to-yellow-400 z-[1000] transition-all duration-300" style={{ width: `${scrollProgress}%` }} />
       )}
       
       {isAuthView && (
-        <div className="fixed inset-0 z-[500] bg-white overflow-y-auto">
+        <div className="fixed inset-0 z-[500] bg-white dark:bg-slate-900 overflow-y-auto">
           {(view === 'login' || view === 'reset-password') && (
             <Login 
               initialMode={view === 'reset-password' ? 'reset' : 'login'}
@@ -228,6 +248,8 @@ const App: React.FC = () => {
           onBlogClick={() => navigate('blog')}
           onAboutClick={() => navigate('about')}
           onScrollToSection={scrollToSection}
+          isDarkMode={isDarkMode}
+          onThemeToggle={() => setIsDarkMode(!isDarkMode)}
         />
       )}
       
@@ -266,10 +288,10 @@ const App: React.FC = () => {
             />
             <Integrations />
             <AboutUs />
-            <section id="ranking-report" className="py-24 bg-slate-50">
+            <section id="ranking-report" className="py-24 bg-slate-50 dark:bg-slate-900/50">
               <div className="container mx-auto px-6 text-center mb-16">
                 <span className="text-[#16A34A] font-black text-[10px] uppercase tracking-widest">Market Intel</span>
-                <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] uppercase italic">Get Your <span className="text-[#16A34A]">Ranking Report</span></h2>
+                <h2 className="text-4xl md:text-6xl font-black text-[#0F172A] dark:text-white uppercase italic">Get Your <span className="text-[#16A34A]">Ranking Report</span></h2>
               </div>
               <div className="container mx-auto px-6">
                 <ProspectingTool onSignup={() => navigate('signup-business')} onHome={() => navigate('landing')} />
@@ -311,7 +333,7 @@ const App: React.FC = () => {
       {/* Scroll to Top */}
       <button 
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className={`fixed bottom-8 right-8 z-[150] w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:bg-[#16A34A] hover:scale-110 active:scale-95 ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
+        className={`fixed bottom-8 right-8 z-[150] w-12 h-12 bg-black dark:bg-[#16A34A] text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7-7"/></svg>
       </button>
@@ -348,16 +370,16 @@ const SystemStatus = () => (
 
 const CookieConsent = ({ onClose, onViewPrivacy }: { onClose: () => void; onViewPrivacy: () => void }) => (
   <div className="fixed bottom-0 inset-x-0 z-[500] p-6 animate-in slide-in-from-bottom-full duration-500">
-     <div className="max-w-4xl mx-auto bg-white rounded-3xl p-6 shadow-[0_-20px_50px_rgba(0,0,0,0.15)] border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+     <div className="max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-[0_-20px_50px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex gap-4">
-           <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl shrink-0">🍪</div>
+           <div className="w-12 h-12 bg-slate-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center text-2xl shrink-0">🍪</div>
            <div>
-              <p className="text-sm font-bold text-slate-900 leading-tight">We value your privacy.</p>
-              <p className="text-xs text-slate-500 mt-1">We use cookies to enhance your experience and optimize our local ranking algorithms. View our <button onClick={onViewPrivacy} className="underline text-[#16A34A] font-bold">Privacy Policy</button>.</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">We value your privacy.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">We use cookies to enhance your experience and optimize our local ranking algorithms. View our <button onClick={onViewPrivacy} className="underline text-[#16A34A] font-bold">Privacy Policy</button>.</p>
            </div>
         </div>
         <div className="flex gap-3 shrink-0">
-           <button onClick={onClose} className="px-8 py-3 bg-black text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#16A34A] transition-all shadow-xl cursor-pointer">Accept All</button>
+           <button onClick={onClose} className="px-8 py-3 bg-black dark:bg-[#16A34A] text-white rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-xl cursor-pointer">Accept All</button>
         </div>
      </div>
   </div>
