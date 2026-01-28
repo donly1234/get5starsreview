@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
 
@@ -41,6 +40,7 @@ const Header: React.FC<HeaderProps> = ({
   }, []);
 
   const navItems = [
+    { name: 'AI Tools', type: 'tools' },
     { name: 'Services', section: 'services' },
     { name: 'About', type: 'about' },
     { name: 'Pricing', section: 'pricing' },
@@ -55,6 +55,8 @@ const Header: React.FC<HeaderProps> = ({
     } else if (item.type === 'blog') {
       onBlogClick();
       window.scrollTo(0,0);
+    } else if (item.type === 'tools') {
+      onToolsClick();
     } else if (item.section && onScrollToSection) {
       onScrollToSection(item.section);
     }
@@ -76,7 +78,11 @@ const Header: React.FC<HeaderProps> = ({
                   <button 
                     key={item.name}
                     onClick={() => handleNav(item)}
-                    className="text-[10px] font-black text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 transition-all uppercase tracking-[0.2em] cursor-pointer px-5 py-3 hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl"
+                    className={`text-[10px] font-black transition-all uppercase tracking-[0.2em] cursor-pointer px-5 py-3 rounded-xl ${
+                      item.type === 'tools' 
+                      ? 'bg-emerald-600 text-white hover:bg-slate-950 shadow-lg shadow-emerald-600/20' 
+                      : 'text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-white/5'
+                    }`}
                   >
                     {item.name}
                   </button>
@@ -149,9 +155,9 @@ const Header: React.FC<HeaderProps> = ({
                  key={item.name} 
                  onClick={() => handleNav(item)} 
                  style={{ transitionDelay: `${idx * 75}ms` }}
-                 className={`text-5xl md:text-7xl font-black uppercase italic text-slate-900 dark:text-white text-left transition-all duration-500 transform ${
+                 className={`text-5xl md:text-7xl font-black uppercase italic text-left transition-all duration-500 transform ${
                    isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
-                 } hover:text-emerald-500 hover:translate-x-4`}
+                 } ${item.type === 'tools' ? 'text-emerald-600' : 'text-slate-900 dark:text-white'} hover:text-emerald-500 hover:translate-x-4`}
                 >
                   {item.name}
                 </button>
