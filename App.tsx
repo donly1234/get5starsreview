@@ -32,12 +32,14 @@ import AppSelector from './components/Auth/AppSelector';
 import GBPAuditTool from './components/GBPAuditTool';
 import HeatmapTool from './components/HeatmapTool';
 import ProspectingTool from './components/Dashboard/Agency/ProspectingTool';
-import VeoVideoGenerator from './components/Dashboard/AI/VeoVideoGenerator';
-import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant';
-import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool';
 import LegalView from './components/LegalView';
 import SocialNudge from './components/SocialNudge';
 import Newsletter from './components/Newsletter';
+
+// AI Suite Components (Explicit paths)
+import VeoVideoGenerator from './components/Dashboard/AI/VeoVideoGenerator.tsx';
+import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant.tsx';
+import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool.tsx';
 
 export type UserType = 'business' | 'agency';
 export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'video-gen' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
@@ -54,7 +56,6 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('g5sr_theme') === 'dark');
 
   useEffect(() => {
-    // Theme logic
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('g5sr_theme', 'dark');
@@ -65,7 +66,6 @@ const App: React.FC = () => {
   }, [isDarkMode]);
 
   useEffect(() => {
-    // Analytics Page Tracking
     if ((window as any).gtag) {
       (window as any).gtag('event', 'page_view', {
         page_path: view === 'landing' ? '/' : `/${view}`,
@@ -73,7 +73,6 @@ const App: React.FC = () => {
       });
     }
 
-    // Auth Session Check
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -98,7 +97,6 @@ const App: React.FC = () => {
 
     checkSession();
 
-    // Intersection Observer for Reveal Animations
     const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -109,14 +107,14 @@ const App: React.FC = () => {
       });
     }, observerOptions);
 
-    const setupAnimations = () => {
-      document.querySelectorAll('section, .reveal-item').forEach(el => {
-        el.classList.add('reveal');
-        observer.observe(el);
-      });
-    };
-
-    if (view === 'landing') setTimeout(setupAnimations, 100);
+    if (view === 'landing') {
+      setTimeout(() => {
+        document.querySelectorAll('section, .reveal-item').forEach(el => {
+          el.classList.add('reveal');
+          observer.observe(el);
+        });
+      }, 100);
+    }
 
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 800);
@@ -195,20 +193,13 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950">
         <div className="w-12 h-12 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Establishing Secure Uplink...</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Synchronizing Protocols...</p>
       </div>
     );
   }
 
   if (user && view === 'dashboard') {
-    return (
-      <Dashboard 
-        onLogout={handleLogout} 
-        userType={userType || 'business'} 
-        user={user} 
-        onUpgradeFlow={() => navigate('signup-business')} 
-      />
-    );
+    return <Dashboard onLogout={handleLogout} userType={userType || 'business'} user={user} onUpgradeFlow={() => navigate('signup-business')} />;
   }
 
   const isAuthView = ['login', 'signup-business', 'signup-agency', 'reset-password'].includes(view);
@@ -216,9 +207,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 overflow-x-hidden relative">
       {!isAuthView && <SystemStatus />}
-      {!isAuthView && (
-        <div className="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-emerald-500 to-yellow-400 z-[1000] transition-all duration-300" style={{ width: `${scrollProgress}%` }} />
-      )}
+      {!isAuthView && <div className="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-emerald-500 to-yellow-400 z-[1000] transition-all duration-300" style={{ width: `${scrollProgress}%` }} />}
       
       {isAuthView && (
         <div className="fixed inset-0 z-[500] bg-white dark:bg-slate-900 overflow-y-auto">
@@ -281,11 +270,7 @@ const App: React.FC = () => {
         
         {view === 'landing' && (
           <div className="overflow-x-hidden">
-            <Hero 
-              onStartBusiness={() => navigate('signup-business')} 
-              onStartAgency={() => navigate('signup-agency')} 
-              onProspectorClick={() => navigate('prospector')} 
-            />
+            <Hero onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} onProspectorClick={() => navigate('prospector')} />
             <Integrations />
             <AboutUs />
             <section id="ranking-report" className="py-24 bg-slate-50 dark:bg-slate-900/50">
@@ -330,22 +315,12 @@ const App: React.FC = () => {
         />
       )}
 
-      {/* Scroll to Top */}
-      <button 
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className={`fixed bottom-8 right-8 z-[150] w-12 h-12 bg-black dark:bg-[#16A34A] text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
-      >
+      <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`fixed bottom-8 right-8 z-[150] w-12 h-12 bg-black dark:bg-[#16A34A] text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}>
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7-7"/></svg>
       </button>
 
       {showCookieConsent && (
-        <CookieConsent 
-          onClose={() => { 
-            localStorage.setItem('g5sr_cookies_accepted', 'true'); 
-            setShowCookieConsent(false); 
-          }} 
-          onViewPrivacy={() => navigate('privacy')}
-        />
+        <CookieConsent onClose={() => { localStorage.setItem('g5sr_cookies_accepted', 'true'); setShowCookieConsent(false); }} onViewPrivacy={() => navigate('privacy')} />
       )}
     </div>
   );
@@ -375,12 +350,10 @@ const CookieConsent = ({ onClose, onViewPrivacy }: { onClose: () => void; onView
            <div className="w-12 h-12 bg-slate-50 dark:bg-slate-700 rounded-2xl flex items-center justify-center text-2xl shrink-0">🍪</div>
            <div>
               <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">We value your privacy.</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">We use cookies to enhance your experience and optimize our local ranking algorithms. View our <button onClick={onViewPrivacy} className="underline text-[#16A34A] font-bold">Privacy Policy</button>.</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">We use cookies to enhance your experience. View our <button onClick={onViewPrivacy} className="underline text-[#16A34A] font-bold">Privacy Policy</button>.</p>
            </div>
         </div>
-        <div className="flex gap-3 shrink-0">
-           <button onClick={onClose} className="px-8 py-3 bg-black dark:bg-[#16A34A] text-white rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-xl cursor-pointer">Accept All</button>
-        </div>
+        <button onClick={onClose} className="px-8 py-3 bg-black dark:bg-[#16A34A] text-white rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-80 transition-all shadow-xl cursor-pointer">Accept All</button>
      </div>
   </div>
 );
