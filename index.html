@@ -9,6 +9,15 @@
     <meta name="keywords" content="Google Maps SEO, Local Search Ranking, Automated Reviews, Get5StarsReview, Google Business Profile Management, AI Reputation Management, Rank #1 Local Search, GBP Optimization">
     <link rel="canonical" href="https://get5starsreview.com/" />
     
+    <!-- Google Analytics (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://get5starsreview.com/">
@@ -26,6 +35,7 @@
     
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
@@ -39,6 +49,7 @@
               'marquee': 'marquee 30s linear infinite',
               'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
               'float': 'float 3s ease-in-out infinite',
+              'spin-slow': 'spin 8s linear infinite',
             },
             keyframes: {
               marquee: {
@@ -67,6 +78,12 @@
             -webkit-font-smoothing: antialiased;
             color: var(--deep-slate);
             overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dark body {
+            background-color: #0F172A;
+            color: #F8FAFC;
         }
 
         ::selection {
@@ -88,6 +105,11 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         .reveal {
             opacity: 0;
             transform: translateY(30px);
@@ -104,6 +126,11 @@
             background: #FFFFFF;
             box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
             transition: all 0.5s ease;
+        }
+
+        .dark .soft-card {
+            background: #1E293B;
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.4);
         }
 
         .soft-card:hover {
@@ -167,7 +194,7 @@
 }
 </script>
 </head>
-<body>
+<body class="light">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
 </body>
