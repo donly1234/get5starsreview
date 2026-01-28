@@ -1,5 +1,10 @@
+
 {
   "name": "Get5StarsReview Landing Page",
   "description": "A high-conversion, professional landing page for a reputation management platform, featuring AI-powered review response generation and modern UI components.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "geolocation",
+    "microphone",
+    "camera"
+  ]
 }
