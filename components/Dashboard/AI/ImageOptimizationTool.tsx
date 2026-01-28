@@ -3,7 +3,6 @@ import { GoogleGenAI } from "@google/genai";
 
 const ImageOptimizationTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
   const [image, setImage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const handleUpload = (e: any) => {
     const file = e.target.files?.[0];
@@ -38,7 +37,7 @@ const ImageOptimizationTool: React.FC<{ onSignup: () => void }> = ({ onSignup })
           </div>
         )}
 
-        <button className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-xl shadow-emerald-500/20 active:scale-95">
+        <button className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-xl active:scale-95">
           Run Visual Cleanup
         </button>
       </div>
