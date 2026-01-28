@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { blogContent } from '../constants/blogContent';
 import { extendedBlogPosts } from './Blog';
@@ -82,7 +81,6 @@ const BlogPostView: React.FC<BlogPostViewProps> = ({ postId, onBack, onSignup })
         </button>
 
         <div className="flex flex-col lg:flex-row gap-12">
-          {/* Main Content */}
           <div className="lg:w-2/3 space-y-12">
             <header className="space-y-6">
               <span className="bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100 inline-block">Intelligence Update</span>
@@ -100,7 +98,6 @@ const BlogPostView: React.FC<BlogPostViewProps> = ({ postId, onBack, onSignup })
 
             <div className="prose prose-emerald max-w-none blog-article-body text-slate-600 font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: postData.content }} />
 
-            {/* Comments */}
             <section className="pt-12 border-t border-slate-100">
               <h3 className="text-2xl font-black text-slate-900 uppercase italic mb-8">Community Discourse</h3>
               <form onSubmit={handlePostComment} className="space-y-4 mb-12">
@@ -129,7 +126,6 @@ const BlogPostView: React.FC<BlogPostViewProps> = ({ postId, onBack, onSignup })
             </section>
           </div>
 
-          {/* Sidebar */}
           <aside className="lg:w-1/3 space-y-12">
             <div className="bg-slate-950 p-8 rounded-[40px] text-white space-y-6 sticky top-32 shadow-2xl">
               <h4 className="text-xl font-black uppercase italic tracking-tighter">Strategic Context</h4>
