@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
-import { logger } from '../utils/logger';
+import { logger } from './logger';
 
 const HeatmapTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
   const [business, setBusiness] = useState("");
