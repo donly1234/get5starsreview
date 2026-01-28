@@ -32,12 +32,15 @@ import AppSelector from './components/Auth/AppSelector';
 import GBPAuditTool from './components/GBPAuditTool';
 import HeatmapTool from './components/HeatmapTool';
 import ProspectingTool from './components/Dashboard/Agency/ProspectingTool';
+import VeoVideoGenerator from './components/Dashboard/AI/VeoVideoGenerator';
+import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant';
+import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool';
 import LegalView from './components/LegalView';
 import SocialNudge from './components/SocialNudge';
 import Newsletter from './components/Newsletter';
 
 export type UserType = 'business' | 'agency';
-export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
+export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'video-gen' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>('loading');
@@ -47,6 +50,7 @@ const App: React.FC = () => {
   const [authReady, setAuthReady] = useState(false);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     // Auth Session Check
@@ -94,7 +98,13 @@ const App: React.FC = () => {
 
     if (view === 'landing') setTimeout(setupAnimations, 100);
 
-    const handleScroll = () => setShowScrollTop(window.scrollY > 800);
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 800);
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      setScrollProgress(scrolled);
+    };
     window.addEventListener('scroll', handleScroll);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -186,6 +196,9 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white overflow-x-hidden relative">
       {!isAuthView && <SystemStatus />}
+      {!isAuthView && (
+        <div className="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-emerald-500 to-yellow-400 z-[1000] transition-all duration-300" style={{ width: `${scrollProgress}%` }} />
+      )}
       
       {isAuthView && (
         <div className="fixed inset-0 z-[500] bg-white overflow-y-auto">
@@ -225,6 +238,9 @@ const App: React.FC = () => {
               if (id === 'gbp-auditor') navigate('auditor');
               else if (id === 'heatmap') navigate('heatmap');
               else if (id === 'prospector') navigate('prospector');
+              else if (id === 'video-ad-gen') navigate('video-gen');
+              else if (id === 'voice-ai') navigate('voice-assistant');
+              else if (id === 'image-optimizer') navigate('image-clean');
               else navigate(user ? 'dashboard' : 'login');
             }} 
             onBack={() => navigate('landing')} 
@@ -234,6 +250,9 @@ const App: React.FC = () => {
         {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
+        {view === 'video-gen' && <div className="pt-20"><VeoVideoGenerator onSignup={() => navigate('signup-business')} /></div>}
+        {view === 'voice-assistant' && <div className="pt-20"><LiveVoiceAssistant onSignup={() => navigate('signup-business')} /></div>}
+        {view === 'image-clean' && <div className="pt-20"><ImageOptimizationTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'prospector' && <div className="pt-20 container mx-auto px-6"><ProspectingTool onSignup={() => navigate('signup-business')} onHome={() => navigate('landing')} /></div>}
         {(view === 'privacy' || view === 'terms') && <LegalView type={view} onBack={() => navigate('landing')} />}
         {view === 'about' && <AboutView onBack={() => navigate('landing')} onStart={() => navigate('signup-business')} />}
@@ -353,15 +372,15 @@ const TrustStack = () => (
            <p className="text-slate-400 font-medium max-w-sm mx-auto md:mx-0 text-sm">Join 2,000+ brands automating their path to Google Maps perfection.</p>
         </div>
         <div className="flex gap-6 md:gap-10">
-           <div className="text-center">
+           <div className="text-center group transition-transform hover:scale-110">
              <p className="text-2xl md:text-4xl font-black text-[#16A34A]">98%</p>
              <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mt-1">Retention</p>
            </div>
-           <div className="text-center">
+           <div className="text-center group transition-transform hover:scale-110">
              <p className="text-2xl md:text-4xl font-black text-[#16A34A]">1.2M</p>
              <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mt-1">Requests</p>
            </div>
-           <div className="text-center">
+           <div className="text-center group transition-transform hover:scale-110">
              <p className="text-2xl md:text-4xl font-black text-[#16A34A]">24/7</p>
              <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase mt-1">AI Logic</p>
            </div>
