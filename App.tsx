@@ -36,9 +36,9 @@ import SocialNudge from './components/SocialNudge';
 import Newsletter from './components/Newsletter';
 
 // AI Suite Components
-import VeoVideoGenerator from './components/Dashboard/AI/VeoVideoGenerator.tsx';
-import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant.tsx';
-import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool.tsx';
+import VeoVideoGenerator from './components/Dashboard/AI/VeoVideoGenerator';
+import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant';
+import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool';
 
 export type UserType = 'business' | 'agency';
 export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'video-gen' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
@@ -49,9 +49,8 @@ const App: React.FC = () => {
   const [userType, setUserType] = useState<UserType | null>(null);
   const [user, setUser] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
-  const [showCookieConsent, setShowCookieConsent] = useState(false);
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('g5sr_theme') === 'dark');
 
   useEffect(() => {
@@ -66,25 +65,31 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUser(session.user);
-        setUserType(session.user.user_metadata?.user_type || 'business');
-        setView('dashboard');
-      } else {
-        const params = new URLSearchParams(window.location.search);
-        const p = params.get('p') as AppView;
-        const id = params.get('id');
-        if (p === 'blog-post' && id) {
-          setSelectedPostId(id);
-          setView('blog-post');
-        } else if (p) {
-          setView(p);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setUser(session.user);
+          setUserType(session.user.user_metadata?.user_type || 'business');
+          setView('dashboard');
         } else {
-          setView('landing');
+          const params = new URLSearchParams(window.location.search);
+          const p = params.get('p') as AppView;
+          const id = params.get('id');
+          if (p === 'blog-post' && id) {
+            setSelectedPostId(id);
+            setView('blog-post');
+          } else if (p && p !== 'loading') {
+            setView(p);
+          } else {
+            setView('landing');
+          }
         }
+      } catch (err) {
+        console.error("Auth check failed", err);
+        setView('landing');
+      } finally {
+        setAuthReady(true);
       }
-      setAuthReady(true);
     };
 
     checkSession();
@@ -153,6 +158,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
         <div className="w-12 h-12 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Protocols...</p>
       </div>
     );
   }
@@ -202,8 +208,8 @@ const App: React.FC = () => {
       
       <main className={`flex-grow ${isAuthView ? 'hidden' : 'block'}`}>
         {view === 'app-selector' && <AppSelector onSelect={setView as any} onBack={() => navigate('landing')} />}
-        {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post' as any); }} />}
-        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog' as any)} onSignup={() => navigate('signup-business')} />}
+        {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} />}
+        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'video-gen' && <div className="pt-20"><VeoVideoGenerator onSignup={() => navigate('signup-business')} /></div>}
@@ -238,7 +244,7 @@ const App: React.FC = () => {
             <VideoTestimonials />
             <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
             <FAQ />
-            <Blog onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post' as any); }} onViewAll={() => navigate('blog')} />
+            <Blog onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} onViewAll={() => navigate('blog')} />
             <ContactUs />
             <Newsletter />
             <SocialNudge />
