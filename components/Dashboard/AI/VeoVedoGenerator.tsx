@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -15,7 +14,8 @@ const VeoVideoGenerator: React.FC<VeoVideoGeneratorProps> = ({ onSignup }) => {
 
   useEffect(() => {
     const checkStatus = async () => {
-      const active = await (window as any).aistudio?.hasSelectedApiKey();
+      // @ts-ignore
+      const active = await window.aistudio?.hasSelectedApiKey();
       setHasKey(!!active);
     };
     checkStatus();
@@ -23,7 +23,8 @@ const VeoVideoGenerator: React.FC<VeoVideoGeneratorProps> = ({ onSignup }) => {
 
   const triggerKeySelection = async () => {
     try {
-      await (window as any).aistudio.openSelectKey();
+      // @ts-ignore
+      await window.aistudio.openSelectKey();
       setHasKey(true);
     } catch (e) {
       console.error(e);
@@ -37,10 +38,10 @@ const VeoVideoGenerator: React.FC<VeoVideoGeneratorProps> = ({ onSignup }) => {
     setStatus("Activating Neural Veo Core...");
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
       let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
-        prompt: `Cinematic 4K promotional commercial for: ${prompt}. Professional lighting, stop-motion aesthetics, high resolution for Google Maps profile.`,
+        prompt: `Cinematic commercial for: ${prompt}. Professional lighting, 4K resolution, high-end production for Google Maps.`,
         config: {
           numberOfVideos: 1,
           resolution: '1080p',
@@ -80,9 +81,9 @@ const VeoVideoGenerator: React.FC<VeoVideoGeneratorProps> = ({ onSignup }) => {
             <div className="relative z-10 space-y-6">
               <span className="text-emerald-500 font-black uppercase tracking-[0.4em] text-[10px]">Secure Authentication Required</span>
               <h2 className="text-4xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">Activate Your <br /><span className="text-emerald-500">Video Generator.</span></h2>
-              <p className="text-slate-400 max-w-xl mx-auto text-lg">1080p cinematic generation requires a linked paid Google Cloud API Key. Connect your project to unlock dedicated GPU compute power.</p>
+              <p className="text-slate-400 max-w-xl mx-auto text-lg">1080p cinematic generation requires a linked paid Google Cloud API Key. Connect your project to unlock dedicated compute power.</p>
               <div className="flex flex-col items-center gap-4 pt-6">
-                 <button onClick={triggerKeySelection} className="bg-emerald-500 text-white px-12 py-6 rounded-[32px] font-black uppercase tracking-widest text-sm shadow-2xl hover:bg-white hover:text-black transition-all">Link API Key</button>
+                 <button onClick={triggerKeySelection} className="bg-emerald-500 text-white px-12 py-6 rounded-[32px] font-black uppercase tracking-widest text-sm shadow-2xl hover:bg-white hover:text-black transition-all cursor-pointer">Link API Key</button>
                  <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" className="text-[10px] text-slate-500 uppercase tracking-widest font-black underline">View Billing Documentation</a>
               </div>
             </div>
@@ -96,7 +97,6 @@ const VeoVideoGenerator: React.FC<VeoVideoGeneratorProps> = ({ onSignup }) => {
                 <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">Veo <span className="text-emerald-600">Cinema Ad</span> Generator.</h1>
                 <p className="text-slate-500 font-bold text-xl leading-relaxed">Turn any business description into a cinematic masterpiece for your Google Profile in seconds.</p>
               </div>
-
               <div className="space-y-6">
                 <textarea 
                   className="w-full p-8 bg-slate-50 border-2 border-slate-100 rounded-[40px] font-bold focus:border-emerald-500 outline-none h-48 shadow-inner"
@@ -107,13 +107,12 @@ const VeoVideoGenerator: React.FC<VeoVideoGeneratorProps> = ({ onSignup }) => {
                 <button 
                   onClick={generateVideo}
                   disabled={loading || !prompt}
-                  className="w-full bg-slate-950 text-white py-6 rounded-[32px] font-black uppercase tracking-widest shadow-2xl hover:bg-emerald-600 transition-all active:scale-[0.98] disabled:opacity-50"
+                  className="w-full bg-slate-950 text-white py-6 rounded-[32px] font-black uppercase tracking-widest shadow-2xl hover:bg-emerald-600 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                 >
                   {loading ? status : 'Generate Video Ad'}
                 </button>
               </div>
             </div>
-
             <div className="aspect-video bg-slate-100 rounded-[64px] border-4 border-dashed border-slate-200 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
               {videoUrl ? (
                 <video src={videoUrl} controls autoPlay loop className="w-full h-full object-cover" />
