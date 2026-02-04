@@ -1,12 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 
-// Core Components
+// Components
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Integrations from './components/Integrations';
 import AboutUs from './components/AboutUs';
-import AboutView from './components/AboutView';
 import InteractiveDemo from './components/InteractiveDemo';
 import ROICalculator from './components/ROICalculator';
 import MapComparison from './components/MapComparison';
@@ -19,22 +19,120 @@ import VideoTestimonials from './components/VideoTestimonials';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
 import Blog from './components/Blog';
-import BlogPage from './components/BlogPage';
-import BlogPostView from './components/BlogPostView';
 import ContactUs from './components/ContactUs';
 import Footer from './components/Footer';
 import Dashboard from './components/Dashboard/Dashboard';
+import Login from './components/Auth/Login';
 import SignUpBusiness from './components/Auth/SignUpBusiness';
 import SignUpAgency from './components/Auth/SignUpAgency';
-import Login from './components/Auth/Login';
-import AppSelector from './components/Auth/AppSelector';
-import GBPAuditTool from './components/GBPAuditTool';
-import HeatmapTool from './components/HeatmapTool';
 import ProspectingTool from './components/Dashboard/Agency/ProspectingTool';
-import LegalView from './components/LegalView';
-import SocialNudge from './components/SocialNudge';
-import Newsletter from './components/Newsletter';
 
+export type UserType = 'business' | 'agency';
+export type AppView = 'loading' | 'landing' | 'login' | 'signup-business' | 'signup-agency' | 'dashboard' | 'prospector';
+
+const App: React.FC = () => {
+  const [view, setView] = useState<AppView>('loading');
+  const [user, setUser] = useState<any>(null);
+  const [userType, setUserType] = useState<UserType | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setUser(session.user);
+          setUserType(session.user.user_metadata?.user_type || 'business');
+          setView('dashboard');
+        } else {
+          setView('landing');
+        }
+      } catch (e) {
+        setView('landing');
+      } finally {
+        setAuthReady(true);
+      }
+    };
+    init();
+  }, []);
+
+  const navigate = (v: AppView) => {
+    setView(v);
+    window.scrollTo(0, 0);
+  };
+
+  if (view === 'loading' || !authReady) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-white">
+        <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (user && view === 'dashboard') {
+    return <Dashboard onLogout={() => { supabase.auth.signOut(); setUser(null); setView('landing'); }} userType={userType || 'business'} user={user} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      {view !== 'login' && view !== 'signup-business' && view !== 'signup-agency' && (
+        <Header 
+          onLogin={() => navigate('login')} 
+          onToolsClick={() => navigate('landing')} 
+          onBusinessSignup={() => navigate('signup-business')} 
+          onAgencySignup={() => navigate('signup-agency')}
+          onHomeClick={() => navigate('landing')}
+          onBlogClick={() => navigate('landing')}
+        />
+      )}
+      
+      <main>
+        {view === 'landing' && (
+          <>
+            <Hero onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} onProspectorClick={() => navigate('prospector')} />
+            <Integrations />
+            <AboutUs />
+            <InteractiveDemo />
+            <ROICalculator onStart={() => navigate('signup-business')} />
+            <MapComparison />
+            <DashboardShowcase />
+            <ComparisonTable onBusinessClick={() => navigate('signup-business')} onAgencyClick={() => navigate('signup-agency')} />
+            <HowItWorks onStart={() => navigate('signup-business')} />
+            <Services onAuditClick={() => navigate('landing')} onSignup={() => navigate('signup-business')} />
+            <Features onSignup={() => navigate('signup-business')} />
+            <VideoTestimonials />
+            <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
+            <FAQ />
+            <Blog onPostClick={() => {}} onViewAll={() => {}} />
+            <ContactUs />
+          </>
+        )}
+
+        {view === 'prospector' && (
+          <div className="pt-32 container mx-auto px-6">
+            <ProspectingTool onSignup={() => navigate('signup-business')} onHome={() => navigate('landing')} />
+          </div>
+        )}
+        
+        {view === 'login' && (
+          <Login onCancel={() => navigate('landing')} onBusinessSignup={() => navigate('signup-business')} onAgencySignup={() => navigate('signup-agency')} onLoginSuccess={() => setView('dashboard')} />
+        )}
+        
+        {view === 'signup-business' && (
+          <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToAgency={() => navigate('signup-agency')} />
+        )}
+        
+        {view === 'signup-agency' && (
+          <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToBusiness={() => navigate('signup-business')} />
+        )}
+      </main>
+
+      {view === 'landing' && <Footer onBlogClick={() => {}} onHomeClick={() => navigate('landing')} />}
+    </div>
+  );
+};
+
+export default App;
 // AI Suite Components (Extensions removed for standard Vite resolution)
 import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant';
 import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool';
