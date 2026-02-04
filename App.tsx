@@ -43,7 +43,6 @@ export type UserType = 'business' | 'agency';
 export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
 
 const App: React.FC = () => {
-  // Initialize to 'landing' by default to prevent "wrong page" issues
   const [view, setView] = useState<AppView>('landing');
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [userType, setUserType] = useState<UserType | null>(null);
@@ -82,7 +81,6 @@ const App: React.FC = () => {
           } else if (p && p !== 'loading' && p !== 'dashboard' && p !== 'landing') {
             setView(p);
           } else {
-            // Default to landing page
             setView('landing');
           }
         }
@@ -109,10 +107,16 @@ const App: React.FC = () => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
+        // Force view to dashboard if we just signed in (important for OAuth)
+        if (event === 'SIGNED_IN') {
+          setView('dashboard');
+        }
       } else {
         setUser(null);
         setUserType(null);
-        if (view === 'dashboard') setView('landing');
+        if (event === 'SIGNED_OUT') {
+          setView('landing');
+        }
       }
     });
 
@@ -222,7 +226,6 @@ const App: React.FC = () => {
         
         {view === 'landing' && (
           <div className="overflow-x-hidden">
-            {/* THIS IS THE TRUE HOME PAGE HERO SECTION */}
             <Hero onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} onProspectorClick={() => navigate('prospector')} />
             
             <Integrations />
