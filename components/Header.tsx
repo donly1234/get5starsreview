@@ -62,6 +62,12 @@ const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  const handleLogoClick = () => {
+    onHomeClick();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <>
       <header className={`fixed top-0 left-0 right-0 transition-all duration-700 z-[200] pointer-events-none ${isScrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}>
@@ -69,7 +75,7 @@ const Header: React.FC<HeaderProps> = ({
           <div className={`glass-panel pointer-events-auto rounded-[24px] md:rounded-[32px] px-4 md:px-8 py-3 md:py-4 flex items-center justify-between transition-all duration-500 ${isScrolled ? 'shadow-2xl border-slate-200 bg-white/95 dark:bg-slate-900/95 dark:border-white/10' : 'border-transparent bg-transparent shadow-none'}`}>
             
             <div className="flex items-center gap-2 md:gap-12">
-              <div className="cursor-pointer hover:scale-105 transition-transform" onClick={() => { onHomeClick(); window.scrollTo(0,0); }}>
+              <div className="cursor-pointer hover:scale-105 transition-transform" onClick={handleLogoClick}>
                  <Logo variant="full" className="scale-[0.55] md:scale-[0.75] origin-left" />
               </div>
               
@@ -91,7 +97,6 @@ const Header: React.FC<HeaderProps> = ({
             </div>
 
             <div className="flex items-center gap-2 md:gap-4">
-              {/* Theme Toggle */}
               <button 
                 onClick={onThemeToggle}
                 className="p-2 md:p-3 bg-slate-100 dark:bg-white/5 rounded-xl hover:bg-slate-200 dark:hover:bg-white/10 transition-all cursor-pointer"
@@ -181,3 +186,4 @@ const Header: React.FC<HeaderProps> = ({
 };
 
 export default Header;
+
