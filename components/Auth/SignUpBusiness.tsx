@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import TrialSuccessScreen from '../Dashboard/Trial/TrialSuccessScreen';
@@ -60,13 +59,11 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
     setSuccessMsg(null);
     
     try {
-      const redirectUrl = window.location.origin;
-
       const { data, error: signupError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: window.location.origin,
           data: {
             full_name: formData.fullName,
             business_name: formData.businessName,
@@ -125,10 +122,16 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
     setLoading(true);
     setError(null);
     try {
+      // Standardize origin for OAuth redirect
+      const redirectTo = window.location.origin.replace(/\/$/, "");
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: redirectTo,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
       if (googleError) throw googleError;
@@ -142,7 +145,7 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
     if (verificationRequired) {
       return (
         <div className="text-center space-y-6 animate-in fade-in zoom-in-95 duration-300 py-8">
-          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-sm animate-pulse">✉️</div>
+          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-sm animate-pulse">âœ‰ï¸</div>
           <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter italic">Check Your Inbox</h2>
           <p className="text-slate-500 font-bold max-w-md mx-auto leading-relaxed">
             Almost there! We've sent a verification link to <br /> <span className="text-slate-900 font-black px-2 py-1 bg-slate-100 rounded">{formData.email}</span>. 
@@ -235,7 +238,7 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
             <div className="space-y-2">
               <label className="block space-y-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</span>
-                <input type="password" value={formData.password} onChange={e => updateForm({password: e.target.value})} className={`w-full p-4 bg-slate-50 border ${fieldErrors.password ? 'border-rose-500' : 'border-slate-200'} rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold`} placeholder="••••••••" />
+                <input type="password" value={formData.password} onChange={e => updateForm({password: e.target.value})} className={`w-full p-4 bg-slate-50 border ${fieldErrors.password ? 'border-rose-500' : 'border-slate-200'} rounded-2xl focus:ring-2 focus:ring-green-500/20 focus:border-green-600 outline-none transition-all font-bold`} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" />
               </label>
               {fieldErrors.password && <p className="text-[9px] font-black text-rose-500 uppercase px-2">{fieldErrors.password}</p>}
             </div>
