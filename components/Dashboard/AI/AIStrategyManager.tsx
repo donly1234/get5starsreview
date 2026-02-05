@@ -10,6 +10,8 @@ interface StrategyTask {
   week: number;
   text: string;
   completed: boolean;
+  priority: 'High' | 'Medium' | 'Low';
+  dueDate: string;
 }
 
 interface Strategy {
@@ -17,7 +19,11 @@ interface Strategy {
   weeks: Array<{
     week: number;
     title: string;
-    tasks: string[];
+    tasks: Array<{
+      text: string;
+      priority: 'High' | 'Medium' | 'Low';
+      dueDate: string;
+    }>;
   }>;
   proTips: string[];
 }
@@ -52,8 +58,12 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
       INSTRUCTIONS:
       1. Analyze the industry nuances.
       2. Provide a cohesive summary of the 30-day objective.
-      3. Breakdown the strategy into 4 distinct weeks with 3-4 specific tasks each.
-      4. Include 3 high-impact 'Pro Tips' that are specific to this industry.
+      3. Breakdown the strategy into 4 distinct weeks. Each week must have 3-4 specific tasks.
+      4. Each task MUST include:
+         - 'text': The description of the task.
+         - 'priority': Level ('High', 'Medium', 'Low').
+         - 'dueDate': A specific day label (e.g., 'Day 2', 'Day 5').
+      5. Include 3 high-impact 'Pro Tips' that are specific to this industry.
       
       The output MUST be a JSON object strictly following the response schema.`;
 
@@ -73,7 +83,18 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
                   properties: {
                     week: { type: Type.NUMBER },
                     title: { type: Type.STRING },
-                    tasks: { type: Type.ARRAY, items: { type: Type.STRING } }
+                    tasks: { 
+                      type: Type.ARRAY, 
+                      items: {
+                        type: Type.OBJECT,
+                        properties: {
+                          text: { type: Type.STRING },
+                          priority: { type: Type.STRING },
+                          dueDate: { type: Type.STRING }
+                        },
+                        required: ["text", "priority", "dueDate"]
+                      }
+                    }
                   },
                   required: ["week", "title", "tasks"]
                 }
@@ -100,10 +121,12 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
     if (!strategy) return;
     
     const flattenedTasks: StrategyTask[] = strategy.weeks.flatMap(w => 
-      w.tasks.map((t, i) => ({
+      w.tasks.map((taskObj, i) => ({
         id: `task-w${w.week}-${i}-${Date.now()}`,
         week: w.week,
-        text: t,
+        text: taskObj.text,
+        priority: taskObj.priority as any,
+        dueDate: taskObj.dueDate,
         completed: false
       }))
     );
@@ -116,7 +139,6 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
     }));
 
     setIsActivated(true);
-    // Notify other components (Dashboard) that strategy is now active
     window.dispatchEvent(new Event('g5sr_strategy_updated'));
     alert("Strategy Activated! Your 30-day roadmap is now live on your Dashboard.");
   };
@@ -143,7 +165,7 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
 
       {!strategy && !loading && (
         <div className="bg-white p-12 rounded-[48px] border-2 border-dashed border-slate-200 flex flex-col items-center text-center space-y-6">
-           <div className="w-24 h-24 bg-slate-50 rounded-[40px] flex items-center justify-center text-5xl">🧠</div>
+           <div className="w-24 h-24 bg-slate-50 rounded-[40px] flex items-center justify-center text-5xl">ðŸ§ </div>
            <div className="space-y-2">
              <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tight">Ready for a roadmap?</h3>
              <p className="text-slate-500 max-w-md mx-auto font-medium">Our AI analyzes your business industry and profile to build a custom schedule for review collection and GBP optimization.</p>
@@ -171,7 +193,7 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
               <p className="text-slate-400 font-medium max-w-sm mx-auto">Gemini is constructing your 30-day growth plan based on 50+ local search ranking factors.</p>
            </div>
            <div className="flex gap-2 text-[10px] font-black text-emerald-400 uppercase tracking-widest animate-pulse">
-              <span>Checking Keywords</span> • <span>Optimizing Velocity</span> • <span>Mapping Competitors</span>
+              <span>Checking Keywords</span> â€¢ <span>Optimizing Velocity</span> â€¢ <span>Mapping Competitors</span>
            </div>
         </div>
       )}
@@ -229,9 +251,21 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
                          </div>
                          <ul className="space-y-4">
                             {w.tasks.map((t, idx) => (
-                              <li key={idx} className="flex gap-3 text-sm font-bold text-slate-600">
-                                 <div className="w-5 h-5 rounded-full border-2 border-slate-200 mt-0.5 shrink-0 group-hover:border-emerald-400 transition-colors" />
-                                 {t}
+                              <li key={idx} className="flex flex-col gap-1">
+                                 <div className="flex gap-3 text-sm font-bold text-slate-600">
+                                    <div className="w-5 h-5 rounded-full border-2 border-slate-200 mt-0.5 shrink-0 group-hover:border-emerald-400 transition-colors" />
+                                    {t.text}
+                                 </div>
+                                 <div className="flex items-center gap-2 pl-8">
+                                    <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${
+                                      t.priority === 'High' ? 'bg-rose-100 text-rose-600' :
+                                      t.priority === 'Medium' ? 'bg-amber-100 text-amber-600' :
+                                      'bg-blue-100 text-blue-600'
+                                    }`}>
+                                      {t.priority}
+                                    </span>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{t.dueDate}</span>
+                                 </div>
                               </li>
                             ))}
                          </ul>
@@ -245,7 +279,7 @@ const AIStrategyManager: React.FC<AIStrategyManagerProps> = ({ profile }) => {
                        {strategy.proTips.map((tip, idx) => (
                          <div key={idx} className="p-5 bg-emerald-50/50 rounded-2xl border border-emerald-100 relative overflow-hidden group">
                             <p className="text-xs font-bold text-emerald-800 relative z-10 leading-relaxed italic">"{tip}"</p>
-                            <div className="absolute bottom-[-10px] right-[-10px] text-5xl opacity-5 group-hover:scale-125 transition-transform">⭐</div>
+                            <div className="absolute bottom-[-10px] right-[-10px] text-5xl opacity-5 group-hover:scale-125 transition-transform">â­</div>
                          </div>
                        ))}
                     </div>
