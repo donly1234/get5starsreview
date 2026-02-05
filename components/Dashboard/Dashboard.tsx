@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { logger } from '../logger';
@@ -20,7 +19,7 @@ import SettingsManager from './Settings/SettingsManager';
 import AIAssistantManager from './AI/AIAssistantManager';
 import AIStrategyManager from './AI/AIStrategyManager';
 import StrategyProgress from './AI/StrategyProgress';
-import AgencyManager from './Agency/AgencyManager';
+import AgencyManager from '../Auth/Agency/AgencyManager';
 import GBPAuditTool from '../GBPAuditTool';
 import HeatmapTool from '../HeatmapTool';
 import BottomNav from './BottomNav';
@@ -46,14 +45,14 @@ const DashboardHeader: React.FC<{
 }> = ({ profile, isTrial, trialDaysLeft, impersonatedClient, onFeatureClick }) => (
   <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
     <div className="flex items-center gap-4">
-      <div className="w-14 h-14 rounded-[24px] bg-white shadow-sm flex items-center justify-center text-3xl border border-slate-100">🏢</div>
+      <div className="w-14 h-14 rounded-[24px] bg-white shadow-sm flex items-center justify-center text-3xl border border-slate-100">ðŸ¢</div>
       <div>
         <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic leading-none">
           {impersonatedClient ? `${impersonatedClient} Portal` : profile?.business_name || profile?.agency_name || 'My Business Hub'}
         </h1>
         <p className="text-slate-500 text-xs font-bold flex items-center gap-2 mt-1 uppercase tracking-widest">
           <span className={`w-2 h-2 rounded-full animate-pulse ${isTrial ? 'bg-[#FACC15]' : 'bg-[#16A34A]'}`}></span>
-          {isTrial ? `Free Trial • ${trialDaysLeft} days left` : 'Professional Enterprise Account'}
+          {isTrial ? `Free Trial â€¢ ${trialDaysLeft} days left` : 'Professional Enterprise Account'}
         </p>
       </div>
     </div>
@@ -241,7 +240,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 space-y-8 scroll-smooth">
           {impersonatedClient && (
             <div className="bg-[#0F172A] text-white px-6 py-2.5 text-center text-[10px] font-black uppercase tracking-[0.3em] rounded-xl border-b-4 border-emerald-500">
-              ACTIVE IMPERSONATION: <span className="text-[#16A34A] underline">{impersonatedClient}</span> • <button onClick={() => setImpersonatedClient(null)} className="ml-4 text-slate-400 hover:text-white uppercase">[ EXIT ]</button>
+              ACTIVE IMPERSONATION: <span className="text-[#16A34A] underline">{impersonatedClient}</span> â€¢ <button onClick={() => setImpersonatedClient(null)} className="ml-4 text-slate-400 hover:text-white uppercase">[ EXIT ]</button>
             </div>
           )}
           
