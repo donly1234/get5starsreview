@@ -40,8 +40,9 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
     setReport(null);
 
     try {
-      // Use the injected API key directly as per guidelines
+      // Initialize AI using environment variable directly
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+      
       const prompt = `Generate a high-authority local SEO and reputation prospect report for: "${query}". 
       1. Use Google Search grounding to find the ACTUAL Google rating and review count.
       2. Identify the top 2 local competitors for their niche in that specific city.
@@ -88,22 +89,26 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
       });
 
       const text = response.text;
-      if (!text) throw new Error("Empty response from intelligence core.");
+      if (!text) throw new Error("Intelligence core returned an empty response.");
       
       try {
         const result = JSON.parse(text);
         setReport(result);
       } catch (jsonErr) {
         console.error("JSON Parse Error:", text);
-        throw new Error("Could not parse ranking data. Please try again with a more specific business name.");
+        throw new Error("Ranking Data Mismatch: Please refine the business name and city to improve accuracy.");
       }
     } catch (e: any) {
       console.error("Prospect Report Error:", e);
-      // More descriptive error messaging for the user
-      const msg = e.message?.includes("fetch") 
-        ? "Network Error: Could not reach the AI core. Please check your internet connection." 
-        : e.message || "Analysis failed. Please include both business name and city.";
-      alert(msg);
+      let errorMsg = "Analysis failed. Please include both business name and city.";
+      
+      if (e.message?.toLowerCase().includes("fetch")) {
+        errorMsg = "Network Error: Unable to reach the Intelligence Core. Please check your internet connection.";
+      } else if (e.message?.toLowerCase().includes("api_key") || e.message?.toLowerCase().includes("unauthorized")) {
+        errorMsg = "API Configuration Error: Access to Gemini Intelligence is currently restricted. Please notify system admin.";
+      }
+      
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -157,7 +162,7 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
 
     } catch (err) {
       console.error('PDF generation failed:', err);
-      alert("PDF generation failed. Using browser print instead.");
+      alert("PDF generation failed. Reverting to standard browser print.");
       window.print();
     } finally {
       setExporting(false);
@@ -196,7 +201,7 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
       document.body.removeChild(link);
     } catch (err) {
       console.error('Image capture failed:', err);
-      alert("Image generation failed. Please use 'Download PDF Report'.");
+      alert("Image capture failed. Please use the 'Download PDF Report' option.");
     } finally {
       setExporting(false);
     }
