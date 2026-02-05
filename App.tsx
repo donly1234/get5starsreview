@@ -13,7 +13,7 @@ import Services from './components/Services';
 import Footer from './components/Footer';
 import Dashboard from './components/Dashboard/Dashboard';
 import SignUpBusiness from './components/Auth/SignUpBusiness';
-import SignUpAgency from './components/Auth/SignUpAgency';
+import SignUpAgency from './components/Auth/Agency/SignUpAgency';
 import Login from './components/Auth/Login';
 import AppSelector from './components/Auth/AppSelector';
 import GBPAuditTool from './components/GBPAuditTool';
@@ -69,7 +69,7 @@ const App: React.FC = () => {
         if (p === 'blog-post' && id) {
           setSelectedPostId(id);
           setView('blog-post');
-        } else if (p && ['auditor', 'heatmap', 'prospector', 'app-selector', 'login', 'about', 'blog'].includes(p)) {
+        } else if (p && ['auditor', 'heatmap', 'prospector', 'app-selector', 'login', 'about', 'blog', 'signup-business', 'signup-agency'].includes(p)) {
           setView(p);
         } else {
           setView('landing');
