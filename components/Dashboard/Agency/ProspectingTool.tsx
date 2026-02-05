@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import * as htmlToImage from 'html-to-image';
@@ -41,10 +40,8 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
     setReport(null);
 
     try {
-      const apiKey = process.env.API_KEY;
-      if (!apiKey) throw new Error("API Key is missing.");
-
-      const ai = new GoogleGenAI({ apiKey });
+      // Use the injected API key directly as per guidelines
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
       const prompt = `Generate a high-authority local SEO and reputation prospect report for: "${query}". 
       1. Use Google Search grounding to find the ACTUAL Google rating and review count.
       2. Identify the top 2 local competitors for their niche in that specific city.
@@ -102,7 +99,11 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
       }
     } catch (e: any) {
       console.error("Prospect Report Error:", e);
-      alert(e.message || "Analysis failed. Please include both business name and city.");
+      // More descriptive error messaging for the user
+      const msg = e.message?.includes("fetch") 
+        ? "Network Error: Could not reach the AI core. Please check your internet connection." 
+        : e.message || "Analysis failed. Please include both business name and city.";
+      alert(msg);
     } finally {
       setLoading(false);
     }
@@ -129,11 +130,6 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
           padding: '40px',
           height: 'auto',
           overflow: 'visible'
-        },
-        filter: (node: any) => {
-          if (node.tagName === 'LINK' && node.href && !node.href.includes(window.location.host)) return false;
-          if (node.classList && node.classList.contains('print-hide')) return false;
-          return true;
         }
       });
 
@@ -144,7 +140,6 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
       });
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = pdfWidth;
       const imgHeight = (fullHeight * pdfWidth) / fullWidth;
 
@@ -152,7 +147,7 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
 
       pdf.setTextColor(22, 163, 74);
       pdf.setFontSize(8);
-      const linkText = "CERTIFIED RANKING REPORT • GET5STARSREVIEW.COM";
+      const linkText = "CERTIFIED RANKING REPORT â€¢ GET5STARSREVIEW.COM";
       const textWidth = pdf.getTextWidth(linkText);
       const xPos = (pdfWidth - textWidth) / 2;
       const yPos = imgHeight - 15;
@@ -272,7 +267,7 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
                   <h3 className="text-[10px] font-black text-[#16A34A] uppercase tracking-[0.3em]">Critical Score</h3>
                   <div className="flex items-center gap-4">
                     <div className="text-5xl font-black text-[#0F172A] leading-none">G {report.rating}</div>
-                    <div className="text-[#FACC15] text-xl">★★★★★</div>
+                    <div className="text-[#FACC15] text-xl">â˜…â˜…â˜…â˜…â˜…</div>
                   </div>
                   <p className="text-[11px] font-bold text-slate-500 leading-relaxed uppercase tracking-tighter">Your business is ranked below market potential.</p>
                </div>
@@ -318,7 +313,7 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
                         </div>
                         <div className="text-right">
                            <span className="bg-[#16A34A] text-white px-3 py-1 rounded-lg text-[10px] font-black shadow-lg shadow-green-500/20">{c.score}/10</span>
-                           <div className="text-[11px] font-black text-[#0F172A] mt-2">★ {c.rating}</div>
+                           <div className="text-[11px] font-black text-[#0F172A] mt-2">â˜… {c.rating}</div>
                         </div>
                       </div>
                     ))}
@@ -364,7 +359,7 @@ const ProspectingTool: React.FC<ProspectingToolProps> = ({ onSignup, onHome }) =
             </div>
             
             <div className="mt-16 text-center text-[9px] font-black text-slate-300 uppercase tracking-[0.5em]">
-              CERTIFIED RANKING REPORT • <button onClick={(e) => { e.preventDefault(); onHome?.(); }} className="hover:text-emerald-600 transition-colors uppercase cursor-pointer">Local Authority Engine</button>
+              CERTIFIED RANKING REPORT â€¢ <button onClick={(e) => { e.preventDefault(); onHome?.(); }} className="hover:text-emerald-600 transition-colors uppercase cursor-pointer">Local Authority Engine</button>
             </div>
           </div>
         </div>
