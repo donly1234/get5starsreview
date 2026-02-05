@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { logger } from './logger';
@@ -13,7 +12,7 @@ const HeatmapTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
     if (!business || !keyword || loading) return;
     setLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
       const prompt = `Simulate a 5x5 ranking heatmap for "${business}" on keyword "${keyword}". 
       Return JSON array of 25 integers (1-20).`;
 
@@ -50,10 +49,10 @@ const HeatmapTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="space-y-12">
             <div className="space-y-6">
-              <span className="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em]">Market Share Visualization</span>
-              <h2 className="text-5xl md:text-8xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Map Pack <br /><span className="text-emerald-600 underline decoration-slate-200 underline-offset-8">Dominance.</span></h2>
+              <span className="bg-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em]">Geo-Spatial Intelligence</span>
+              <h2 className="text-5xl md:text-8xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">RANK #1 ON <br /><span className="text-emerald-600 underline decoration-slate-200 underline-offset-8">GOOGLE MAPS.</span></h2>
               <p className="text-slate-500 text-xl font-bold leading-relaxed max-w-lg">
-                See exactly where your business is winning and where your competitors are stealing your local leads.
+                Visualize exactly where your business owns the market and where you are losing leads to weaker competitors.
               </p>
             </div>
 
@@ -62,14 +61,14 @@ const HeatmapTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
                   <input 
                     type="text" 
                     placeholder="Keyword (e.g. Roof Repair)" 
-                    className="w-full p-5 bg-white border border-slate-200 rounded-3xl font-black text-sm uppercase tracking-widest outline-none focus:border-emerald-500 transition-all"
+                    className="w-full p-5 bg-white border border-slate-200 rounded-3xl font-black text-sm uppercase tracking-widest outline-none focus:border-emerald-500 transition-all shadow-inner"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
                   />
                   <input 
                     type="text" 
                     placeholder="Your Business Name" 
-                    className="w-full p-5 bg-white border border-slate-200 rounded-3xl font-black text-sm uppercase tracking-widest outline-none focus:border-emerald-500 transition-all"
+                    className="w-full p-5 bg-white border border-slate-200 rounded-3xl font-black text-sm uppercase tracking-widest outline-none focus:border-emerald-500 transition-all shadow-inner"
                     value={business}
                     onChange={(e) => setBusiness(e.target.value)}
                   />
@@ -79,19 +78,19 @@ const HeatmapTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
                 disabled={loading || !keyword || !business}
                 className="w-full bg-slate-950 text-white py-6 rounded-[32px] font-black uppercase tracking-widest text-xs shadow-2xl hover:bg-emerald-600 transition-all active:scale-95 disabled:opacity-50 relative z-10"
                >
-                 {loading ? 'Performing Geo-Audit...' : 'Generate Live Heatmap'}
+                 {loading ? 'Analyzing Geo-Authority...' : 'Run Heatmap Audit'}
                </button>
-               <div className="absolute top-[-20px] left-[-20px] w-40 h-40 bg-emerald-500/5 blur-[60px] rounded-full" />
+               <div className="absolute bottom-[-40px] right-[-40px] w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full" />
             </div>
           </div>
 
           <div className="relative">
             {!grid && !loading ? (
               <div className="aspect-square bg-slate-100 rounded-[64px] border-4 border-dashed border-slate-200 flex flex-col items-center justify-center text-center p-12 space-y-6">
-                 <div className="w-24 h-24 bg-white rounded-[40px] flex items-center justify-center text-5xl shadow-2xl">🛰️</div>
+                 <div className="w-24 h-24 bg-white rounded-[40px] flex items-center justify-center text-5xl shadow-2xl">ðŸ“¡</div>
                  <div className="space-y-2">
-                    <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[11px]">Diagnostic Pending</p>
-                    <p className="text-slate-500 text-sm font-medium max-w-xs">Enter your business details to run a spatial ranking analysis across your city.</p>
+                    <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[11px]">Audit Pending</p>
+                    <p className="text-slate-500 text-sm font-medium max-w-xs">Scan your entire city to identify untapped revenue opportunities in local search.</p>
                  </div>
               </div>
             ) : loading ? (
@@ -99,7 +98,7 @@ const HeatmapTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
                  <div className="w-full aspect-square grid grid-cols-5 gap-3 opacity-20 relative z-10">
                     {[...Array(25)].map((_, i) => <div key={i} className="bg-emerald-500 rounded-xl animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />)}
                  </div>
-                 <p className="text-white font-black uppercase tracking-[0.4em] text-xs relative z-10 animate-bounce">Analyzing Geo-Authority...</p>
+                 <p className="text-white font-black uppercase tracking-[0.4em] text-xs relative z-10 animate-bounce">Decoding Rankings...</p>
                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.1),transparent_70%)]" />
               </div>
             ) : (
@@ -129,7 +128,7 @@ const HeatmapTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
                        {[
                          { c: 'bg-emerald-500', l: 'Winning' },
                          { c: 'bg-yellow-400', l: 'At Risk' },
-                         { c: 'bg-rose-500', l: 'Invisible' }
+                         { c: 'bg-rose-500', l: 'Dead Zone' }
                        ].map(leg => (
                          <div key={leg.l} className="flex items-center gap-2">
                             <div className={`w-3 h-3 rounded-full ${leg.c}`} />
