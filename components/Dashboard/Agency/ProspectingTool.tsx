@@ -33,9 +33,9 @@ const ProspectingTool: React.FC<{ onSignup?: () => void; onHome?: () => void }> 
   const generateReport = async () => {
     if (!query || loading) return;
     
-    // Check for API key availability before calling SDK to prevent browser alerts
-    if (!process.env.API_KEY) {
-      setError("AI Analysis Core is currently in maintenance mode. Please try again later.");
+    // Safety check for API key to prevent browser-level crashes or generic errors
+    if (!process.env.API_KEY || process.env.API_KEY === "") {
+      setError("AI Service Hub currently unavailable. Please contact support or try again later.");
       return;
     }
 
@@ -83,10 +83,11 @@ const ProspectingTool: React.FC<{ onSignup?: () => void; onHome?: () => void }> 
         }
       });
 
+      if (!response.text) throw new Error("Empty response from ranking engine");
       setReport(JSON.parse(response.text));
     } catch (e: any) {
-      console.error(e);
-      setError("Ranking Engine Timeout: The server is experiencing high load. Please refine your search query.");
+      console.error("Pitch Generator Error:", e);
+      setError("Ranking Engine Timeout: The server is experiencing high load or your query was too vague. Please refine your business name and city.");
     } finally {
       setLoading(false);
     }
@@ -101,7 +102,7 @@ const ProspectingTool: React.FC<{ onSignup?: () => void; onHome?: () => void }> 
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-3">
+          <div className="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
              <span>âš ï¸</span> {error}
           </div>
         )}
@@ -109,15 +110,15 @@ const ProspectingTool: React.FC<{ onSignup?: () => void; onHome?: () => void }> 
         <div className="flex flex-col md:flex-row gap-4">
           <input 
             type="text" 
-            placeholder="Business Name & City..." 
-            className="flex-1 p-5 bg-slate-50 border-2 border-slate-100 rounded-3xl font-bold focus:border-[#16A34A] outline-none transition-all"
+            placeholder="Enter Business Name & City..." 
+            className="flex-1 p-5 bg-slate-50 border-2 border-slate-100 rounded-3xl font-bold focus:border-[#16A34A] outline-none transition-all shadow-inner"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
           <button 
             onClick={generateReport}
             disabled={loading || !query}
-            className="bg-[#0F172A] text-white px-10 py-5 rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-[#16A34A] transition-all shadow-xl disabled:opacity-50"
+            className="bg-[#0F172A] text-white px-10 py-5 rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-[#16A34A] transition-all shadow-xl disabled:opacity-50 active:scale-95"
           >
             {loading ? 'CRAWLING MARKET...' : 'GENERATE PITCH REPORT'}
           </button>
@@ -137,18 +138,19 @@ const ProspectingTool: React.FC<{ onSignup?: () => void; onHome?: () => void }> 
                   </div>
                </div>
             </div>
-            {/* ... Rest of report content ... */}
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-t pt-12">
-               <div className="bg-rose-50 p-8 rounded-3xl">
-                  <p className="text-rose-600 font-black text-[10px] uppercase mb-2">Visibility Gap</p>
+               <div className="bg-rose-50 p-8 rounded-3xl border border-rose-100">
+                  <p className="text-rose-600 font-black text-[10px] uppercase mb-2 tracking-widest">Visibility Gap</p>
                   <p className="text-4xl font-black text-rose-900">{report.reviewScore}/10 Score</p>
                </div>
-               <div className="bg-slate-50 p-8 rounded-3xl">
-                  <p className="text-slate-400 font-black text-[10px] uppercase mb-2">Monthly Potential</p>
+               <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100">
+                  <p className="text-slate-400 font-black text-[10px] uppercase mb-2 tracking-widest">Monthly Potential</p>
                   <p className="text-4xl font-black text-slate-900">{report.monthlySearches} Leads</p>
                </div>
             </div>
-            <button onClick={onSignup} className="w-full mt-12 bg-[#16A34A] text-white py-6 rounded-3xl font-black uppercase tracking-widest text-sm shadow-xl">Close the Gap Now</button>
+            
+            <button onClick={onSignup} className="w-full mt-12 bg-[#16A34A] text-white py-6 rounded-3xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-black transition-all active:scale-95">Close the Gap Now</button>
           </div>
         </div>
       )}
