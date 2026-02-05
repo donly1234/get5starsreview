@@ -20,6 +20,8 @@ import GBPAuditTool from './components/GBPAuditTool';
 import HeatmapTool from './components/HeatmapTool';
 import ProspectingTool from './components/Dashboard/Agency/ProspectingTool';
 import Newsletter from './components/Newsletter';
+import FAQ from './components/FAQ';
+import VideoTestimonials from './components/VideoTestimonials';
 
 export type UserType = 'business' | 'agency';
 export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'connection-error';
@@ -47,13 +49,8 @@ const App: React.FC = () => {
     setAuthReady(false);
     setView('loading');
     
-    const timeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Connection Timeout")), 10000)
-    );
-
     try {
-      const authPromise = supabase.auth.getSession();
-      const { data: { session } } = await Promise.race([authPromise, timeout]) as any;
+      const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
         setUser(session.user);
@@ -62,14 +59,15 @@ const App: React.FC = () => {
       } else {
         const params = new URLSearchParams(window.location.search);
         const p = params.get('p') as AppView;
-        if (p && p !== 'loading' && p !== 'dashboard' && p !== 'landing') {
+        if (p && ['auditor', 'heatmap', 'prospector', 'app-selector', 'login'].includes(p)) {
           setView(p);
         } else {
           setView('landing');
         }
       }
     } catch (err: any) {
-      setView('connection-error');
+      console.error("Auth init error", err);
+      setView('landing');
     } finally {
       setAuthReady(true);
     }
@@ -105,18 +103,9 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const handleLogout = async () => {
-    setAuthReady(false);
-    await supabase.auth.signOut();
-    setUser(null);
-    setUserType(null);
-    setView('landing');
-    setAuthReady(true);
-  };
-
   const navigate = (newView: AppView) => {
     setView(newView);
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     const url = new URL(window.location.href);
     if (newView === 'landing') url.search = '';
     else url.searchParams.set('p', newView);
@@ -127,20 +116,20 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950">
         <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">GSR Protocol Establishing...</p>
+        <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol Sync...</p>
       </div>
     );
   }
 
   if (user && view === 'dashboard') {
-    return <Dashboard onLogout={handleLogout} userType={userType || 'business'} user={user} onUpgradeFlow={() => navigate('signup-business')} />;
+    return <Dashboard onLogout={() => supabase.auth.signOut()} userType={userType || 'business'} user={user} onUpgradeFlow={() => navigate('signup-business')} />;
   }
 
   const isAuthView = ['login', 'signup-business', 'signup-agency'].includes(view);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 overflow-x-hidden relative">
-      {!isAuthView && <div className="fixed top-0 left-0 h-[3px] bg-[#16A34A] z-[1000] transition-all duration-300" style={{ width: `${scrollProgress}%` }} />}
+    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 overflow-x-hidden relative selection:bg-emerald-200 selection:text-emerald-900">
+      {!isAuthView && <div className="fixed top-0 left-0 h-[4px] bg-[#16A34A] z-[1000] transition-all duration-300" style={{ width: `${scrollProgress}%` }} />}
       
       {isAuthView && (
         <div className="fixed inset-0 z-[500] bg-white dark:bg-slate-950 overflow-y-auto">
@@ -153,7 +142,7 @@ const App: React.FC = () => {
       {!isAuthView && (
         <Header 
           user={user}
-          onLogout={handleLogout}
+          onLogout={() => supabase.auth.signOut()}
           onLogin={() => navigate('login')} 
           onToolsClick={() => navigate('app-selector')}
           onBusinessSignup={() => navigate('signup-business')} 
@@ -166,19 +155,31 @@ const App: React.FC = () => {
       )}
       
       <main className={`flex-grow ${isAuthView ? 'hidden' : 'block'}`}>
-        {view === 'app-selector' && <AppSelector onSelect={navigate as any} onBack={() => navigate('landing')} />}
+        {view === 'app-selector' && <AppSelector onSelect={(id) => {
+          if(id === 'prospector') navigate('prospector');
+          else if(id === 'heatmap') navigate('heatmap');
+          else navigate('signup-business');
+        }} onBack={() => navigate('landing')} />}
+        
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'prospector' && <div className="pt-20 container mx-auto px-6"><ProspectingTool onSignup={() => navigate('signup-business')} onHome={() => navigate('landing')} /></div>}
         
         {view === 'landing' && (
-          <div className="overflow-x-hidden">
-            <Hero onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} onProspectorClick={() => navigate('prospector')} />
+          <div className="animate-in fade-in duration-1000">
+            <Hero 
+              onStartBusiness={() => navigate('signup-business')} 
+              onStartAgency={() => navigate('signup-agency')} 
+              onProspectorClick={() => navigate('prospector')} 
+            />
             
-            <section id="pro-intelligence" className="py-24 bg-slate-50 dark:bg-slate-900/50">
+            <Integrations />
+
+            <section id="pro-intelligence" className="py-24 bg-slate-50 dark:bg-slate-900/50 scroll-mt-20">
               <div className="container mx-auto px-6 text-center mb-16">
-                <span className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">Market Intelligence Suite</span>
-                <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white uppercase italic">Analyze Your <span className="text-emerald-600">Local Visibility.</span></h2>
+                <span className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">Market Intelligence Engine</span>
+                <h2 className="text-4xl md:text-7xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">Analyze Your <span className="text-emerald-600">Local Visibility.</span></h2>
+                <p className="text-slate-500 font-bold mt-4">Generate a real-time Ranking Report to see how you stack up against competitors.</p>
               </div>
               <div className="container mx-auto px-6">
                 <ProspectingTool onSignup={() => navigate('signup-business')} onHome={() => navigate('landing')} />
@@ -187,10 +188,14 @@ const App: React.FC = () => {
 
             <DashboardShowcase />
             <MapComparison />
+            <VideoTestimonials />
             <ROICalculator onStart={() => navigate('signup-business')} />
             <HowItWorks onStart={() => navigate('signup-business')} />
-            <Services onAuditClick={() => navigate('auditor')} onSignup={() => navigate('signup-business')} />
-            <Integrations />
+            <Services 
+              onAuditClick={() => navigate('auditor')} 
+              onSignup={() => navigate('signup-business')} 
+            />
+            <FAQ />
             <Newsletter />
           </div>
         )}
@@ -205,20 +210,20 @@ const App: React.FC = () => {
         />
       )}
 
-      {/* Floating Action Center */}
+      {/* Floating Action Elements */}
       <div className="fixed bottom-8 right-8 z-[200] flex flex-col gap-4">
         <a 
           href="https://wa.me/263776496110" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="w-16 h-16 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all active:scale-95 border-4 border-white"
+          className="w-16 h-16 bg-[#25D366] text-white rounded-2xl flex items-center justify-center shadow-2xl hover:scale-110 transition-all active:scale-95 border-4 border-white group"
           aria-label="WhatsApp Support"
         >
-          <svg className="w-9 h-9" fill="currentColor" viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.7 17.8 69.4 27.2 106.2 27.2 122.4 0 222-99.6 222-222 0-59.3-23-115.1-65-157.1zM223.9 446.3c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3 18.7-68.1-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 54 81.2 54 130.4 0 101.7-82.8 184.5-184.6 184.5zm101.1-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.2-8.5-44.2-27.1-16.4-14.6-27.4-32.7-30.6-38.2-3.2-5.6-.3-8.6 2.5-11.3 2.5-2.5 5.5-6.5 8.3-9.7 2.8-3.3 3.7-5.5 5.5-9.2 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.6 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.5 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+          <svg className="w-8 h-8 group-hover:rotate-12 transition-transform" fill="currentColor" viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.7 17.8 69.4 27.2 106.2 27.2 122.4 0 222-99.6 222-222 0-59.3-23-115.1-65-157.1zM223.9 446.3c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3 18.7-68.1-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 54 81.2 54 130.4 0 101.7-82.8 184.5-184.6 184.5zm101.1-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.2-8.5-44.2-27.1-16.4-14.6-27.4-32.7-30.6-38.2-3.2-5.6-.3-8.6 2.5-11.3 2.5-2.5 5.5-6.5 8.3-9.7 2.8-3.3 3.7-5.5 5.5-9.2 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.6 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.5 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
         </a>
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
-          className={`w-16 h-16 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'} border-4 border-white`}
+          className={`w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 ${showScrollTop ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-20 opacity-0 scale-50 pointer-events-none'} border-4 border-white`}
           aria-label="Scroll to top"
         >
           <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7-7"/></svg>
