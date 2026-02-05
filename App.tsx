@@ -66,13 +66,12 @@ const App: React.FC = () => {
     setAuthReady(false);
     setView('loading');
     
-    // Create a timeout promise to handle DNS/Network hangs
+    // Increased timeout to 10 seconds to handle severe DNS/Network delays
     const timeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Connection Timeout")), 7000)
+      setTimeout(() => reject(new Error("Connection Timeout: Database Unreachable")), 10000)
     );
 
     try {
-      // Race the auth check against the timeout
       const authPromise = supabase.auth.getSession();
       const { data: { session } } = await Promise.race([authPromise, timeout]) as any;
 
@@ -95,8 +94,8 @@ const App: React.FC = () => {
         }
       }
     } catch (err: any) {
-      console.error("Auth check failed:", err);
-      // Show connection error if DNS or Network is failing
+      console.error("Auth initialization failed:", err);
+      // Explicitly catch network/DNS errors
       setView('connection-error');
     } finally {
       setAuthReady(true);
@@ -177,7 +176,7 @@ const App: React.FC = () => {
         <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-[28px] flex items-center justify-center text-4xl mb-8 animate-pulse shadow-inner">ðŸ“¡</div>
         <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter mb-4">Signal Lost.</h1>
         <p className="text-slate-500 dark:text-slate-400 font-bold max-w-md leading-relaxed mb-10">
-          Our core link to the database is experiencing DNS failures (Supabase Infrastructure Issue). We are attempting to reconnect.
+          Our core link to the database is experiencing DNS failures (Supabase Infrastructure Issue). This affects users in specific regions. We are attempting to reconnect.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs">
           <button 
@@ -190,7 +189,7 @@ const App: React.FC = () => {
             href="https://status.supabase.com" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="w-full py-4 bg-white dark:bg-white/5 text-slate-400 rounded-2xl font-black uppercase text-xs tracking-widest border border-slate-200 dark:border-white/10 hover:text-slate-900 dark:hover:text-white transition-all"
+            className="w-full py-4 bg-white dark:bg-white/5 text-slate-400 rounded-2xl font-black uppercase text-xs tracking-widest border border-slate-200 dark:border-white/10 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center"
           >
             Check Provider Status
           </a>
