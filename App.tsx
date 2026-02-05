@@ -5,23 +5,11 @@ import { supabase } from './supabaseClient';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Integrations from './components/Integrations';
-import AboutUs from './components/AboutUs';
-import AboutView from './components/AboutView';
-import InteractiveDemo from './components/InteractiveDemo';
 import ROICalculator from './components/ROICalculator';
 import MapComparison from './components/MapComparison';
 import DashboardShowcase from './components/DashboardShowcase';
 import HowItWorks from './components/HowItWorks';
 import Services from './components/Services';
-import Features from './components/Features';
-import ComparisonTable from './components/ComparisonTable';
-import VideoTestimonials from './components/VideoTestimonials';
-import Pricing from './components/Pricing';
-import FAQ from './components/FAQ';
-import Blog from './components/Blog';
-import BlogPage from './components/BlogPage';
-import BlogPostView from './components/BlogPostView';
-import ContactUs from './components/ContactUs';
 import Footer from './components/Footer';
 import Dashboard from './components/Dashboard/Dashboard';
 import SignUpBusiness from './components/Auth/SignUpBusiness';
@@ -31,20 +19,13 @@ import AppSelector from './components/Auth/AppSelector';
 import GBPAuditTool from './components/GBPAuditTool';
 import HeatmapTool from './components/HeatmapTool';
 import ProspectingTool from './components/Dashboard/Agency/ProspectingTool';
-import LegalView from './components/LegalView';
-import SocialNudge from './components/SocialNudge';
 import Newsletter from './components/Newsletter';
 
-// AI Suite Components
-import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant';
-import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool';
-
 export type UserType = 'business' | 'agency';
-export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password' | 'connection-error';
+export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'connection-error';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>('loading');
-  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [user, setUser] = useState<any>(null);
   const [authReady, setAuthReady] = useState(false);
@@ -66,9 +47,8 @@ const App: React.FC = () => {
     setAuthReady(false);
     setView('loading');
     
-    // Increased timeout to 10 seconds to handle severe DNS/Network delays
     const timeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Connection Timeout: Database Unreachable")), 10000)
+      setTimeout(() => reject(new Error("Connection Timeout")), 10000)
     );
 
     try {
@@ -82,20 +62,13 @@ const App: React.FC = () => {
       } else {
         const params = new URLSearchParams(window.location.search);
         const p = params.get('p') as AppView;
-        const id = params.get('id');
-        
-        if (p === 'blog-post' && id) {
-          setSelectedPostId(id);
-          setView('blog-post');
-        } else if (p && p !== 'loading' && p !== 'dashboard' && p !== 'landing' && p !== 'connection-error') {
+        if (p && p !== 'loading' && p !== 'dashboard' && p !== 'landing') {
           setView(p);
         } else {
           setView('landing');
         }
       }
     } catch (err: any) {
-      console.error("Auth initialization failed:", err);
-      // Explicitly catch network/DNS errors
       setView('connection-error');
     } finally {
       setAuthReady(true);
@@ -118,15 +91,11 @@ const App: React.FC = () => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
-        if (event === 'SIGNED_IN') {
-          setView('dashboard');
-        }
+        if (event === 'SIGNED_IN') setView('dashboard');
       } else {
         setUser(null);
         setUserType(null);
-        if (event === 'SIGNED_OUT') {
-          setView('landing');
-        }
+        if (event === 'SIGNED_OUT') setView('landing');
       }
     });
 
@@ -149,60 +118,16 @@ const App: React.FC = () => {
     setView(newView);
     window.scrollTo({ top: 0, behavior: 'instant' });
     const url = new URL(window.location.href);
-    if (newView === 'landing') {
-      url.search = '';
-    } else {
-      url.searchParams.set('p', newView);
-    }
+    if (newView === 'landing') url.search = '';
+    else url.searchParams.set('p', newView);
     window.history.pushState({}, '', url);
   };
-
-  const scrollToSection = (sectionId: string) => {
-    if (view !== 'landing') {
-      setView('landing');
-      setTimeout(() => {
-        const el = document.getElementById(sectionId);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 150);
-    } else {
-      const el = document.getElementById(sectionId);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  if (view === 'connection-error') {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-[28px] flex items-center justify-center text-4xl mb-8 animate-pulse shadow-inner">ðŸ“¡</div>
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter mb-4">Signal Lost.</h1>
-        <p className="text-slate-500 dark:text-slate-400 font-bold max-w-md leading-relaxed mb-10">
-          Our core link to the database is experiencing DNS failures (Supabase Infrastructure Issue). This affects users in specific regions. We are attempting to reconnect.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs">
-          <button 
-            onClick={() => initApp()} 
-            className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl hover:bg-black transition-all active:scale-95"
-          >
-            Retry Connection
-          </button>
-          <a 
-            href="https://status.supabase.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="w-full py-4 bg-white dark:bg-white/5 text-slate-400 rounded-2xl font-black uppercase text-xs tracking-widest border border-slate-200 dark:border-white/10 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center"
-          >
-            Check Provider Status
-          </a>
-        </div>
-      </div>
-    );
-  }
 
   if (!authReady && view === 'loading') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950">
         <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Establishing GSR Core Link...</p>
+        <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">GSR Protocol Establishing...</p>
       </div>
     );
   }
@@ -211,23 +136,15 @@ const App: React.FC = () => {
     return <Dashboard onLogout={handleLogout} userType={userType || 'business'} user={user} onUpgradeFlow={() => navigate('signup-business')} />;
   }
 
-  const isAuthView = ['login', 'signup-business', 'signup-agency', 'reset-password'].includes(view);
+  const isAuthView = ['login', 'signup-business', 'signup-agency'].includes(view);
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 overflow-x-hidden relative">
-      {!isAuthView && <div className="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-emerald-500 to-yellow-400 z-[1000] transition-all duration-300" style={{ width: `${scrollProgress}%` }} />}
+      {!isAuthView && <div className="fixed top-0 left-0 h-[3px] bg-[#16A34A] z-[1000] transition-all duration-300" style={{ width: `${scrollProgress}%` }} />}
       
       {isAuthView && (
         <div className="fixed inset-0 z-[500] bg-white dark:bg-slate-950 overflow-y-auto">
-          {(view === 'login' || view === 'reset-password') && (
-            <Login 
-              initialMode={view === 'reset-password' ? 'reset' : 'login'}
-              onCancel={() => navigate('landing')} 
-              onBusinessSignup={() => navigate('signup-business')} 
-              onAgencySignup={() => navigate('signup-agency')} 
-              onLoginSuccess={() => setView('dashboard')} 
-            />
-          )}
+          {view === 'login' && <Login onCancel={() => navigate('landing')} onBusinessSignup={() => navigate('signup-business')} onAgencySignup={() => navigate('signup-agency')} onLoginSuccess={() => setView('dashboard')} />}
           {view === 'signup-business' && <SignUpBusiness onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToAgency={() => navigate('signup-agency')} />}
           {view === 'signup-agency' && <SignUpAgency onComplete={() => setView('dashboard')} onCancel={() => navigate('landing')} onSwitchToBusiness={() => navigate('signup-business')} />}
         </div>
@@ -242,82 +159,71 @@ const App: React.FC = () => {
           onBusinessSignup={() => navigate('signup-business')} 
           onAgencySignup={() => navigate('signup-agency')}
           onHomeClick={() => navigate('landing')}
-          onBlogClick={() => navigate('blog')}
-          onAboutClick={() => navigate('about')}
-          onScrollToSection={scrollToSection}
-          isDarkMode={isDarkMode}
+          onBlogClick={() => {}}
           onThemeToggle={() => setIsDarkMode(!isDarkMode)}
+          isDarkMode={isDarkMode}
         />
       )}
       
       <main className={`flex-grow ${isAuthView ? 'hidden' : 'block'}`}>
         {view === 'app-selector' && <AppSelector onSelect={navigate as any} onBack={() => navigate('landing')} />}
-        {view === 'blog' && <BlogPage onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} />}
-        {view === 'blog-post' && selectedPostId && <BlogPostView postId={selectedPostId} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
         {view === 'auditor' && <div className="pt-20"><GBPAuditTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'heatmap' && <div className="pt-20"><HeatmapTool onSignup={() => navigate('signup-business')} /></div>}
-        {view === 'voice-assistant' && <div className="pt-20"><LiveVoiceAssistant onSignup={() => navigate('signup-business')} /></div>}
-        {view === 'image-clean' && <div className="pt-20"><ImageOptimizationTool onSignup={() => navigate('signup-business')} /></div>}
         {view === 'prospector' && <div className="pt-20 container mx-auto px-6"><ProspectingTool onSignup={() => navigate('signup-business')} onHome={() => navigate('landing')} /></div>}
-        {(view === 'privacy' || view === 'terms') && <LegalView type={view} onBack={() => navigate('landing')} />}
-        {view === 'about' && <AboutView onBack={() => navigate('landing')} onStart={() => navigate('signup-business')} />}
         
         {view === 'landing' && (
           <div className="overflow-x-hidden">
             <Hero onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} onProspectorClick={() => navigate('prospector')} />
             
-            <Integrations />
-            <AboutUs />
-            
-            <section id="ranking-report" className="py-24 bg-slate-50 dark:bg-slate-900/50">
+            <section id="pro-intelligence" className="py-24 bg-slate-50 dark:bg-slate-900/50">
               <div className="container mx-auto px-6 text-center mb-16">
-                <span className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">Market Intel</span>
-                <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white uppercase italic">Analyze Your <span className="text-emerald-600">Local Rank</span></h2>
+                <span className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">Market Intelligence Suite</span>
+                <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white uppercase italic">Analyze Your <span className="text-emerald-600">Local Visibility.</span></h2>
               </div>
               <div className="container mx-auto px-6">
                 <ProspectingTool onSignup={() => navigate('signup-business')} onHome={() => navigate('landing')} />
               </div>
             </section>
 
-            <InteractiveDemo />
-            <ROICalculator onStart={() => navigate('signup-business')} />
-            <MapComparison />
             <DashboardShowcase />
-            <ComparisonTable onBusinessClick={() => navigate('signup-business')} onAgencyClick={() => navigate('signup-agency')} />
+            <MapComparison />
+            <ROICalculator onStart={() => navigate('signup-business')} />
             <HowItWorks onStart={() => navigate('signup-business')} />
-            <Services onAuditClick={() => navigate('app-selector')} onSignup={() => navigate('signup-business')} />
-            <Features onSignup={() => navigate('signup-business')} onContact={() => scrollToSection('contact')} />
-            <VideoTestimonials />
-            <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
-            <FAQ />
-            <Blog onPostClick={(id) => { setSelectedPostId(id); navigate('blog-post'); }} onViewAll={() => navigate('blog')} />
-            <ContactUs />
+            <Services onAuditClick={() => navigate('auditor')} onSignup={() => navigate('signup-business')} />
+            <Integrations />
             <Newsletter />
-            <SocialNudge />
           </div>
         )}
       </main>
 
       {!isAuthView && (
         <Footer 
-          onBlogClick={() => navigate('blog')} 
+          onBlogClick={() => {}} 
           onHomeClick={() => navigate('landing')} 
-          onPrivacyClick={() => navigate('privacy')}
-          onTermsClick={() => navigate('terms')}
-          onAboutClick={() => navigate('about')}
-          onScrollToSection={scrollToSection}
           onAgencySignup={() => navigate('signup-agency')}
           onToolsClick={() => navigate('app-selector')}
         />
       )}
 
-      <button 
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
-        className={`fixed bottom-8 right-8 z-[150] w-12 h-12 bg-black text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
-        aria-label="Scroll to top"
-      >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7-7"/></svg>
-      </button>
+      {/* Floating Action Center */}
+      <div className="fixed bottom-8 right-8 z-[200] flex flex-col gap-4">
+        <a 
+          href="https://wa.me/263776496110" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="w-16 h-16 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all active:scale-95 border-4 border-white"
+          aria-label="WhatsApp Support"
+        >
+          <svg className="w-9 h-9" fill="currentColor" viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.7 17.8 69.4 27.2 106.2 27.2 122.4 0 222-99.6 222-222 0-59.3-23-115.1-65-157.1zM223.9 446.3c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3 18.7-68.1-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 54 81.2 54 130.4 0 101.7-82.8 184.5-184.6 184.5zm101.1-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.2-8.5-44.2-27.1-16.4-14.6-27.4-32.7-30.6-38.2-3.2-5.6-.3-8.6 2.5-11.3 2.5-2.5 5.5-6.5 8.3-9.7 2.8-3.3 3.7-5.5 5.5-9.2 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.6 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.5 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+        </a>
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+          className={`w-16 h-16 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'} border-4 border-white`}
+          aria-label="Scroll to top"
+        >
+          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 15l7-7 7-7"/></svg>
+        </button>
+      </div>
     </div>
   );
 };
