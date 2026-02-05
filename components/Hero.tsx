@@ -1,150 +1,84 @@
-
 import React, { useState } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
-import { logger } from './logger';
 
-const HeatmapTool: React.FC<{ onSignup: () => void }> = ({ onSignup }) => {
-  const [business, setBusiness] = useState("");
-  const [keyword, setKeyword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [grid, setGrid] = useState<number[] | null>(null);
+interface HeroProps {
+  onStartBusiness: () => void;
+  onStartAgency: () => void;
+  onProspectorClick?: () => void;
+}
 
-  const generateHeatmap = async () => {
-    if (!business || !keyword || loading) return;
-    setLoading(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Simulate a 5x5 ranking heatmap for "${business}" on keyword "${keyword}". 
-      Return JSON array of 25 integers (1-20).`;
+const Hero: React.FC<HeroProps> = ({ onStartBusiness, onStartAgency, onProspectorClick }) => {
+  const [query, setQuery] = useState("");
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.ARRAY,
-            items: { type: Type.INTEGER }
-          }
-        }
-      });
-
-      setGrid(JSON.parse(response.text));
-    } catch (e) {
-      logger.error("Heatmap tool failed", e);
-      setGrid(Array.from({length: 25}, () => Math.floor(Math.random() * 15) + 1));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getDominance = () => {
-    if (!grid) return 0;
-    const top3 = grid.filter(r => r <= 3).length;
-    return Math.round((top3 / 25) * 100);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onProspectorClick) onProspectorClick();
   };
 
   return (
-    <div className="py-24 bg-white min-h-screen animate-in fade-in duration-700">
-      <div className="container mx-auto px-6 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          <div className="space-y-12">
-            <div className="space-y-6">
-              <span className="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em]">Market Share Visualization</span>
-              <h2 className="text-5xl md:text-8xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Map Pack <br /><span className="text-emerald-600 underline decoration-slate-200 underline-offset-8">Dominance.</span></h2>
-              <p className="text-slate-500 text-xl font-bold leading-relaxed max-w-lg">
-                See exactly where your business is winning and where your competitors are stealing your local leads.
-              </p>
-            </div>
+    <section className="relative pt-32 pb-12 md:pt-48 lg:pt-56 md:pb-24 overflow-hidden bg-white dark:bg-slate-950">
+      {/* Background Subtle Elements */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none opacity-[0.03] dark:opacity-[0.05]">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500 rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500 rounded-full blur-[100px]" />
+      </div>
 
-            <div className="space-y-4 bg-slate-50 p-8 rounded-[48px] border border-slate-200 shadow-sm relative overflow-hidden">
-               <div className="grid grid-cols-1 gap-4 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10 max-w-7xl">
+        <div className="max-w-5xl mx-auto text-center space-y-8 md:space-y-12">
+          
+          <div className="space-y-4 md:space-y-8">
+            <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[110px] font-[900] text-slate-900 dark:text-white leading-[0.85] tracking-tighter uppercase italic animate-in fade-in slide-in-from-bottom-6 duration-1000">
+              RANK #1 ON <br />
+              <span className="text-[#16A34A] drop-shadow-sm">GOOGLE MAPS.</span>
+            </h1>
+            
+            <p className="text-slate-500 dark:text-slate-400 text-base sm:text-xl lg:text-2xl font-bold max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+              Automate your 5-star reputation and steal back <br className="hidden md:block" /> local leads from your competitors on autopilot.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-400 px-4 md:px-0">
+            <form onSubmit={handleSearch} className="bg-white dark:bg-slate-900 p-2 md:p-3 rounded-[24px] md:rounded-[40px] shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-white/10 flex flex-col md:flex-row items-stretch md:items-center gap-3">
+               <div className="flex-1 flex items-center gap-4 px-6 py-4">
+                  <span className="text-2xl md:text-3xl">ðŸ“¡</span>
                   <input 
                     type="text" 
-                    placeholder="Keyword (e.g. Roof Repair)" 
-                    className="w-full p-5 bg-white border border-slate-200 rounded-3xl font-black text-sm uppercase tracking-widest outline-none focus:border-emerald-500 transition-all"
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Your Business Name" 
-                    className="w-full p-5 bg-white border border-slate-200 rounded-3xl font-black text-sm uppercase tracking-widest outline-none focus:border-emerald-500 transition-all"
-                    value={business}
-                    onChange={(e) => setBusiness(e.target.value)}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="ENTER BUSINESS NAME & CITY TO AUDIT" 
+                    className="w-full bg-transparent border-none outline-none font-black text-slate-900 dark:text-white placeholder:text-slate-200 uppercase tracking-widest text-sm md:text-lg"
                   />
                </div>
                <button 
-                onClick={generateHeatmap}
-                disabled={loading || !keyword || !business}
-                className="w-full bg-slate-950 text-white py-6 rounded-[32px] font-black uppercase tracking-widest text-xs shadow-2xl hover:bg-emerald-600 transition-all active:scale-95 disabled:opacity-50 relative z-10"
+                type="submit"
+                className="bg-[#16A34A] text-white px-12 py-5 rounded-[20px] md:rounded-[32px] font-black uppercase tracking-widest text-xs shadow-xl hover:bg-slate-950 transition-all active:scale-95 whitespace-nowrap"
                >
-                 {loading ? 'Performing Geo-Audit...' : 'Generate Live Heatmap'}
+                 AUDIT MY RANKING
                </button>
-               <div className="absolute top-[-20px] left-[-20px] w-40 h-40 bg-emerald-500/5 blur-[60px] rounded-full" />
+            </form>
+            <div className="mt-8 flex flex-wrap justify-center gap-8 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em]">
+               <span className="flex items-center gap-2">REVENUE IMPACT ANALYSIS</span>
+               <span className="flex items-center gap-2">COMPETITOR BENCHMARKING</span>
+               <span className="flex items-center gap-2">AI GROWTH ROADMAP</span>
             </div>
           </div>
 
-          <div className="relative">
-            {!grid && !loading ? (
-              <div className="aspect-square bg-slate-100 rounded-[64px] border-4 border-dashed border-slate-200 flex flex-col items-center justify-center text-center p-12 space-y-6">
-                 <div className="w-24 h-24 bg-white rounded-[40px] flex items-center justify-center text-5xl shadow-2xl">🛰️</div>
-                 <div className="space-y-2">
-                    <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[11px]">Diagnostic Pending</p>
-                    <p className="text-slate-500 text-sm font-medium max-w-xs">Enter your business details to run a spatial ranking analysis across your city.</p>
-                 </div>
-              </div>
-            ) : loading ? (
-              <div className="aspect-square bg-slate-950 rounded-[64px] flex flex-col items-center justify-center p-12 text-center space-y-10 shadow-2xl overflow-hidden relative">
-                 <div className="w-full aspect-square grid grid-cols-5 gap-3 opacity-20 relative z-10">
-                    {[...Array(25)].map((_, i) => <div key={i} className="bg-emerald-500 rounded-xl animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />)}
-                 </div>
-                 <p className="text-white font-black uppercase tracking-[0.4em] text-xs relative z-10 animate-bounce">Analyzing Geo-Authority...</p>
-                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.1),transparent_70%)]" />
-              </div>
-            ) : (
-              <div className="bg-white rounded-[64px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.2)] p-12 border border-slate-100 animate-in zoom-in-95 duration-500 flex flex-col items-center">
-                 <div className="w-full aspect-square grid grid-cols-5 gap-3 mb-12">
-                    {grid?.map((rank, i) => (
-                      <div 
-                        key={i} 
-                        className={`aspect-square rounded-2xl flex items-center justify-center font-black text-white text-base md:text-xl shadow-lg border-2 border-white transition-all hover:scale-110 cursor-help ${
-                          rank <= 3 ? 'bg-emerald-500 shadow-emerald-500/40' : rank <= 10 ? 'bg-yellow-400 shadow-yellow-400/40' : 'bg-rose-500 shadow-rose-500/40'
-                        }`}
-                        title={`Ranking Position: ${rank}`}
-                      >
-                        {rank}
-                      </div>
-                    ))}
-                 </div>
-                 <div className="w-full space-y-8 text-center border-t border-slate-100 pt-10">
-                    <div className="flex justify-between items-center px-4">
-                       <div className="text-left">
-                          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Market Dominance</p>
-                          <p className="text-4xl font-black text-slate-900">{getDominance()}%</p>
-                       </div>
-                       <button onClick={onSignup} className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-black transition-all active:scale-95">Expand Visibility</button>
-                    </div>
-                    <div className="flex justify-center gap-8">
-                       {[
-                         { c: 'bg-emerald-500', l: 'Winning' },
-                         { c: 'bg-yellow-400', l: 'At Risk' },
-                         { c: 'bg-rose-500', l: 'Invisible' }
-                       ].map(leg => (
-                         <div key={leg.l} className="flex items-center gap-2">
-                            <div className={`w-3 h-3 rounded-full ${leg.c}`} />
-                            <span className="text-[10px] font-black uppercase text-slate-400">{leg.l}</span>
-                         </div>
-                       ))}
-                    </div>
-                 </div>
-              </div>
-            )}
+          <div className="pt-12 md:pt-24 flex flex-col items-center gap-4">
+             <div className="bg-slate-50 dark:bg-white/5 px-8 py-4 rounded-full border border-slate-100 dark:border-white/10 flex items-center gap-6 shadow-sm">
+                <div className="flex -space-x-3">
+                  {[1,2,3,4].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 overflow-hidden"><img src={`https://i.pravatar.cc/100?u=${i+10}`} alt="user" /></div>)}
+                </div>
+                <div className="flex flex-col items-start leading-none">
+                  <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white">Rated 4.9/5 Excellence</span>
+                  <div className="flex gap-0.5 mt-1">
+                    {[1,2,3,4,5].map(i => <span key={i} className="text-[#16A34A] text-[10px]">â˜…</span>)}
+                  </div>
+                </div>
+             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
-export default HeatmapTool;
+export default Hero;
