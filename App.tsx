@@ -40,10 +40,10 @@ import LiveVoiceAssistant from './components/Dashboard/AI/LiveVoiceAssistant';
 import ImageOptimizationTool from './components/Dashboard/AI/ImageOptimizationTool';
 
 export type UserType = 'business' | 'agency';
-export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password';
+export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'voice-assistant' | 'image-clean' | 'blog' | 'blog-post' | 'privacy' | 'terms' | 'about' | 'reset-password' | 'connection-error';
 
 const App: React.FC = () => {
-  const [view, setView] = useState<AppView>('landing');
+  const [view, setView] = useState<AppView>('loading');
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [userType, setUserType] = useState<UserType | null>(null);
   const [user, setUser] = useState<any>(null);
@@ -62,36 +62,48 @@ const App: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  useEffect(() => {
-    const initApp = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          setUser(session.user);
-          setUserType(session.user.user_metadata?.user_type || 'business');
-          setView('dashboard');
-        } else {
-          const params = new URLSearchParams(window.location.search);
-          const p = params.get('p') as AppView;
-          const id = params.get('id');
-          
-          if (p === 'blog-post' && id) {
-            setSelectedPostId(id);
-            setView('blog-post');
-          } else if (p && p !== 'loading' && p !== 'dashboard' && p !== 'landing') {
-            setView(p);
-          } else {
-            setView('landing');
-          }
-        }
-      } catch (err) {
-        console.error("Auth check failed:", err);
-        setView('landing'); 
-      } finally {
-        setAuthReady(true);
-      }
-    };
+  const initApp = async () => {
+    setAuthReady(false);
+    setView('loading');
+    
+    // Create a timeout promise to handle DNS/Network hangs
+    const timeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Connection Timeout")), 7000)
+    );
 
+    try {
+      // Race the auth check against the timeout
+      const authPromise = supabase.auth.getSession();
+      const { data: { session } } = await Promise.race([authPromise, timeout]) as any;
+
+      if (session) {
+        setUser(session.user);
+        setUserType(session.user.user_metadata?.user_type || 'business');
+        setView('dashboard');
+      } else {
+        const params = new URLSearchParams(window.location.search);
+        const p = params.get('p') as AppView;
+        const id = params.get('id');
+        
+        if (p === 'blog-post' && id) {
+          setSelectedPostId(id);
+          setView('blog-post');
+        } else if (p && p !== 'loading' && p !== 'dashboard' && p !== 'landing' && p !== 'connection-error') {
+          setView(p);
+        } else {
+          setView('landing');
+        }
+      }
+    } catch (err: any) {
+      console.error("Auth check failed:", err);
+      // Show connection error if DNS or Network is failing
+      setView('connection-error');
+    } finally {
+      setAuthReady(true);
+    }
+  };
+
+  useEffect(() => {
     initApp();
 
     const handleScroll = () => {
@@ -107,7 +119,6 @@ const App: React.FC = () => {
       if (session) {
         setUser(session.user);
         setUserType(session.user.user_metadata?.user_type || 'business');
-        // Force view to dashboard if we just signed in (important for OAuth)
         if (event === 'SIGNED_IN') {
           setView('dashboard');
         }
@@ -160,7 +171,35 @@ const App: React.FC = () => {
     }
   };
 
-  if (!authReady) {
+  if (view === 'connection-error') {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-[28px] flex items-center justify-center text-4xl mb-8 animate-pulse shadow-inner">ðŸ“¡</div>
+        <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter mb-4">Signal Lost.</h1>
+        <p className="text-slate-500 dark:text-slate-400 font-bold max-w-md leading-relaxed mb-10">
+          Our core link to the database is experiencing DNS failures (Supabase Infrastructure Issue). We are attempting to reconnect.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs">
+          <button 
+            onClick={() => initApp()} 
+            className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl hover:bg-black transition-all active:scale-95"
+          >
+            Retry Connection
+          </button>
+          <a 
+            href="https://status.supabase.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="w-full py-4 bg-white dark:bg-white/5 text-slate-400 rounded-2xl font-black uppercase text-xs tracking-widest border border-slate-200 dark:border-white/10 hover:text-slate-900 dark:hover:text-white transition-all"
+          >
+            Check Provider Status
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (!authReady && view === 'loading') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950">
         <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
