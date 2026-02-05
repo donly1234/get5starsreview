@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
-import { supabase } from '../../supabaseClient';
-import PaymentSection from './PaymentSection';
+import { supabase } from '../../../supabaseClient';
+import PaymentSection from '../PaymentSection';
 
 interface SignUpAgencyProps {
   onComplete: () => void;
@@ -136,7 +135,7 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <label className="block space-y-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</span>
-                <input type="password" value={formData.password} onChange={e => updateForm({password: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500/20 font-bold" placeholder="••••••••" />
+                <input type="password" value={formData.password} onChange={e => updateForm({password: e.target.value})} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-green-500/20 font-bold" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" />
               </label>
                <label className="block space-y-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Current Clients</span>
