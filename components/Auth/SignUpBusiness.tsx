@@ -75,7 +75,11 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
       });
 
       if (signupError) {
-        setError(signupError.message);
+        if (signupError.message?.toLowerCase().includes("fetch")) {
+            setError("Database Link Offline: We cannot reach the core server. This is likely due to the ongoing Supabase DNS issue. Please try again in a few minutes.");
+        } else {
+            setError(signupError.message);
+        }
         setLoading(false);
       } else {
         if (!data.session) {
@@ -91,7 +95,12 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
         }
       }
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+      console.error("Signup exception:", err);
+      if (err.message?.toLowerCase().includes("fetch")) {
+        setError("Network Failure: Unable to establish a secure link with the database. Please check your connection or wait for the provider to resolve the DNS issue.");
+      } else {
+        setError(err.message || "An unexpected error occurred.");
+      }
       setLoading(false);
     }
   };
@@ -102,27 +111,31 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
     setError(null);
     setSuccessMsg(null);
     
-    const { error: resendError } = await supabase.auth.resend({
-      type: 'signup',
-      email: formData.email,
-      options: {
-        emailRedirectTo: window.location.origin
-      }
-    });
+    try {
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email: formData.email,
+        options: {
+          emailRedirectTo: window.location.origin
+        }
+      });
 
-    if (resendError) {
-      setError(resendError.message);
-    } else {
-      setSuccessMsg("Verification email sent! Please check your inbox.");
+      if (resendError) {
+        setError(resendError.message);
+      } else {
+        setSuccessMsg("Verification email sent! Please check your inbox.");
+      }
+    } catch (e: any) {
+      setError("Failed to resend verification. System may be under heavy load.");
+    } finally {
+      setResending(false);
     }
-    setResending(false);
   };
 
   const handleGoogleSignup = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Standardize origin for OAuth redirect
       const redirectTo = window.location.origin.replace(/\/$/, "");
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -136,7 +149,11 @@ const SignUpBusiness: React.FC<SignUpBusinessProps> = ({ onComplete, onCancel, o
       });
       if (googleError) throw googleError;
     } catch (err: any) {
-      setError(err.message || "Failed to initialize Google login.");
+      if (err.message?.toLowerCase().includes("fetch")) {
+        setError("Authentication Error: Connection to Google was interrupted. This is likely due to the provider DNS issues shown on the status page.");
+      } else {
+        setError(err.message || "Failed to initialize Google login.");
+      }
       setLoading(false);
     }
   };
