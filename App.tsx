@@ -18,7 +18,7 @@ import Login from './components/Auth/Login';
 import AppSelector from './components/Auth/AppSelector';
 import GBPAuditTool from './components/GBPAuditTool';
 import HeatmapTool from './components/HeatmapTool';
-import ProspectingTool from './components/Dashboard/Agency/ProspectingTool';
+import ProspectingTool from './components/Agency/ProspectingTool';
 import Newsletter from './components/Newsletter';
 import FAQ from './components/FAQ';
 import VideoTestimonials from './components/VideoTestimonials';
