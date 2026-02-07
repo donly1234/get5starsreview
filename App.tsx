@@ -13,7 +13,7 @@ import Services from './components/Services';
 import Footer from './components/Footer';
 import Dashboard from './components/Dashboard/Dashboard';
 import SignUpBusiness from './components/Auth/SignUpBusiness';
-import SignUpAgency from './components/Auth/Agency/SignUpAgency';
+import SignUpAgency from './components/Auth/SignUpAgency';
 import Login from './components/Auth/Login';
 import AppSelector from './components/Auth/AppSelector';
 import GBPAuditTool from './components/GBPAuditTool';
