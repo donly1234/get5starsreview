@@ -19,7 +19,7 @@ import SettingsManager from './Settings/SettingsManager';
 import AIAssistantManager from './AI/AIAssistantManager';
 import AIStrategyManager from './AI/AIStrategyManager';
 import StrategyProgress from './AI/StrategyProgress';
-import AgencyManager from '../Auth/Agency/AgencyManager';
+import AgencyManager from '../Agency/AgencyManager';
 import GBPAuditTool from '../GBPAuditTool';
 import HeatmapTool from '../HeatmapTool';
 import BottomNav from './BottomNav';
