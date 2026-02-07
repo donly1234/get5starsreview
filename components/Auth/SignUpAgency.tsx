@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { supabase } from '../../../supabaseClient';
-import PaymentSection from '../PaymentSection';
+import { supabase } from '../../supabaseClient';
+import PaymentSection from './PaymentSection';
 
 interface SignUpAgencyProps {
   onComplete: () => void;
