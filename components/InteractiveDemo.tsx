@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -57,7 +56,7 @@ const InteractiveDemo: React.FC = () => {
   const tones = ['Professional', 'Friendly', 'Empathetic', 'Witty'];
 
   return (
-    <section className="py-24 bg-slate-50 relative overflow-hidden">
+    <section id="interactive-demo" className="py-24 bg-slate-50 relative overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
           
@@ -80,7 +79,7 @@ const InteractiveDemo: React.FC = () => {
                ].map((item, i) => (
                  <div key={i} className="space-y-1">
                    <h4 className="text-slate-900 font-black text-sm uppercase tracking-tight flex items-center gap-2">
-                     <div className="w-5 h-5 bg-green-600 rounded-lg flex items-center justify-center text-white text-[10px]">✓</div>
+                     <div className="w-5 h-5 bg-green-600 rounded-lg flex items-center justify-center text-white text-[10px]">âœ“</div>
                      {item.title}
                    </h4>
                    <p className="text-slate-400 text-xs font-medium">{item.desc}</p>
@@ -97,7 +96,7 @@ const InteractiveDemo: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <label className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Customer Review</label>
-                    <div className="flex text-yellow-400 text-xs">★★★★☆</div>
+                    <div className="flex text-yellow-400 text-xs">â˜…â˜…â˜…â˜…â˜†</div>
                   </div>
                   <textarea 
                     className="w-full bg-slate-800 border border-slate-700 rounded-3xl p-6 text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500/30 transition-all h-32 resize-none shadow-inner"
