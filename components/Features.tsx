@@ -14,7 +14,7 @@ const Features: React.FC<FeaturesProps> = ({ onSignup, onContact }) => {
           <div className="lg:w-1/2 space-y-6">
             <h3 className="text-4xl font-black text-[#0F172A] tracking-tight">Secure & Approved</h3>
             <p className="text-slate-500 text-lg leading-relaxed font-medium">
-              Get5StarsReview uses 100% white-hat SEO strategies designed to meet Google’s latest guidelines. We protect your business from search engine penalties while delivering sustainable, high-quality results.
+              Get5StarsReview uses 100% white-hat SEO strategies designed to meet Googleâ€™s latest guidelines. We protect your business from search engine penalties while delivering sustainable, high-quality results.
             </p>
             <button onClick={onSignup} className="px-8 py-3 bg-[#16A34A] text-white rounded-xl font-bold hover:bg-[#0F172A] transition-all shadow-lg shadow-[#16A34A]/20 uppercase tracking-widest text-xs">LEARN MORE</button>
           </div>
@@ -23,11 +23,11 @@ const Features: React.FC<FeaturesProps> = ({ onSignup, onContact }) => {
               <div className="absolute inset-0 bg-[#16A34A]/5 blur-3xl rounded-full"></div>
               <div className="relative z-10 space-y-3 w-full max-w-[260px]">
                  <div className="flex items-center gap-3 p-2.5 bg-white rounded-xl shadow-sm border border-slate-100">
-                    <div className="w-8 h-8 rounded-lg bg-[#16A34A] flex items-center justify-center text-white text-lg">🛡️</div>
+                    <div className="w-8 h-8 rounded-lg bg-[#16A34A] flex items-center justify-center text-white text-lg">ðŸ›¡ï¸</div>
                     <p className="text-[10px] font-black uppercase tracking-tight text-[#0F172A]">Google Developer Approved</p>
                  </div>
                  <div className="flex items-center gap-3 p-2.5 bg-white rounded-xl shadow-sm border border-slate-100 translate-x-4">
-                    <div className="w-8 h-8 rounded-lg bg-[#FACC15] flex items-center justify-center text-[#0F172A] text-lg">✓</div>
+                    <div className="w-8 h-8 rounded-lg bg-[#FACC15] flex items-center justify-center text-[#0F172A] text-lg">âœ“</div>
                     <p className="text-[10px] font-black uppercase tracking-tight text-[#0F172A]">CASA Certified Security</p>
                  </div>
               </div>
@@ -83,7 +83,7 @@ const Features: React.FC<FeaturesProps> = ({ onSignup, onContact }) => {
                       <img 
                         src={iconUrl} 
                         alt={brand} 
-                        className="w-full h-full object-contain grayscale hover:grayscale-0 transition-all"
+                        className="w-full h-full object-contain transition-all"
                       />
                     </div>
                   );
