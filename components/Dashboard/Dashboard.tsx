@@ -1,280 +1,144 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../../supabaseClient';
-import { logger } from '../logger';
-import { isFeatureEnabled } from '../featureFlags';
 
-import Sidebar from './Sidebar';
-import TopBar from './TopBar';
-import MetricsBar from './MetricsBar';
-import ReviewFeed from './ReviewFeed';
-import PerformanceGraph from './PerformanceGraph';
-import RequestStatus from './RequestStatus';
-import PlatformBreakdown from './PlatformBreakdown';
-import RequestsManager from './Requests/RequestsManager';
-import MonitoringManager from './Monitoring/MonitoringManager';
-import MediaManager from './Media/MediaManager';
-import WidgetsManager from './Widgets/WidgetsManager';
-import AnalyticsManager from './Analytics/AnalyticsManager';
-import SettingsManager from './Settings/SettingsManager';
-import AIAssistantManager from './AI/AIAssistantManager';
-import AIStrategyManager from './AI/AIStrategyManager';
-import StrategyProgress from './AI/StrategyProgress';
-import AgencyManager from '../Agency/AgencyManager';
-import GBPAuditTool from '../GBPAuditTool';
-import HeatmapTool from '../HeatmapTool';
-import BottomNav from './BottomNav';
-import UpgradeModal from './Trial/UpgradeModal';
-import ExpiredOverlay from './Trial/ExpiredOverlay';
-import TrialChecklist from './Trial/TrialChecklist';
-import NotificationCenter from './Notifications/NotificationCenter';
-import { UserType } from '../../App';
+import React from 'react';
 
-interface DashboardProps {
-  onLogout: () => void;
-  userType: UserType;
-  user: any;
-  onUpgradeFlow?: () => void;
-}
-
-const DashboardHeader: React.FC<{ 
-  profile: any, 
-  isTrial: boolean, 
-  trialDaysLeft: number, 
-  impersonatedClient: string | null,
-  onFeatureClick: (tab: string) => void
-}> = ({ profile, isTrial, trialDaysLeft, impersonatedClient, onFeatureClick }) => (
-  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-    <div className="flex items-center gap-4">
-      <div className="w-14 h-14 rounded-[24px] bg-white shadow-sm flex items-center justify-center text-3xl border border-slate-100">ðŸ¢</div>
-      <div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase italic leading-none">
-          {impersonatedClient ? `${impersonatedClient} Portal` : profile?.business_name || profile?.agency_name || 'My Business Hub'}
-        </h1>
-        <p className="text-slate-500 text-xs font-bold flex items-center gap-2 mt-1 uppercase tracking-widest">
-          <span className={`w-2 h-2 rounded-full animate-pulse ${isTrial ? 'bg-[#FACC15]' : 'bg-[#16A34A]'}`}></span>
-          {isTrial ? `Free Trial â€¢ ${trialDaysLeft} days left` : 'Professional Enterprise Account'}
-        </p>
-      </div>
-    </div>
-    <div className="flex gap-3">
-      <button 
-        onClick={() => onFeatureClick('SEO Auditor')}
-        className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-100 text-slate-900 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:border-emerald-500 hover:text-emerald-600 transition-all shadow-sm"
-      >
-        SEO Audit
-      </button>
-      <button 
-        onClick={() => onFeatureClick('Requests')}
-        className="flex items-center gap-2 px-8 py-3 bg-[#16A34A] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-black transition-all shadow-xl"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4"/></svg>
-        Collect Reviews
-      </button>
-    </div>
-  </div>
-);
-
-const DashboardContentRouter: React.FC<{
-  activeTab: string;
-  isTrial: boolean;
-  userType: UserType;
-  user: any;
-  profile: any;
-  trialDaysLeft: number;
-  impersonatedClient: string | null;
-  onFeatureClick: (tab: string) => void;
-  onUpgradeFlow?: () => void;
-  onShowUpgrade: (feat: string) => void;
-  onSetActiveTab: (tab: string) => void;
-  onSwitchClient: (name: string) => void;
-}> = ({ activeTab, isTrial, userType, user, profile, trialDaysLeft, impersonatedClient, onFeatureClick, onUpgradeFlow, onShowUpgrade, onSetActiveTab, onSwitchClient }) => {
-  
-  switch (activeTab) {
-    case 'Dashboard':
-      return (
-        <>
-          <DashboardHeader 
-            profile={profile} 
-            isTrial={isTrial} 
-            trialDaysLeft={trialDaysLeft} 
-            impersonatedClient={impersonatedClient} 
-            onFeatureClick={onFeatureClick} 
-          />
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            <div className="xl:col-span-2 space-y-8">
-              {isFeatureEnabled('AI_STRATEGY') && <StrategyProgress onLaunchStrategy={() => onSetActiveTab('AI Strategy')} />}
-              {isTrial && <TrialChecklist />}
-              <MetricsBar isTrial={isTrial} profileId={user?.id} />
-              <PerformanceGraph isTrial={isTrial} profileId={user?.id} />
-              <ReviewFeed 
-                isTrial={isTrial} 
-                profileId={user?.id} 
-                onConnectClick={() => onSetActiveTab('Settings')}
-              />
-            </div>
-            <div className="space-y-8">
-              <RequestStatus requestsUsed={0} isTrial={isTrial} onUpgrade={onUpgradeFlow} />
-              <PlatformBreakdown isTrial={isTrial} onUpgrade={() => onSetActiveTab('Settings')} />
-            </div>
-          </div>
-        </>
-      );
-    case 'Requests':
-      return <RequestsManager requestsUsed={0} isTrial={isTrial} onUpgrade={onUpgradeFlow} />;
-    case 'Monitoring':
-    case 'All Reviews':
-      return <MonitoringManager isTrial={isTrial} onShowUpgrade={() => onShowUpgrade('AI Assistant')} />;
-    case 'SEO Auditor':
-      return <GBPAuditTool onSignup={onUpgradeFlow || (() => {})} />;
-    case 'Ranking Heatmap':
-      return isFeatureEnabled('HEATMAP_TOOL') ? <HeatmapTool onSignup={onUpgradeFlow || (() => {})} /> : <div>Feature Disabled</div>;
-    case 'GBP Media':
-      return <MediaManager />;
-    case 'Widgets':
-      return <WidgetsManager />;
-    case 'Analytics':
-      return <AnalyticsManager />;
-    case 'AI Assistant':
-      return <AIAssistantManager />;
-    case 'AI Strategy':
-      return isFeatureEnabled('AI_STRATEGY') ? <AIStrategyManager profile={profile} /> : <div>Feature Disabled</div>;
-    case 'Agency Panel':
-      return <AgencyManager onSwitchClient={onSwitchClient} />;
-    case 'Settings':
-      return <SettingsManager isTrial={isTrial} />;
-    default:
-      return null;
-  }
-};
-
-const Dashboard: React.FC<DashboardProps> = ({ 
-  onLogout, 
-  userType: initialUserType,
-  user,
-  onUpgradeFlow
-}) => {
-  const [userType, setUserType] = useState<UserType>(initialUserType);
-  const [activeTab, setActiveTab] = useState(initialUserType === 'agency' ? 'Agency Panel' : 'Dashboard');
-  const [impersonatedClient, setImpersonatedClient] = useState<string | null>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [trialDaysElapsed, setTrialDaysElapsed] = useState(0);
-  const [showUpgradeModal, setShowUpgradeModal] = useState<string | null>(null);
-  const [showNotifications, setShowNotifications] = useState(false);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) return;
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        
-        if (error) throw error;
-
-        if (data) {
-          setProfile(data);
-          setUserType(data.user_type || initialUserType);
-          const created = new Date(data.created_at || user.created_at);
-          const diffDays = Math.floor((new Date().getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
-          setTrialDaysElapsed(Math.max(0, diffDays));
-        }
-      } catch (e) {
-        logger.error("Failed to load dashboard profile", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, [user, initialUserType]);
-
-  const isTrialAccount = profile?.status !== 'paid';
-  const isExpired = isTrialAccount && trialDaysElapsed >= 14;
-  const trialDaysLeft = Math.max(0, 14 - trialDaysElapsed);
-
-  const handleFeatureClick = (tab: string) => {
-    if (isExpired) {
-      setShowUpgradeModal('Expired');
-      return;
-    }
-    if (userType === 'business' && isTrialAccount) {
-      const proFeatures = ['AI Assistant', 'Analytics', 'GBP Media', 'Ranking Heatmap'];
-      if (proFeatures.includes(tab)) {
-        setShowUpgradeModal(tab);
-        return;
-      }
-    }
-    setActiveTab(tab);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-white flex-col gap-4">
-        <div className="w-12 h-12 border-4 border-[#16A34A] border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Establishing GSR Core Link...</p>
-      </div>
-    );
-  }
+const DashboardShowcase: React.FC = () => {
+  const tools = [
+    { name: 'Dashboard', icon: 'ðŸ ', active: true },
+    { name: 'AI Inbox', icon: 'âœ‰ï¸', active: false },
+    { name: 'SEO Auditor', icon: 'ðŸ›¡ï¸', active: false },
+    { name: 'Heatmaps', icon: 'ðŸ“', active: false },
+    { name: 'Requests', icon: 'ðŸ“±', active: false },
+  ];
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden font-inter select-none">
-      <Sidebar 
-        activeTab={activeTab} 
-        setActiveTab={handleFeatureClick} 
-        onLogout={onLogout} 
-        userType={userType} 
-        isTrial={isTrialAccount}
-        onUpgrade={onUpgradeFlow}
-      />
-      
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <TopBar 
-          activeTab={activeTab} 
-          onToggleNotifications={() => setShowNotifications(!showNotifications)} 
-          onProfileClick={() => setActiveTab('Settings')}
-          profile={profile}
-        />
-        
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 space-y-8 scroll-smooth">
-          {impersonatedClient && (
-            <div className="bg-[#0F172A] text-white px-6 py-2.5 text-center text-[10px] font-black uppercase tracking-[0.3em] rounded-xl border-b-4 border-emerald-500">
-              ACTIVE IMPERSONATION: <span className="text-[#16A34A] underline">{impersonatedClient}</span> â€¢ <button onClick={() => setImpersonatedClient(null)} className="ml-4 text-slate-400 hover:text-white uppercase">[ EXIT ]</button>
+    <section className="py-20 md:py-32 bg-slate-50 dark:bg-slate-900/20 overflow-hidden">
+      <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+        <div className="text-center max-w-4xl mx-auto mb-16 md:mb-24 space-y-6">
+          <span className="text-emerald-600 font-black uppercase tracking-[0.3em] text-[10px] md:text-[11px]">The Command Center</span>
+          <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-900 dark:text-white leading-none uppercase tracking-tighter italic">
+            Your Growth <span className="text-emerald-600">Nerve Center.</span>
+          </h2>
+          <p className="text-slate-500 dark:text-slate-400 text-sm md:text-xl font-bold max-w-2xl mx-auto leading-relaxed">
+            Complexity made simple. Manage your entire local reputation from a single, high-performance dashboard designed for total business clarity.
+          </p>
+        </div>
+
+        <div className="relative max-w-[1200px] mx-auto group">
+          {/* Main Dashboard Mockup Container */}
+          <div className="relative z-10 bg-slate-950 rounded-[32px] md:rounded-[56px] p-1 md:p-6 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden lg:rotate-[-1.5deg] transition-all duration-1000 lg:group-hover:rotate-0 lg:group-hover:scale-[1.02]">
+            {/* Browser Frame Header */}
+            <div className="bg-slate-900 px-4 md:px-8 py-3 md:py-5 flex items-center justify-between border-b border-white/5">
+              <div className="flex gap-1.5 md:gap-2">
+                <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-rose-500/60"></div>
+                <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-amber-500/60"></div>
+                <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-emerald-500/60"></div>
+              </div>
+              <div className="bg-black/40 rounded-full px-3 md:px-5 py-1 md:py-2 text-[8px] md:text-[11px] text-slate-500 font-black uppercase tracking-widest border border-white/5 truncate max-w-[140px] md:max-w-none">
+                dashboard.get5starsreview.com
+              </div>
+              <div className="flex gap-2">
+                 <div className="w-3 md:w-4 h-3 md:h-4 rounded bg-white/5"></div>
+                 <div className="w-3 md:w-4 h-3 md:h-4 rounded bg-white/5"></div>
+              </div>
             </div>
-          )}
-          
-          {isExpired ? (
-            <ExpiredOverlay onUpgrade={onUpgradeFlow || (() => {})} />
-          ) : (
-            <DashboardContentRouter 
-              activeTab={activeTab}
-              isTrial={isTrialAccount}
-              userType={userType}
-              user={user}
-              profile={profile}
-              trialDaysLeft={trialDaysLeft}
-              impersonatedClient={impersonatedClient}
-              onFeatureClick={handleFeatureClick}
-              onUpgradeFlow={onUpgradeFlow}
-              onShowUpgrade={setShowUpgradeModal}
-              onSetActiveTab={setActiveTab}
-              onSwitchClient={(name) => { setImpersonatedClient(name); setActiveTab('Dashboard'); }}
-            />
-          )}
-        </main>
-        <BottomNav activeTab={activeTab} setActiveTab={handleFeatureClick} />
+
+            {/* Dashboard Content Mock */}
+            <div className="bg-[#0B0F1A] aspect-video sm:aspect-[16/9] w-full flex overflow-hidden">
+              {/* Sidebar Mock */}
+              <div className="hidden md:flex w-48 lg:w-64 flex-col border-r border-white/5 p-6 lg:p-8 bg-slate-950/50">
+                 <div className="flex items-center gap-3 mb-8 lg:mb-14">
+                    <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center text-[10px] font-black text-white shadow-[0_0_20px_rgba(16,185,74,0.4)]">G</div>
+                    <span className="text-[10px] lg:text-xs font-black text-white uppercase tracking-widest">G5SR v5.6</span>
+                 </div>
+                 <div className="space-y-1.5">
+                    {tools.map(tool => (
+                      <div key={tool.name} className={`flex items-center gap-3 lg:gap-4 px-4 lg:px-5 py-2.5 rounded-xl text-[9px] lg:text-[11px] font-black uppercase tracking-widest transition-all cursor-pointer ${tool.active ? 'bg-emerald-600 text-white shadow-xl' : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'}`}>
+                        <span className="text-base">{tool.icon}</span>
+                        <span className="hidden lg:inline">{tool.name}</span>
+                      </div>
+                    ))}
+                 </div>
+              </div>
+
+              {/* Main Content Mock */}
+              <div className="flex-1 p-4 sm:p-6 md:p-10 lg:p-14 space-y-4 sm:space-y-6 md:space-y-10 overflow-y-auto scrollbar-hide">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8">
+                   {[
+                     { l: 'Avg Rating', v: '4.9â˜…', c: 'text-emerald-500' },
+                     { l: 'New Reviews', v: '+42', c: 'text-blue-500' },
+                     { l: 'Success Rate', v: '98%', c: 'text-purple-500' }
+                   ].map(stat => (
+                     <div key={stat.l} className="bg-white/5 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 md:p-6 border border-white/5 hover:bg-white/10 transition-colors">
+                        <p className="text-[5px] sm:text-[8px] lg:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{stat.l}</p>
+                        <p className={`text-[10px] sm:text-2xl lg:text-4xl font-black ${stat.c} tracking-tighter leading-none`}>{stat.v}</p>
+                     </div>
+                   ))}
+                </div>
+
+                <div className="bg-white/5 rounded-2xl sm:rounded-3xl md:rounded-[40px] p-4 sm:p-6 lg:p-10 border border-white/5 h-24 sm:h-40 md:h-64 lg:h-80 relative overflow-hidden group/chart">
+                   <div className="flex items-end justify-between h-full gap-1 sm:gap-2 md:gap-3">
+                      {[30, 65, 45, 90, 65, 80, 70, 95, 100, 85, 110, 130, 90, 115, 140].map((h, i) => (
+                        <div 
+                          key={i} 
+                          className="flex-1 bg-gradient-to-t from-emerald-600/60 to-emerald-400/20 rounded-t sm:rounded-t-lg transition-all duration-700 hover:from-emerald-500" 
+                          style={{ height: `${(h/140)*100}%` }}
+                        ></div>
+                      ))}
+                   </div>
+                </div>
+
+                <div className="space-y-3 sm:space-y-4 md:space-y-6">
+                   <h4 className="text-[6px] sm:text-[8px] lg:text-[12px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                     Live Feed
+                   </h4>
+                   {[
+                     { name: 'Sarah M.', text: 'Amazing sourdough!', time: '2m', platform: 'Google' },
+                     { name: 'David L.', text: 'Service was incredible...', time: '1h', platform: 'Yelp' }
+                   ].map((rev, i) => (
+                     <div key={i} className="bg-white/5 rounded-xl sm:rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-6 lg:p-8 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-default">
+                        <div className="flex gap-3 sm:gap-4 lg:gap-6 items-center">
+                           <div className="w-7 h-7 sm:w-10 lg:w-14 sm:h-10 lg:h-14 rounded-lg sm:rounded-2xl bg-white/5 flex items-center justify-center font-black text-slate-400 text-[8px] sm:text-base">{rev.name[0]}</div>
+                           <div>
+                              <p className="text-[8px] sm:text-[11px] lg:text-sm font-black text-white">{rev.name}</p>
+                              <p className="text-[6px] sm:text-[9px] lg:text-xs text-slate-500 font-medium line-clamp-1">{rev.text}</p>
+                           </div>
+                        </div>
+                        <div className="text-right">
+                           <span className="text-[5px] sm:text-[7px] lg:text-[10px] font-black text-slate-600 uppercase block">{rev.time} ago</span>
+                           <span className="text-[5px] sm:text-[6px] lg:text-[9px] font-bold text-blue-500 uppercase mt-0.5">{rev.platform}</span>
+                        </div>
+                     </div>
+                   ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Floating Callouts (Desktop Only) */}
+          <div className="hidden xl:block absolute top-[15%] -right-24 z-20 animate-in slide-in-from-right-16 duration-1000 group-hover:translate-x-4">
+             <div className="bg-white p-8 rounded-[48px] shadow-[0_40px_80px_rgba(0,0,0,0.15)] border border-slate-100 max-w-[340px] space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl">âœ¨</div>
+                  <h4 className="font-black text-slate-900 text-lg uppercase tracking-tight italic">AI Smart Compose</h4>
+                </div>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">Instantly draft human-perfect, keyword-rich replies to every customer review on autopilot.</p>
+             </div>
+          </div>
+
+          <div className="hidden xl:block absolute bottom-[25%] -left-24 z-20 animate-in slide-in-from-left-16 duration-1000 delay-300 group-hover:-translate-x-4">
+             <div className="bg-white p-8 rounded-[48px] shadow-[0_40px_80px_rgba(0,0,0,0.15)] border border-slate-100 max-w-[340px] space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl">ðŸ“</div>
+                  <h4 className="font-black text-slate-900 text-lg uppercase tracking-tight italic">Market Heatmaps</h4>
+                </div>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">Visualize your ranking dominance across the entire city and spot untapped revenue opportunities.</p>
+             </div>
+          </div>
+        </div>
       </div>
-
-      {showUpgradeModal && (
-        <UpgradeModal feature={showUpgradeModal} onClose={() => setShowUpgradeModal(null)} onUpgrade={onUpgradeFlow || (() => {})} />
-      )}
-
-      {showNotifications && (
-        <NotificationCenter onClose={() => setShowNotifications(false)} trialDay={trialDaysElapsed} />
-      )}
-    </div>
+    </section>
   );
 };
 
-export default Dashboard;
+export default DashboardShowcase;
