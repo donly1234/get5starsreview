@@ -32,9 +32,11 @@ import ComparisonTable from './components/ComparisonTable';
 import Pricing from './components/Pricing';
 import Blog from './components/Blog';
 import Testimonials from './components/Testimonials';
+import AIAssistantManager from './components/Dashboard/AI/AIAssistantManager';
+import AIStrategyManager from './components/Dashboard/AI/AIStrategyManager';
 
 export type UserType = 'business' | 'agency';
-export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'about' | 'blog' | 'blog-post' | 'connection-error';
+export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'about' | 'blog' | 'blog-post' | 'connection-error' | 'ai-assistant' | 'ai-strategy';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>('loading');
@@ -80,7 +82,7 @@ const App: React.FC = () => {
         if (p === 'blog-post' && id) {
           setSelectedPostId(id);
           setView('blog-post');
-        } else if (p && ['auditor', 'heatmap', 'prospector', 'app-selector', 'login', 'about', 'blog', 'signup-business', 'signup-agency'].includes(p)) {
+        } else if (p && ['auditor', 'heatmap', 'prospector', 'app-selector', 'login', 'about', 'blog', 'signup-business', 'signup-agency', 'ai-assistant', 'ai-strategy'].includes(p)) {
           setView(p);
         } else {
           setView('landing');
@@ -188,6 +190,7 @@ const App: React.FC = () => {
           if(id === 'prospector') navigate('prospector');
           else if(id === 'heatmap') navigate('heatmap');
           else if(id === 'auditor') navigate('auditor');
+          else if(id === 'voice-ai') navigate('ai-assistant'); // Wired to assistant for testing
           else navigate('signup-business');
         }} onBack={() => navigate('landing')} />}
         
@@ -197,6 +200,8 @@ const App: React.FC = () => {
         {view === 'about' && <AboutView onBack={() => navigate('landing')} onStart={() => navigate('signup-business')} />}
         {view === 'blog' && <BlogPage onPostClick={(id) => navigate('blog-post', id)} />}
         {view === 'blog-post' && <BlogPostView postId={selectedPostId || 'p1'} onBack={() => navigate('blog')} onSignup={() => navigate('signup-business')} />}
+        {view === 'ai-assistant' && <div className="pt-32 container mx-auto px-6"><AIAssistantManager /></div>}
+        {view === 'ai-strategy' && <div className="pt-32 container mx-auto px-6"><AIStrategyManager profile={user} /></div>}
         
         {view === 'landing' && (
           <div className="animate-in fade-in duration-1000">
