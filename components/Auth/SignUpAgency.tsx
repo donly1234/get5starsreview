@@ -65,23 +65,6 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
     }
   };
 
-  const handleGoogleSignup = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { error: googleError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin,
-        }
-      });
-      if (googleError) throw googleError;
-    } catch (err: any) {
-      setError(err.message || "Failed to initialize Google login.");
-      setLoading(false);
-    }
-  };
-
   const renderStep = () => {
     switch(step) {
       case 1:
@@ -93,25 +76,6 @@ const SignUpAgency: React.FC<SignUpAgencyProps> = ({ onComplete, onCancel, onSwi
             </div>
             {error && <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-sm font-bold border border-red-100 mb-4">{error}</div>}
             
-            <button 
-              onClick={handleGoogleSignup}
-              disabled={loading}
-              className="w-full py-4 border-2 border-slate-100 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 mb-6 group cursor-pointer"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-slate-300 border-t-green-600 rounded-full animate-spin"></div>
-              ) : (
-                <img src="https://www.vectorlogo.zone/logos/google/google-icon.svg" className="w-5 h-5 group-hover:scale-110 transition-transform" alt="Google" />
-              )}
-              Sign up with Google
-            </button>
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex-1 h-px bg-slate-100"></div>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Or with email</span>
-              <div className="flex-1 h-px bg-slate-100"></div>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <label className="block space-y-2">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Agency Name</span>
