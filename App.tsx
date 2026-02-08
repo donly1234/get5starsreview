@@ -5,6 +5,7 @@ import { supabase } from './supabaseClient';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Integrations from './components/Integrations';
+import Features from './components/Features';
 import ROICalculator from './components/ROICalculator';
 import MapComparison from './components/MapComparison';
 import DashboardShowcase from './components/DashboardShowcase';
@@ -26,6 +27,11 @@ import AboutView from './components/AboutView';
 import BlogPage from './components/BlogPage';
 import BlogPostView from './components/BlogPostView';
 import SocialNudge from './components/SocialNudge';
+import InteractiveDemo from './components/InteractiveDemo';
+import ComparisonTable from './components/ComparisonTable';
+import Pricing from './components/Pricing';
+import Blog from './components/Blog';
+import Testimonials from './components/Testimonials';
 
 export type UserType = 'business' | 'agency';
 export type AppView = 'loading' | 'landing' | 'signup-business' | 'signup-agency' | 'login' | 'dashboard' | 'app-selector' | 'auditor' | 'heatmap' | 'prospector' | 'about' | 'blog' | 'blog-post' | 'connection-error';
@@ -49,6 +55,11 @@ const App: React.FC = () => {
       localStorage.setItem('g5sr_theme', 'light');
     }
   }, [isDarkMode]);
+
+  const handleScrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const initApp = async () => {
     setAuthReady(false);
@@ -168,6 +179,7 @@ const App: React.FC = () => {
           onAboutClick={() => navigate('about')}
           onThemeToggle={() => setIsDarkMode(!isDarkMode)}
           isDarkMode={isDarkMode}
+          onScrollToSection={handleScrollTo}
         />
       )}
       
@@ -191,10 +203,13 @@ const App: React.FC = () => {
             <Hero 
               onStartBusiness={() => navigate('signup-business')} 
               onStartAgency={() => navigate('signup-agency')} 
-              onProspectorClick={() => navigate('prospector')} 
+              onProspectorClick={() => navigate('prospector')}
+              onDemoClick={() => handleScrollTo('interactive-demo')}
             />
             
             <Integrations />
+
+            <Features />
 
             <section id="pro-intelligence" className="py-24 bg-slate-50 dark:bg-slate-900/50 scroll-mt-20">
               <div className="container mx-auto px-6 text-center mb-16">
@@ -207,16 +222,33 @@ const App: React.FC = () => {
               </div>
             </section>
 
+            <InteractiveDemo />
+            
             <DashboardShowcase />
+            
             <MapComparison />
+
+            <Testimonials />
+            
             <VideoTestimonials />
+            
             <ROICalculator onStart={() => navigate('signup-business')} />
+            
             <HowItWorks onStart={() => navigate('signup-business')} />
+            
             <Services 
               onAuditClick={() => navigate('auditor')} 
               onSignup={() => navigate('signup-business')} 
             />
+
+            <Pricing onStartBusiness={() => navigate('signup-business')} onStartAgency={() => navigate('signup-agency')} />
+
+            <ComparisonTable onBusinessClick={() => navigate('signup-business')} onAgencyClick={() => navigate('signup-agency')} />
+
+            <Blog onPostClick={(id) => navigate('blog-post', id)} onViewAll={() => navigate('blog')} />
+
             <FAQ />
+            
             <Newsletter />
           </div>
         )}
@@ -229,6 +261,7 @@ const App: React.FC = () => {
           onAboutClick={() => navigate('about')}
           onAgencySignup={() => navigate('signup-agency')}
           onToolsClick={() => navigate('app-selector')}
+          onScrollToSection={handleScrollTo}
         />
       )}
 
