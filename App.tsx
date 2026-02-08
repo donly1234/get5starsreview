@@ -21,7 +21,7 @@ import GBPAuditTool from './components/GBPAuditTool';
 import HeatmapTool from './components/HeatmapTool';
 import ProspectingTool from './components/Agency/ProspectingTool';
 import Newsletter from './components/Newsletter';
-import FAQ from './components/Dashboard/FAQ';
+import FAQ from './components/FAQ';
 import VideoTestimonials from './components/VideoTestimonials';
 import AboutView from './components/AboutView';
 import BlogPage from './components/BlogPage';
